@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="TextView">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="TextView.Title">
+        <item name="android:textColor">@color/title_color</item>
+        <item name="android:textSize">@dimen/title_size</item>
+    </style>
+
+    <style name="TextView.Error">
+        <item name="android:textColor">@color/error_color</item>
+        <item name="android:textSize">@dimen/title_size</item>
+    </style>
+</resources>

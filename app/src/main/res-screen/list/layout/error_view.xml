@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/error_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/tv_error"
+        android:text="@string/error_text"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        style="@style/TextView.Error"/>
+
+    <Button
+        android:id="@+id/btn_retry"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_error"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:text="@string/error_btn_label"
+        android:textColor="?colorAccent"
+        style="@style/Widget.AppCompat.Button.Borderless"/>
+</RelativeLayout>

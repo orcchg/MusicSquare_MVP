@@ -1,0 +1,7 @@
+<resources>
+    <string name="str_title_details">Details</string>
+    <string name="str_coefficient">Grade: </string>
+    <string name="str_genres">Genres</string>
+    <string name="str_tracks_count">Tracks count: %s</string>
+    <string name="str_albums_count">Albums count: %s</string>
+</resources>

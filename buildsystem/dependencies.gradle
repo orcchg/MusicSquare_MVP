@@ -1,0 +1,129 @@
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+
+ext {
+    //Android
+    androidMinSdkVersion = 15
+    androidTargetSdkVersion = 24
+    androidCompileSdkVersion = 24
+    androidBuildToolsVersion = "24.0.0"
+    androidSupportLibraryVersion = "24.2.0"
+
+    //Libraries
+    androidAnnotationsVersion = androidSupportLibraryVersion
+    androidDesignVersion = androidSupportLibraryVersion
+    androidSupportVersion = androidSupportLibraryVersion
+    butterKnifeVersion = '8.4.0'
+    cardViewVersion = '24.2.0'
+    circleImageViewVersion = '1.3.0'
+    daggerVersion = '2.6.1'
+    eventbusVersion = '2.4.0'
+    glideVersion = '3.7.0'
+    gsonVersion = '2.4'
+    javaxAnnotationVersion = '1.0'
+    javaxInjectVersion = '1'
+    materialDrawerVersion = '5.5.0@aar'
+    mosbyVersion = '2.0.1'
+    okHttpVersion = '3.4.1'
+    recyclerViewVersion = '24.2.0'
+    retrofitVersion = '2.1.0'
+    rxAndroidVersion = '1.2.1'
+    rxJavaVersion = '1.1.9'
+    smoothProgressbarVersion = '1.1.0'
+    smoothProgressbarCircularVersion = '1.2.0'
+    timberVersion = '4.1.1'
+    vkontakteSdkVersion = '1.6.7'
+
+    //Testing
+    assertJVersion = '1.7.1'
+    dexmakerVersion = '1.0'
+    espressoVersion = '2.2.2'
+    jUnitVersion = '4.12'
+    mockitoVersion = '1.9.5'
+    robolectricVersion = '3.0'
+    testingSupportLibVersion = '0.1'
+
+    //Development
+    leakCanaryVersion = '1.3.1'
+
+    presentationDependencies = [
+            androidDesign:        "com.android.support:design:${androidDesignVersion}",
+            androidSupportV4:     "com.android.support:appcompat-v7:${androidSupportVersion}",
+            androidSupportV7:     "com.android.support:support-v4:${androidSupportVersion}",
+            androidSupportV13:    "com.android.support:support-v13:${androidSupportVersion}",
+            butterKnife:          "com.jakewharton:butterknife:${butterKnifeVersion}",
+            butterKnifeCompiler:  "com.jakewharton:butterknife-compiler:${butterKnifeVersion}",
+            cardView:             "com.android.support:cardview-v7:${cardViewVersion}",
+            circleImageView:      "de.hdodenhof:circleimageview:${circleImageViewVersion}",
+            dagger:               "com.google.dagger:dagger:${daggerVersion}",
+            daggerCompiler:       "com.google.dagger:dagger-compiler:${daggerVersion}",
+            eventbus:             "de.greenrobot:eventbus:${eventbusVersion}",
+            glide:                "com.github.bumptech.glide:glide:${glideVersion}",
+            javaxAnnotation:      "javax.annotation:jsr250-api:${javaxAnnotationVersion}",
+            javaxInject:          "javax.inject:javax.inject:${javaxInjectVersion}",
+            materialDrawer:       "com.mikepenz:materialdrawer:${materialDrawerVersion}",
+            mosby:                "com.hannesdorfmann.mosby:mvp:${mosbyVersion}",
+            mosbyViewState:       "com.hannesdorfmann.mosby:viewstate:${mosbyVersion}",
+            percentLayout:        "com.android.support:percent:${androidSupportVersion}",
+            progressbar:          "com.github.castorflex.smoothprogressbar:library:${smoothProgressbarVersion}",
+            progressbarCircular:  "com.github.castorflex.smoothprogressbar:library-circular:${smoothProgressbarCircularVersion}",
+            recyclerView:         "com.android.support:recyclerview-v7:${recyclerViewVersion}",
+            rxAndroid:            "io.reactivex:rxandroid:${rxAndroidVersion}",
+            rxJava:               "io.reactivex:rxjava:${rxJavaVersion}",
+            timber:               "com.jakewharton.timber:timber:${timberVersion}",
+    ]
+
+    presentationTestDependencies = [
+            dexmaker:             "com.google.dexmaker:dexmaker:${dexmakerVersion}",
+            dexmakerMockito:      "com.google.dexmaker:dexmaker-mockito:${dexmakerVersion}",
+            espresso:             "com.android.support.test.espresso:espresso-core:${espressoVersion}",
+            junit:                "junit:junit:${jUnitVersion}",
+            mockito:              "org.mockito:mockito-core:${mockitoVersion}",
+            testingSupportLib:    "com.android.support.test:testing-support-lib:${testingSupportLibVersion}",
+    ]
+
+    domainDependencies = [
+            javaxAnnotation:      "javax.annotation:jsr250-api:${javaxAnnotationVersion}",
+            javaxInject:          "javax.inject:javax.inject:${javaxInjectVersion}",
+            rxJava:               "io.reactivex:rxjava:${rxJavaVersion}",
+    ]
+
+    domainTestDependencies = [
+            junit:                "junit:junit:${jUnitVersion}",
+            mockito:              "org.mockito:mockito-core:${mockitoVersion}",
+    ]
+
+    dataDependencies = [
+            androidAnnotations:   "com.android.support:support-annotations:${androidAnnotationsVersion}",
+            dagger:               "com.google.dagger:dagger:${daggerVersion}",
+            daggerCompiler:       "com.google.dagger:dagger-compiler:${daggerVersion}",
+            eventbus:             "de.greenrobot:eventbus:${eventbusVersion}",
+            gson:                 "com.google.code.gson:gson:${gsonVersion}",
+            javaxAnnotation:      "javax.annotation:jsr250-api:${javaxAnnotationVersion}",
+            javaxInject:          "javax.inject:javax.inject:${javaxInjectVersion}",
+            okHttp:               "com.squareup.okhttp3:okhttp:${okHttpVersion}",
+            okHttpLogInterceptor: "com.squareup.okhttp3:logging-interceptor:${okHttpVersion}",
+            retrofit:             "com.squareup.retrofit2:retrofit:${retrofitVersion}",
+            retrofitConvertGson:  "com.squareup.retrofit2:converter-gson:${retrofitVersion}",
+            retrofitAdapterRx:    "com.squareup.retrofit2:adapter-rxjava:${retrofitVersion}",
+            rxAndroid:            "io.reactivex:rxandroid:${rxAndroidVersion}",
+            rxJava:               "io.reactivex:rxjava:${rxJavaVersion}",
+            timber:               "com.jakewharton.timber:timber:${timberVersion}",
+            vkontakteSdk:         "com.vk:androidsdk:${vkontakteSdkVersion}",
+    ]
+
+    dataTestDependencies = [
+            assertj:            "org.assertj:assertj-core:${assertJVersion}",
+            espresso:           "com.android.support.test.espresso:espresso-core:${espressoVersion}",
+            junit:              "junit:junit:${jUnitVersion}",
+            mockito:            "org.mockito:mockito-core:${mockitoVersion}",
+            robolectric:        "org.robolectric:robolectric:${robolectricVersion}",
+    ]
+
+    developmentDependencies = [
+            leakCanary:         "com.squareup.leakcanary:leakcanary-android:${leakCanaryVersion}",
+    ]
+}

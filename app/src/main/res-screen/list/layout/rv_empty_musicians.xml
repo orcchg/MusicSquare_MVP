@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/empty_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/tv_empty_data"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/cover_error_size"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:text="@string/empty_data"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        android:textColor="@color/description_color"/>
+</RelativeLayout>
