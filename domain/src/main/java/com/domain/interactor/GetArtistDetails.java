@@ -9,8 +9,8 @@ import javax.inject.Inject;
 
 public class GetArtistDetails extends UseCase<Artist> {
 
-    private final long artistId;
-    private final ArtistRepository artistRepository;
+    final long artistId;
+    final ArtistRepository artistRepository;
 
     /**
      * Constructs an instance of {@link GetArtistDetails} use case.

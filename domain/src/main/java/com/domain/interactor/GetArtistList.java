@@ -14,7 +14,7 @@ import javax.inject.Inject;
  */
 public class GetArtistList extends UseCase<List<Artist>> {
 
-    private final ArtistRepository artistRepository;
+    final ArtistRepository artistRepository;
 
     /**
      * Constructs an instance of {@link GetArtistList} use case.
@@ -28,8 +28,8 @@ public class GetArtistList extends UseCase<List<Artist>> {
      * @param postExecuteScheduler where to observe the result
      */
     @Inject
-    public GetArtistList(ArtistRepository artistRepository, ThreadExecutor threadExecutor,
-                         PostExecuteScheduler postExecuteScheduler) {
+    public GetArtistList(ArtistRepository artistRepository,
+                         ThreadExecutor threadExecutor, PostExecuteScheduler postExecuteScheduler) {
         super(threadExecutor, postExecuteScheduler);
         this.artistRepository = artistRepository;
     }

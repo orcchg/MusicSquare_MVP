@@ -1,8 +1,11 @@
 package com.domain.model;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 public class Artist {
+    private static final String ENCODING = "ISO-8859-1";
+
     private final long id;
     private final String name;
     private String coverSmall;
@@ -26,19 +29,24 @@ public class Artist {
     }
 
     public static class Builder {
-        private final long id;
-        private final String name;
-        private String coverSmall;
-        private String coverLarge;
-        private List<String> genres;
-        private int tracksCount;
-        private int albumsCount;
-        private String description;
-        private String webLink;
+        final long id;
+        String name;
+        String coverSmall;
+        String coverLarge;
+        List<String> genres;
+        int tracksCount;
+        int albumsCount;
+        String description;
+        String webLink;
 
         public Builder(long id, String name) {
             this.id = id;
-            this.name = name;
+            try {
+                byte[] bytes = name.getBytes(ENCODING);
+                this.name = new String(bytes, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                this.name = name;
+            }
         }
 
         public Builder setCoverSmall(String coverSmall) {
@@ -67,7 +75,12 @@ public class Artist {
         }
 
         public Builder setDescription(String description) {
-            this.description = description;
+            try {
+                byte[] bytes = description.getBytes(ENCODING);
+                this.description = new String(bytes, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                this.description = description;
+            }
             return this;
         }
 

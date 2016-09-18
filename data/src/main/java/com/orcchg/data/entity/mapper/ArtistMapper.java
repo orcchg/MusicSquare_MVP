@@ -18,8 +18,8 @@ public class ArtistMapper implements Mapper<ArtistEntity, Artist> {
     @Override
     public Artist map(ArtistEntity object) {
         return new Artist.Builder(object.getId(), object.getName())
-                .setCoverSmall(object.getCovers().get(ArtistEntity.COVER_SMALL))
-                .setCoverLarge(object.getCovers().get(ArtistEntity.COVER_LARGE))
+                .setCoverSmall(object.getCoverSmall())
+                .setCoverLarge(object.getCoverLarge())
                 .setGenres(object.getGenres())
                 .setTracksCount(object.getTracksCount())
                 .setAlbumsCount(object.getAlbumsCount())

@@ -1,6 +1,11 @@
 package com.orcchg.data.source.remote.yandex;
 
+import android.util.LongSparseArray;
+
 import com.orcchg.data.entity.ArtistEntity;
+import com.orcchg.data.entity.SmallArtistEntity;
+import com.orcchg.data.entity.mapper.ArtistEntitySlicer;
+import com.orcchg.data.source.DataSource;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,28 +16,38 @@ import javax.inject.Inject;
 import retrofit2.Retrofit;
 import timber.log.Timber;
 
-public class YandexCloudSource /*implements DataSource*/ {
+public class YandexCloudSource implements DataSource {
 
     private final RestAdapter restAdapter;
+
+    private final LongSparseArray<ArtistEntity> artists;
 
     @Inject
     public YandexCloudSource(Retrofit retrofit) {
         this.restAdapter = retrofit.create(RestAdapter.class);
+        this.artists = new LongSparseArray<>();
     }
 
-    //@Override
-    public List<ArtistEntity> artists() {
+    @Override
+    public List<SmallArtistEntity> artists() {
         try {
             Timber.i("Requesting artists from Yandex cloud...");
-            return this.restAdapter.getArtists("artists.json").execute().body();
+            List<ArtistEntity> models = this.restAdapter.getArtists("artists.json").execute().body();
+            List<SmallArtistEntity> smallModels = new ArrayList<>(models.size());
+            ArtistEntitySlicer mapper = new ArtistEntitySlicer();
+            for (ArtistEntity model : models) {
+                this.artists.put(model.getId(), model);
+                smallModels.add(mapper.map(model));
+            }
+            return smallModels;
         } catch (IOException e) {
             Timber.e("Network error: %s", e);
         }
         return new ArrayList<>();
     }
 
-    //@Override
+    @Override
     public ArtistEntity artist(long artistId) {
-        return null;
+        return this.artists.get(artistId);
     }
 }

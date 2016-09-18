@@ -12,6 +12,7 @@ import com.orcchg.data.source.local.FileManager;
 import com.orcchg.data.source.local.LocalSource;
 import com.orcchg.data.source.remote.server.ServerArtistRepositoryImpl;
 import com.orcchg.data.source.remote.server.ServerCloudSource;
+import com.orcchg.data.source.remote.yandex.YandexCloudSource;
 import com.orcchg.musicsquare.AndroidApplication;
 import com.orcchg.musicsquare.executor.UIThread;
 
@@ -51,12 +52,12 @@ public class ApplicationModule {
         return uiThread;
     }
 
-//    @Provides
-//    @Singleton
-//    @Named("yandexCloud")
-//    DataSource provideYandexDataSource(YandexCloudSource dataSource) {
-//        return dataSource;
-//    }
+    @Provides
+    @Singleton
+    @Named("yandexCloud")
+    DataSource provideYandexDataSource(YandexCloudSource dataSource) {
+        return dataSource;
+    }
 
     @Provides
     @Singleton
