@@ -1,11 +1,11 @@
-package com.orcchg.data.source.remote.server;
+package com.orcchg.data.source.remote.artist.server;
 
 import android.support.annotation.Nullable;
 
 import com.orcchg.data.entity.ArtistEntity;
 import com.orcchg.data.entity.SmallArtistEntity;
 import com.orcchg.data.exception.NetworkException;
-import com.orcchg.data.source.DataSource;
+import com.orcchg.data.source.remote.artist.DataSource;
 
 import java.io.IOException;
 import java.util.List;

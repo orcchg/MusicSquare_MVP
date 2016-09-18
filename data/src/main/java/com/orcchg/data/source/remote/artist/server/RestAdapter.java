@@ -1,4 +1,4 @@
-package com.orcchg.data.source.remote.server;
+package com.orcchg.data.source.remote.artist.server;
 
 import com.orcchg.data.entity.ArtistEntity;
 import com.orcchg.data.entity.SmallArtistEntity;

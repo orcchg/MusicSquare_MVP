@@ -1,4 +1,4 @@
-package com.orcchg.data.source;
+package com.orcchg.data.source.remote.artist;
 
 import android.support.annotation.Nullable;
 

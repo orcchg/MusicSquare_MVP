@@ -1,11 +1,11 @@
-package com.orcchg.data.source.remote.yandex;
+package com.orcchg.data.source.remote.artist.yandex;
 
 import android.util.LongSparseArray;
 
 import com.orcchg.data.entity.ArtistEntity;
 import com.orcchg.data.entity.SmallArtistEntity;
 import com.orcchg.data.entity.mapper.ArtistEntitySlicer;
-import com.orcchg.data.source.DataSource;
+import com.orcchg.data.source.remote.artist.DataSource;
 
 import java.io.IOException;
 import java.util.ArrayList;

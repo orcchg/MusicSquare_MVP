@@ -1,4 +1,4 @@
-package com.orcchg.data.source.local;
+package com.orcchg.data.source.local.artist;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import com.orcchg.data.entity.ArtistEntity;
 import com.orcchg.data.entity.SmallArtistEntity;
 import com.orcchg.data.entity.util.ArtistUtils;
+import com.orcchg.data.source.local.FileManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,10 +23,10 @@ import timber.log.Timber;
  */
 public class DatabaseSourceImpl extends SQLiteOpenHelper implements LocalSource {
 
-    private static final int DATABASE_VERSION = 2;
-    private static final String DATABASE_NAME = "com_orcchg_musicsquare_ArtistsDatabase.db";
+    private static final int DATABASE_VERSION = 1;
+    private static final String DATABASE_NAME = "ArtistsDatabase.db";
 
-    private static final String SETTINGS_FILE_NAME = "com_orcchg_musicsquare_ArtistsSettings";
+    private static final String SETTINGS_FILE_NAME = "ArtistsSettings";
     private static final String SETTINGS_KEY_LAST_CACHE_UPDATE = "last_cache_update";
     private static final long EXPIRATION_TIME = 60 * 10 * 1000;
 
@@ -44,12 +45,14 @@ public class DatabaseSourceImpl extends SQLiteOpenHelper implements LocalSource 
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(DatabaseContract.CREATE_TABLE_STATEMENT);
+        db.execSQL(DatabaseContract.CREATE_TABLE_SMALL_STATEMENT);
     }
 
     @DebugLog
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL(DatabaseContract.CLEAR_TABLE_STATEMENT);
+        db.execSQL(DatabaseContract.CLEAR_TABLE_SMALL_STATEMENT);
         onCreate(db);
     }
 
@@ -66,7 +69,7 @@ public class DatabaseSourceImpl extends SQLiteOpenHelper implements LocalSource 
     @Override
     public boolean isEmpty() {
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery(DatabaseContract.READ_ALL_STATEMENT, null);
+        Cursor cursor = db.rawQuery(DatabaseContract.READ_ALL_SMALL_STATEMENT, null);
         boolean result = true;
         if (cursor.moveToFirst()) {
             int total = cursor.getInt(0);
@@ -119,37 +122,47 @@ public class DatabaseSourceImpl extends SQLiteOpenHelper implements LocalSource 
 
     /* Repository */
     // --------------------------------------------------------------------------------------------
+    /* Artists */
+    // ------------------------------------------
     @DebugLog
     @Override
-    public void addArtists(List<ArtistEntity> artists) {
-        Timber.v("Add artists: %s", artists.size());
+    public boolean hasArtist(long artistId) {
+        String statement = String.format(DatabaseContract.CONTAINS_STATEMENT, artistId);
+        return checkStatement(statement);
+    }
+
+    @DebugLog
+    @Override
+    public void addArtist(ArtistEntity artist) {
         SQLiteDatabase db = getWritableDatabase();
 
         db.beginTransaction();
         SQLiteStatement insert = db.compileStatement(DatabaseContract.INSERT_STATEMENT);
 
-        /**
-         * Insert multiple rows in one transaction (optimization)
-         */
-        for (ArtistEntity artist : artists) {
-            String link = artist.getWebLink();
-            String description = artist.getDescription();
+        insertArtist(insert, artist);
 
-            insert.bindLong(1, artist.getId());
-            insert.bindString(2, artist.getName());
-            insert.bindString(3, ArtistUtils.genresToString(artist));
-            insert.bindLong(4, artist.getTracksCount());
-            insert.bindLong(5, artist.getAlbumsCount());
-            insert.bindString(6, link == null ? "" : link);  // could be null
-            insert.bindString(7, description == null ? "" : description);  // could be null
-            insert.bindString(8, artist.getCoverLarge());
-            insert.bindString(9, artist.getCoverSmall());
-            insert.execute();
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        db.close();
+    }
+
+    @DebugLog
+    @Override
+    public void addArtists(List<ArtistEntity> artists) {
+        SQLiteDatabase db = getWritableDatabase();
+
+        db.beginTransaction();
+        SQLiteStatement insert = db.compileStatement(DatabaseContract.INSERT_STATEMENT);
+
+        for (ArtistEntity artist : artists) {
+            insertArtist(insert, artist);
         }
 
         db.setTransactionSuccessful();
         db.endTransaction();
         db.close();
+
+        setLastCacheUpdateTimeMillis();
     }
 
     @DebugLog
@@ -164,20 +177,12 @@ public class DatabaseSourceImpl extends SQLiteOpenHelper implements LocalSource 
         String statement = specification == null ? DatabaseContract.DELETE_ALL_STATEMENT :
                 String.format(DatabaseContract.DELETE_STATEMENT, specification.getSelectionArgs());
 
-        SQLiteDatabase db = getWritableDatabase();
-
-        db.beginTransaction();
-        SQLiteStatement delete = db.compileStatement(statement);
-        delete.execute();
-        db.setTransactionSuccessful();
-        db.endTransaction();
-        db.close();
+        executeStatement(statement);
     }
 
     @DebugLog
     @Override
     public List<ArtistEntity> queryArtists(ArtistsSpecification specification) {
-        Timber.i("Query artists from database");
         final String statement = specification == null ? DatabaseContract.READ_ALL_STATEMENT :
                 String.format(DatabaseContract.READ_STATEMENT, specification.getSelectionArgs());
 
@@ -194,10 +199,67 @@ public class DatabaseSourceImpl extends SQLiteOpenHelper implements LocalSource 
         return list;
     }
 
+    /* Small artists */
+    // ------------------------------------------
+    @DebugLog
+    @Override
+    public boolean hasSmallArtist(long artistId) {
+        String statement = String.format(DatabaseContract.CONTAINS_SMALL_STATEMENT, artistId);
+        return checkStatement(statement);
+    }
+
+    @DebugLog
+    @Override
+    public void addSmallArtist(SmallArtistEntity artist) {
+        SQLiteDatabase db = getWritableDatabase();
+
+        db.beginTransaction();
+        SQLiteStatement insert = db.compileStatement(DatabaseContract.INSERT_SMALL_STATEMENT);
+
+        insertSmallArtist(insert, artist);
+
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        db.close();
+    }
+
+    @DebugLog
+    @Override
+    public void addSmallArtists(List<SmallArtistEntity> artists) {
+        SQLiteDatabase db = getWritableDatabase();
+
+        db.beginTransaction();
+        SQLiteStatement insert = db.compileStatement(DatabaseContract.INSERT_SMALL_STATEMENT);
+
+        for (SmallArtistEntity artist : artists) {
+            insertSmallArtist(insert, artist);
+        }
+
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        db.close();
+
+        setLastCacheUpdateTimeMillis();
+    }
+
+    @DebugLog
+    @Override
+    public void updateSmallArtists(List<SmallArtistEntity> artists) {
+        addSmallArtists(artists);  // using REPLACE clause
+    }
+
+    @DebugLog
+    @Override
+    public void removeSmallArtists(ArtistsSpecification specification) {
+        String statement = specification == null ? DatabaseContract.DELETE_ALL_SMALL_STATEMENT :
+                String.format(DatabaseContract.DELETE_SMALL_STATEMENT, specification.getSelectionArgs());
+
+        executeStatement(statement);
+    }
+
     @DebugLog
     @Override
     public List<SmallArtistEntity> querySmallArtists(ArtistsSpecification specification) {
-        Timber.i("Query small artists from database");
         final String statement = specification == null ? DatabaseContract.READ_ALL_SMALL_STATEMENT :
                 String.format(DatabaseContract.READ_SMALL_STATEMENT, specification.getSelectionArgs());
 
@@ -214,6 +276,8 @@ public class DatabaseSourceImpl extends SQLiteOpenHelper implements LocalSource 
         return list;
     }
 
+    /* Data source implementation */
+    // ------------------------------------------
     @DebugLog
     @Override
     public List<SmallArtistEntity> artists() {
@@ -231,6 +295,52 @@ public class DatabaseSourceImpl extends SQLiteOpenHelper implements LocalSource 
 
     /* Internal */
     // --------------------------------------------------------------------------------------------
+    private void insertArtist(SQLiteStatement insert, ArtistEntity artist) {
+        String link = artist.getWebLink();
+        String description = artist.getDescription();
+
+        insert.bindLong(1, artist.getId());
+        insert.bindString(2, artist.getName());
+        insert.bindString(3, ArtistUtils.genresToString(artist));
+        insert.bindLong(4, artist.getTracksCount());
+        insert.bindLong(5, artist.getAlbumsCount());
+        insert.bindString(6, link == null ? "" : link);  // could be null
+        insert.bindString(7, description == null ? "" : description);  // could be null
+        insert.bindString(8, artist.getCoverLarge());
+        insert.bindString(9, artist.getCoverSmall());
+        insert.execute();
+    }
+
+    private void insertSmallArtist(SQLiteStatement insert, SmallArtistEntity artist) {
+        insert.bindLong(1, artist.getId());
+        insert.bindString(2, artist.getName());
+        insert.bindString(3, artist.getCover());
+        insert.execute();
+    }
+
+    private void executeStatement(String statement) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.beginTransaction();
+        SQLiteStatement object = db.compileStatement(statement);
+        object.execute();
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        db.close();
+    }
+
+    private boolean checkStatement(String statement) {
+        boolean result = false;
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(statement, null);
+        if (cursor.moveToFirst()) {
+            result = cursor.getInt(0) != 0;
+        }
+        cursor.close();
+        db.close();
+        return result;
+    }
+
     private ArtistEntity createArtistFromCursor(Cursor cursor) {
         long id = cursor.getInt(cursor.getColumnIndex(DatabaseContract.ArtistsTable.COLUMN_NAME_ID));
         String name = cursor.getString(cursor.getColumnIndex(DatabaseContract.ArtistsTable.COLUMN_NAME_NAME));

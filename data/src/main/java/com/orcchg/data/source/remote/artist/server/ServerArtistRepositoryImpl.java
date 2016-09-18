@@ -1,4 +1,4 @@
-package com.orcchg.data.source.remote.server;
+package com.orcchg.data.source.remote.artist.server;
 
 import com.domain.model.Artist;
 import com.domain.repository.ArtistRepository;
@@ -6,8 +6,8 @@ import com.orcchg.data.entity.ArtistEntity;
 import com.orcchg.data.entity.SmallArtistEntity;
 import com.orcchg.data.entity.mapper.ArtistMapper;
 import com.orcchg.data.entity.mapper.SmallArtistMapper;
-import com.orcchg.data.source.DataSource;
-import com.orcchg.data.source.local.LocalSource;
+import com.orcchg.data.source.local.artist.LocalSource;
+import com.orcchg.data.source.remote.artist.DataSource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,8 +36,10 @@ public class ServerArtistRepositoryImpl implements ArtistRepository {
     @Override
     public List<Artist> artists() {
         List<Artist> artists = new ArrayList<>();
-        List<SmallArtistEntity> data = /*getDataSource()*/this.cloudSource.artists();
-//        fillLocalStorageIfNeed(data);
+        List<SmallArtistEntity> data = this./*getDataSource()*/cloudSource.artists();
+//        if (this.checkCacheStaled()) {
+//            this.localSource.updateSmallArtists(data);
+//        }
         for (SmallArtistEntity entity : data) {
             artists.add(this.smallArtistMapper.map(entity));
         }
@@ -46,7 +48,13 @@ public class ServerArtistRepositoryImpl implements ArtistRepository {
 
     @Override
     public Artist artist(long artistId) {
-        return this.artistMapper.map(/*getDataSource()*/this.cloudSource.artist(artistId));
+        ArtistEntity artistEntity = this./*getDataSource(artistId)*/cloudSource.artist(artistId);
+//        if (this.checkCacheStaled() || !this.localSource.hasArtist(artistId)) {
+//            List<ArtistEntity> artistEntities = new ArrayList<>();
+//            artistEntities.add(artistEntity);
+//            this.localSource.updateArtists(artistEntities);
+//        }
+        return this.artistMapper.map(artistEntity);
     }
 
     @Override
@@ -63,9 +71,8 @@ public class ServerArtistRepositoryImpl implements ArtistRepository {
         return this.checkCacheStaled() ? this.cloudSource : this.localSource;
     }
 
-    private void fillLocalStorageIfNeed(List<ArtistEntity> data) {
-        if (this.checkCacheStaled()) {
-            this.localSource.updateArtists(data);
-        }
+    private DataSource getDataSource(long artistId) {
+        return this.checkCacheStaled() ||
+              !this.localSource.hasArtist(artistId) ? this.cloudSource : this.localSource;
     }
 }

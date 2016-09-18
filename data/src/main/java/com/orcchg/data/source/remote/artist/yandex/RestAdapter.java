@@ -1,4 +1,4 @@
-package com.orcchg.data.source.remote.yandex;
+package com.orcchg.data.source.remote.artist.yandex;
 
 import com.orcchg.data.entity.ArtistEntity;
 

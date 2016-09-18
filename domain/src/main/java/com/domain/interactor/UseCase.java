@@ -79,6 +79,7 @@ public abstract class UseCase<Result> {
                     Result result = (Result) callback.execute();
                     UseCase.this.postExecuteScheduler.post(UseCase.this.wrapToRunnable(result));
                 } catch (Throwable error) {
+                    error.printStackTrace();
                     UseCase.this.postExecuteScheduler.post(UseCase.this.wrapToRunnable(error));
                 }
             }

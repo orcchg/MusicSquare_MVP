@@ -1,4 +1,4 @@
-package com.orcchg.data.source.local;
+package com.orcchg.data.source.local.artist;
 
 import android.support.annotation.NonNull;
 
