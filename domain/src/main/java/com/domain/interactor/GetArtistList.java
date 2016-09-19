@@ -3,7 +3,7 @@ package com.domain.interactor;
 import com.domain.executor.PostExecuteScheduler;
 import com.domain.executor.ThreadExecutor;
 import com.domain.model.Artist;
-import com.domain.repository.ArtistRepository;
+import com.domain.repository.IArtistRepository;
 
 import java.util.List;
 
@@ -14,7 +14,7 @@ import javax.inject.Inject;
  */
 public class GetArtistList extends UseCase<List<Artist>> {
 
-    final ArtistRepository artistRepository;
+    final IArtistRepository artistRepository;
 
     /**
      * Constructs an instance of {@link GetArtistList} use case.
@@ -28,8 +28,8 @@ public class GetArtistList extends UseCase<List<Artist>> {
      * @param postExecuteScheduler where to observe the result
      */
     @Inject
-    public GetArtistList(ArtistRepository artistRepository,
-                         ThreadExecutor threadExecutor, PostExecuteScheduler postExecuteScheduler) {
+    GetArtistList(IArtistRepository artistRepository, ThreadExecutor threadExecutor,
+                  PostExecuteScheduler postExecuteScheduler) {
         super(threadExecutor, postExecuteScheduler);
         this.artistRepository = artistRepository;
     }

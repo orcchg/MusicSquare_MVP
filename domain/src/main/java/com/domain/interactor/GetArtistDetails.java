@@ -3,14 +3,14 @@ package com.domain.interactor;
 import com.domain.executor.PostExecuteScheduler;
 import com.domain.executor.ThreadExecutor;
 import com.domain.model.Artist;
-import com.domain.repository.ArtistRepository;
+import com.domain.repository.IArtistRepository;
 
 import javax.inject.Inject;
 
 public class GetArtistDetails extends UseCase<Artist> {
 
     final long artistId;
-    final ArtistRepository artistRepository;
+    final IArtistRepository artistRepository;
 
     /**
      * Constructs an instance of {@link GetArtistDetails} use case.
@@ -25,7 +25,7 @@ public class GetArtistDetails extends UseCase<Artist> {
      * @param postExecuteScheduler where to observe the result
      */
     @Inject
-    public GetArtistDetails(long artistId, ArtistRepository artistRepository,
+    public GetArtistDetails(long artistId, IArtistRepository artistRepository,
                             ThreadExecutor threadExecutor, PostExecuteScheduler postExecuteScheduler) {
         super(threadExecutor, postExecuteScheduler);
         this.artistId = artistId;

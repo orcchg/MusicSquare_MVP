@@ -1,11 +1,11 @@
 package com.orcchg.data.source.local.artist;
 
 /**
- * Represents the schema in the {@link DatabaseSourceImpl}.
+ * Represents the schema in the {@link ArtistLocalSourceImpl}.
  */
-class DatabaseContract {
+class ArtistDatabaseContract {
 
-    DatabaseContract() {
+    ArtistDatabaseContract() {
         // protect from accidental instantiation
     }
 

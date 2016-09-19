@@ -5,11 +5,11 @@ import android.content.Context;
 import com.domain.executor.PostExecuteScheduler;
 import com.domain.executor.ThreadExecutor;
 import com.domain.executor.UseCaseExecutor;
-import com.domain.repository.ArtistRepository;
-import com.orcchg.data.source.remote.artist.DataSource;
-import com.orcchg.data.source.local.artist.DatabaseSourceImpl;
-import com.orcchg.data.source.local.FileManager;
-import com.orcchg.data.source.local.artist.LocalSource;
+import com.domain.repository.IArtistRepository;
+import com.orcchg.data.source.local.DatabaseHelper;
+import com.orcchg.data.source.local.artist.ArtistLocalSource;
+import com.orcchg.data.source.local.artist.ArtistLocalSourceImpl;
+import com.orcchg.data.source.remote.artist.ArtistDataSource;
 import com.orcchg.data.source.remote.artist.server.ServerArtistRepositoryImpl;
 import com.orcchg.data.source.remote.artist.server.ServerCloudSource;
 import com.orcchg.data.source.remote.artist.yandex.YandexCloudSource;
@@ -55,26 +55,26 @@ public class ApplicationModule {
     @Provides
     @Singleton
     @Named("yandexCloud")
-    DataSource provideYandexDataSource(YandexCloudSource dataSource) {
+    ArtistDataSource provideYandexDataSource(YandexCloudSource dataSource) {
         return dataSource;
     }
 
     @Provides
     @Singleton
     @Named("serverCloud")
-    DataSource provideServerDataSource(ServerCloudSource dataSource) {
+    ArtistDataSource provideServerDataSource(ServerCloudSource dataSource) {
         return dataSource;
     }
 
     @Provides
     @Singleton
-    LocalSource provideLocalDataSource(FileManager fileManager) {
-        return new DatabaseSourceImpl(this.application.getApplicationContext(), fileManager);
+    ArtistLocalSource provideLocalDataSource(DatabaseHelper databaseHelper) {
+        return new ArtistLocalSourceImpl(databaseHelper);
     }
 
     @Provides
     @Singleton
-    ArtistRepository provideArtistRepository(ServerArtistRepositoryImpl repository) {
+    IArtistRepository provideArtistRepository(ServerArtistRepositoryImpl repository) {
         return repository;
     }
 }

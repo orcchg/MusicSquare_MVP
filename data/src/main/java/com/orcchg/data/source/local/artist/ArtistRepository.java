@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Common operations with the storage of {@link ArtistEntity} items.
  */
-public interface DatabaseRepository {
+interface ArtistRepository {
 
     boolean hasArtist(long artistId);
     void addArtist(ArtistEntity artist);

@@ -2,17 +2,17 @@ package com.domain.interactor;
 
 import com.domain.executor.PostExecuteScheduler;
 import com.domain.executor.ThreadExecutor;
-import com.domain.repository.ArtistRepository;
+import com.domain.repository.IArtistRepository;
 
 import javax.inject.Inject;
 
 public class InvalidateCache extends UseCase<Boolean> {
 
-    private final ArtistRepository artistRepository;
+    final IArtistRepository artistRepository;
 
     @Inject
-    public InvalidateCache(ArtistRepository artistRepository, ThreadExecutor threadExecutor,
-                           PostExecuteScheduler postExecuteScheduler) {
+    InvalidateCache(IArtistRepository artistRepository, ThreadExecutor threadExecutor,
+                    PostExecuteScheduler postExecuteScheduler) {
         super(threadExecutor, postExecuteScheduler);
         this.artistRepository = artistRepository;
     }

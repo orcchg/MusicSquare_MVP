@@ -5,7 +5,7 @@ import android.support.annotation.Nullable;
 import com.orcchg.data.entity.ArtistEntity;
 import com.orcchg.data.entity.SmallArtistEntity;
 import com.orcchg.data.exception.NetworkException;
-import com.orcchg.data.source.remote.artist.DataSource;
+import com.orcchg.data.source.remote.artist.ArtistDataSource;
 
 import java.io.IOException;
 import java.util.List;
@@ -15,13 +15,13 @@ import javax.inject.Inject;
 import retrofit2.Retrofit;
 import timber.log.Timber;
 
-public class ServerCloudSource implements DataSource {
+public class ServerCloudSource implements ArtistDataSource {
 
-    private final RestAdapter restAdapter;
+    private final ServerRestAdapter restAdapter;
 
     @Inject
-    public ServerCloudSource(Retrofit retrofit) {
-        this.restAdapter = retrofit.create(RestAdapter.class);
+    ServerCloudSource(Retrofit retrofit) {
+        this.restAdapter = retrofit.create(ServerRestAdapter.class);
     }
 
     @Override

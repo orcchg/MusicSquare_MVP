@@ -5,7 +5,7 @@ import android.util.LongSparseArray;
 import com.orcchg.data.entity.ArtistEntity;
 import com.orcchg.data.entity.SmallArtistEntity;
 import com.orcchg.data.entity.mapper.ArtistEntitySlicer;
-import com.orcchg.data.source.remote.artist.DataSource;
+import com.orcchg.data.source.remote.artist.ArtistDataSource;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,15 +16,15 @@ import javax.inject.Inject;
 import retrofit2.Retrofit;
 import timber.log.Timber;
 
-public class YandexCloudSource implements DataSource {
+public class YandexCloudSource implements ArtistDataSource {
 
-    private final RestAdapter restAdapter;
+    private final YandexRestAdapter restAdapter;
 
     private final LongSparseArray<ArtistEntity> artists;
 
     @Inject
-    public YandexCloudSource(Retrofit retrofit) {
-        this.restAdapter = retrofit.create(RestAdapter.class);
+    YandexCloudSource(Retrofit retrofit) {
+        this.restAdapter = retrofit.create(YandexRestAdapter.class);
         this.artists = new LongSparseArray<>();
     }
 

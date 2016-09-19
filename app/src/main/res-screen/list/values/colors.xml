@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="title_color">@android:color/black</color>
-    <color name="description_color">#bebebe</color>
-    <color name="error_color">@android:color/holo_red_light</color>
+    <color name="title_color">@color/textPrimary</color>
+    <color name="description_color">@color/textSecondary</color>
+    <color name="error_color">#D32F2F</color>
 </resources>

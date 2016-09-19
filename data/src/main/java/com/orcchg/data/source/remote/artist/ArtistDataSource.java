@@ -7,7 +7,7 @@ import com.orcchg.data.entity.SmallArtistEntity;
 
 import java.util.List;
 
-public interface DataSource {
+public interface ArtistDataSource {
 
     List<SmallArtistEntity> artists();
 

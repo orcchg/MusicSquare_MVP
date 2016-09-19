@@ -9,7 +9,7 @@ import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 
-public interface RestAdapter {
+public interface ServerRestAdapter {
 
     String ENDPOINT = "http://194.190.63.108:9123/";
 

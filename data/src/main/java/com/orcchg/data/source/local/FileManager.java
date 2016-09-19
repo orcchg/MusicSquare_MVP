@@ -34,7 +34,7 @@ import javax.inject.Singleton;
 public class FileManager {
 
   @Inject
-  public FileManager() {}
+  FileManager() {}
 
   /**
    * Writes a file to Disk.
@@ -71,7 +71,7 @@ public class FileManager {
         FileReader fileReader = new FileReader(file);
         BufferedReader bufferedReader = new BufferedReader(fileReader);
         while ((stringLine = bufferedReader.readLine()) != null) {
-          fileContentBuilder.append(stringLine + "\n");
+          fileContentBuilder.append(stringLine).append("\n");
         }
         bufferedReader.close();
         fileReader.close();

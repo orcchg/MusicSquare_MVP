@@ -11,7 +11,7 @@ import retrofit2.http.Path;
 /**
  * Node class for API requests.
  */
-public interface RestAdapter {
+interface YandexRestAdapter {
 
     String ENDPOINT = "http://download.cdn.yandex.net/";
 

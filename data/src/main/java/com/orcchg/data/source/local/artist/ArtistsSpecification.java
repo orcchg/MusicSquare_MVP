@@ -1,15 +1,8 @@
 package com.orcchg.data.source.local.artist;
 
-import android.support.annotation.NonNull;
-
-import com.orcchg.data.entity.ArtistEntity;
-
 /**
  * Filtering interface to query certain items from the storage.
  */
-public interface ArtistsSpecification {
-
-    boolean specified(@NonNull ArtistEntity artist);
-
+interface ArtistsSpecification {
     String getSelectionArgs();
 }

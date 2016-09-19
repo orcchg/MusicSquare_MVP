@@ -3,7 +3,7 @@ package com.orcchg.musicsquare.ui.details.injection;
 import com.domain.executor.PostExecuteScheduler;
 import com.domain.executor.ThreadExecutor;
 import com.domain.interactor.GetArtistDetails;
-import com.domain.repository.ArtistRepository;
+import com.domain.repository.IArtistRepository;
 import com.orcchg.musicsquare.injection.PerActivity;
 
 import dagger.Module;
@@ -41,7 +41,7 @@ public class DetailsModule {
      */
     @Provides
     @PerActivity
-    GetArtistDetails provideGetArtistDetails(ArtistRepository artistRepository,
+    GetArtistDetails provideGetArtistDetails(IArtistRepository artistRepository,
             ThreadExecutor threadExecutor, PostExecuteScheduler postExecuteScheduler) {
         return new GetArtistDetails(this.artistId, artistRepository, threadExecutor, postExecuteScheduler);
     }

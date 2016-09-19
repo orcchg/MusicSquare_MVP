@@ -4,13 +4,11 @@ import android.content.Context;
 
 import com.domain.executor.PostExecuteScheduler;
 import com.domain.executor.ThreadExecutor;
-import com.domain.repository.ArtistRepository;
+import com.domain.repository.IArtistRepository;
 import com.orcchg.data.source.remote.injection.CloudComponent;
 import com.orcchg.data.source.remote.injection.CloudModule;
 import com.orcchg.musicsquare.injection.module.ApplicationModule;
-import com.orcchg.musicsquare.ui.BaseActivity;
 
-import javax.inject.Named;
 import javax.inject.Singleton;
 
 import dagger.Component;
@@ -25,5 +23,5 @@ public interface ApplicationComponent extends CloudComponent {
     Context context();
     ThreadExecutor threadExecutor();
     PostExecuteScheduler postExecuteScheduler();
-    ArtistRepository artistRepository();
+    IArtistRepository artistRepository();
 }

@@ -12,7 +12,7 @@ import javax.inject.Inject;
 public class ArtistMapper implements Mapper<ArtistEntity, Artist> {
 
     @Inject
-    public ArtistMapper() {
+    ArtistMapper() {
     }
 
     @Override
