@@ -21,19 +21,16 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class CloudModule {
 
     private final Context context;
-    private final String baseUrl;
 
-    public CloudModule(Context context, String baseUrl) {
+    public CloudModule(Context context) {
         this.context = context;
-        this.baseUrl = baseUrl;
     }
 
     @Provides
     @Singleton
     Cache provideOkHttpCache() {
         int cacheSize = 10 * 1024 * 1024;  // 10 MiB
-        Cache cache = new Cache(this.context.getCacheDir(), cacheSize);
-        return cache;
+        return new Cache(this.context.getCacheDir(), cacheSize);
     }
 
     @Provides
@@ -65,11 +62,9 @@ public class CloudModule {
 
     @Provides
     @Singleton
-    Retrofit provideRetrofit(Gson gson, OkHttpClient okHttpClient) {
+    Retrofit.Builder provideRetrofit(Gson gson, OkHttpClient okHttpClient) {
         return new Retrofit.Builder()
-                .baseUrl(this.baseUrl)
                 .addConverterFactory(GsonConverterFactory.create(gson))
-                .client(okHttpClient)
-                .build();
+                .client(okHttpClient);
     }
 }

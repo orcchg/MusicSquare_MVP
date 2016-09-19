@@ -19,7 +19,7 @@ public interface DetailsComponent {
      *
      * @param activity where to inject fields
      */
-    public void inject(DetailsActivity activity);
+    void inject(DetailsActivity activity);
 
     /**
      * Template for dagger-generated factory method to provide

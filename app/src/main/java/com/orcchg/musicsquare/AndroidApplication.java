@@ -2,7 +2,6 @@ package com.orcchg.musicsquare;
 
 import android.app.Application;
 
-import com.orcchg.data.source.remote.artist.server.ServerRestAdapter;
 import com.orcchg.data.source.remote.injection.CloudModule;
 import com.orcchg.musicsquare.injection.component.ApplicationComponent;
 import com.orcchg.musicsquare.injection.component.DaggerApplicationComponent;
@@ -34,7 +33,7 @@ public class AndroidApplication extends Application {
 
     private void initializeInjector() {
         this.applicationComponent = DaggerApplicationComponent.builder()
-                .cloudModule(new CloudModule(this, ServerRestAdapter.ENDPOINT))
+                .cloudModule(new CloudModule(this))
                 .applicationModule(new ApplicationModule(this))
                 .build();
     }

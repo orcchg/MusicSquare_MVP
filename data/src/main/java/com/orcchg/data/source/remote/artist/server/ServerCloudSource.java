@@ -20,8 +20,9 @@ public class ServerCloudSource implements ArtistDataSource {
     private final ServerRestAdapter restAdapter;
 
     @Inject
-    ServerCloudSource(Retrofit retrofit) {
-        this.restAdapter = retrofit.create(ServerRestAdapter.class);
+    ServerCloudSource(Retrofit.Builder retrofit) {
+        this.restAdapter = retrofit.baseUrl(ServerRestAdapter.ENDPOINT).build()
+                .create(ServerRestAdapter.class);
     }
 
     @Override

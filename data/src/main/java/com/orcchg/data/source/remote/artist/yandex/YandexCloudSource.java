@@ -23,8 +23,9 @@ public class YandexCloudSource implements ArtistDataSource {
     private final LongSparseArray<ArtistEntity> artists;
 
     @Inject
-    YandexCloudSource(Retrofit retrofit) {
-        this.restAdapter = retrofit.create(YandexRestAdapter.class);
+    YandexCloudSource(Retrofit.Builder retrofit) {
+        this.restAdapter = retrofit.baseUrl(YandexRestAdapter.ENDPOINT).build()
+                .create(YandexRestAdapter.class);
         this.artists = new LongSparseArray<>();
     }
 

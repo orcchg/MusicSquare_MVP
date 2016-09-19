@@ -19,7 +19,7 @@ public interface ListComponent {
      *
      * @param activity where to inject fields
      */
-    public void inject(ListActivity activity);
+    void inject(ListActivity activity);
 
     /**
      * Template for dagger-generated factory method to provide

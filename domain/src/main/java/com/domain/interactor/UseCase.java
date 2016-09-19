@@ -34,8 +34,8 @@ public abstract class UseCase<Result> {
     /**
      * Basic construction of a {@link UseCase} class instance.
      *
-     * @param artistRepository where to get data from
      * @param threadExecutor where to push the request
+     * @param postExecuteScheduler where to observe the result
      */
     protected UseCase(ThreadExecutor threadExecutor, PostExecuteScheduler postExecuteScheduler) {
         this.threadExecutor = threadExecutor;
@@ -45,7 +45,7 @@ public abstract class UseCase<Result> {
     /**
      * Sets external callback to observe the result of {@link UseCase} execution.
      *
-     * @param postExecuteScheduler where to observe the result
+     * @param postExecuteCallback how to process the result
      */
     public void setPostExecuteCallback(OnPostExecuteCallback postExecuteCallback) {
         this.postExecuteCallback = postExecuteCallback;
