@@ -59,7 +59,7 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
 
     @Override
     public boolean clear() {
-        this.localSource.clear();
+//        this.localSource.clear();
         return true;
     }
 
