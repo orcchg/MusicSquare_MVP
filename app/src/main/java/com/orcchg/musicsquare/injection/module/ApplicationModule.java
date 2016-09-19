@@ -10,7 +10,7 @@ import com.orcchg.data.source.local.DatabaseHelper;
 import com.orcchg.data.source.local.artist.ArtistLocalSource;
 import com.orcchg.data.source.local.artist.ArtistLocalSourceImpl;
 import com.orcchg.data.source.remote.artist.ArtistDataSource;
-import com.orcchg.data.source.remote.artist.server.ServerArtistRepositoryImpl;
+import com.orcchg.data.source.repository.artist.ServerArtistRepositoryImpl;
 import com.orcchg.data.source.remote.artist.server.ServerCloudSource;
 import com.orcchg.data.source.remote.artist.yandex.YandexCloudSource;
 import com.orcchg.musicsquare.AndroidApplication;
