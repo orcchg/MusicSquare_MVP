@@ -4,21 +4,22 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
-import android.os.Environment;
+
+import java.io.File;
 
 import javax.inject.Inject;
 
 public class DatabaseHelper {
 
     private static final int DATABASE_VERSION = 1;
-    private static final String DATABASE_NAME = "/MusicSquareDatabase.db";
+    private static final String DATABASE_NAME = "MusicSquareDatabase.db";
 
     private static final String SETTINGS_FILE_NAME = "MusicSquareSettings";
 
     private final Context context;
     private final FileManager fileManager;
     private SQLiteDatabase database;
-    private String databaseName;
+    private File databaseFile;
     private LifeCycleCallback lifeCycleCallback;
     private int oldVersion;
 
@@ -26,8 +27,7 @@ public class DatabaseHelper {
     DatabaseHelper(Context context, FileManager fileManager) {
         this.context = context;
         this.fileManager = fileManager;
-        this.databaseName = Environment.getExternalStorageDirectory() + DATABASE_NAME;
-        openOrCreateDatabase();
+        this.databaseFile = context.getDatabasePath(DATABASE_NAME);
     }
 
     /* Lifecycle */
@@ -38,10 +38,9 @@ public class DatabaseHelper {
     }
 
     private void openOrCreateDatabase() {
-        this.database = SQLiteDatabase.openOrCreateDatabase(this.databaseName, null);
+        this.database = SQLiteDatabase.openOrCreateDatabase(this.databaseFile, null);
         this.oldVersion = this.database.getVersion();
         this.database.setVersion(DATABASE_VERSION);
-        checkVersion();
     }
 
     private void checkVersion() {

@@ -2,5 +2,4 @@
     <string name="app_name">MusicSquare</string>
     <string name="error_text">Data error</string>
     <string name="str_about_message">Author: Maxim (Orcchg) Alov\nContact: alovmax@yandex.ru\nWeb: orcchg.wordpress.com\nMusicSquare application for Yandex</string>
-    <string name="permission_denied_write_external_storage">"The app was not allowed to write to your storage. Hence, it cannot use local cache and will always call to Cloud."</string>
 </resources>

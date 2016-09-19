@@ -20,16 +20,15 @@ import javax.inject.Singleton;
 public class ServerArtistRepositoryImpl implements IArtistRepository {
 
     private final ArtistDataSource cloudSource;
+    private final ArtistLocalSource localSource;
     private final SmallArtistMapper smallArtistMapper;
     private final ArtistMapper artistMapper;
 
-    private ArtistLocalSource localSource;
-
     @Inject
-    ServerArtistRepositoryImpl(@Named("serverCloud") ArtistDataSource cloudSource/*, ArtistLocalSource localSource*/,
+    ServerArtistRepositoryImpl(@Named("serverCloud") ArtistDataSource cloudSource, ArtistLocalSource localSource,
                                SmallArtistMapper smallArtistMapper, ArtistMapper artistMapper) {
         this.cloudSource = cloudSource;
-//        this.localSource = localSource;
+        this.localSource = localSource;
         this.smallArtistMapper = smallArtistMapper;
         this.artistMapper = artistMapper;
     }
@@ -37,7 +36,7 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
     @Override
     public List<Artist> artists() {
         List<Artist> artists = new ArrayList<>();
-        List<SmallArtistEntity> data = this./*getDataSource()*/cloudSource.artists();
+        List<SmallArtistEntity> data = this.cloudSource.artists();//this.getDataSource().artists();
 //        if (this.checkCacheStaled()) {
 //            this.localSource.updateSmallArtists(data);
 //        }
@@ -49,7 +48,7 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
 
     @Override
     public Artist artist(long artistId) {
-        ArtistEntity artistEntity = this./*getDataSource(artistId)*/cloudSource.artist(artistId);
+        ArtistEntity artistEntity = this.cloudSource.artist(artistId);//this.getDataSource(artistId).artist(artistId);
 //        if (this.checkCacheStaled() || !this.localSource.hasArtist(artistId)) {
 //            List<ArtistEntity> artistEntities = new ArrayList<>();
 //            artistEntities.add(artistEntity);
@@ -60,12 +59,12 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
 
     @Override
     public boolean clear() {
-        if (this.localSource != null) this.localSource.clear();
+        this.localSource.clear();
         return true;
     }
 
     private boolean checkCacheStaled() {
-        return this.localSource == null || this.localSource.isEmpty() || this.localSource.isExpired();
+        return this.localSource.isEmpty() || this.localSource.isExpired();
     }
 
     private ArtistDataSource getDataSource() {
@@ -73,7 +72,7 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
     }
 
     private ArtistDataSource getDataSource(long artistId) {
-        return this.checkCacheStaled() || this.localSource != null &&
+        return this.checkCacheStaled() ||
               !this.localSource.hasArtist(artistId) ? this.cloudSource : this.localSource;
     }
 }

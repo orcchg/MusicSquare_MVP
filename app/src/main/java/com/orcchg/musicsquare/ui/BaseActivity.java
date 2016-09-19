@@ -6,11 +6,9 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.Toast;
 
 import com.orcchg.musicsquare.AndroidApplication;
 import com.orcchg.musicsquare.PermissionManager;
-import com.orcchg.musicsquare.R;
 import com.orcchg.musicsquare.injection.component.ApplicationComponent;
 import com.orcchg.musicsquare.injection.component.DaggerPermissionManagerComponent;
 import com.orcchg.musicsquare.injection.component.PermissionManagerComponent;
@@ -33,9 +31,7 @@ public abstract class BaseActivity<V extends MvpView, P extends MvpPresenter<V>>
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             injectPermissionManager();
             PermissionManager pm = getPermissionManagerComponent().permissionManager();
-            if (!pm.hasWriteExternalStoragePermission()) {
-                pm.requestWriteExternalStoragePermission(this);
-            }
+            // ask for permission
         }
 
         injectDependencies();
@@ -53,15 +49,7 @@ public abstract class BaseActivity<V extends MvpView, P extends MvpPresenter<V>>
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         boolean granted = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
-        switch (requestCode) {
-            case PermissionManager.WRITE_EXTERNAL_STORAGE_REQUEST_CODE:
-                if (granted) {
-//                    doCreate();
-                } else {
-                    Toast.makeText(this, R.string.permission_denied_write_external_storage, Toast.LENGTH_LONG).show();
-                }
-                break;
-        }
+        // process permission
     }
 
     /* Internal */
