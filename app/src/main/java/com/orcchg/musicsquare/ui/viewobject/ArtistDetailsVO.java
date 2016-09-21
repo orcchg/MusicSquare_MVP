@@ -14,7 +14,7 @@ public class ArtistDetailsVO {
     private final String description;
     private final String webLink;
 
-    public ArtistDetailsVO(Builder builder) {
+    ArtistDetailsVO(Builder builder) {
         this.id = builder.id;
         this.name = builder.name;
         this.coverLarge = builder.coverLarge;
@@ -26,14 +26,14 @@ public class ArtistDetailsVO {
     }
 
     public static class Builder {
-        private final long id;
-        private final String name;
-        private String coverLarge;
-        private List<String> genres;
-        private int tracksCount;
-        private int albumsCount;
-        private String description;
-        private String webLink;
+        final long id;
+        final String name;
+        String coverLarge;
+        List<String> genres;
+        int tracksCount;
+        int albumsCount;
+        String description;
+        String webLink;
 
         public Builder(long id, @NonNull String name) {
             this.id = id;

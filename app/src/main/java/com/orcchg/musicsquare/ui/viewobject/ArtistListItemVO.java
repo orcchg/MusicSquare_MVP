@@ -7,16 +7,16 @@ public class ArtistListItemVO {
     private final String name;
     private final String coverSmall;
 
-    public ArtistListItemVO(Builder builder) {
+    ArtistListItemVO(Builder builder) {
         this.id = builder.id;
         this.name = builder.name;
         this.coverSmall = builder.coverSmall;
     }
 
     public static class Builder {
-        private final long id;
-        private final String name;
-        private String coverSmall;
+        final long id;
+        final String name;
+        String coverSmall;
 
         public Builder(long id, @NonNull String name) {
             this.id = id;

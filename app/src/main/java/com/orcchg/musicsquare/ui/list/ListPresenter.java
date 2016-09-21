@@ -35,7 +35,7 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
      * @param getArtistListUseCase possible use case for this presenter
      */
     @Inject
-    public ListPresenter(GetArtistList getArtistListUseCase, InvalidateCache invalidateCacheUseCase) {
+    ListPresenter(GetArtistList getArtistListUseCase, InvalidateCache invalidateCacheUseCase) {
         this.getArtistListUseCase = getArtistListUseCase;
         this.invalidateCacheUseCase = invalidateCacheUseCase;
         this.getArtistListUseCase.setPostExecuteCallback(createGetListCallback());

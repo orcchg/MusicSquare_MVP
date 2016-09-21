@@ -1,5 +1,6 @@
 package com.orcchg.data.source.remote.artist.yandex;
 
+import android.annotation.TargetApi;
 import android.util.LongSparseArray;
 
 import com.orcchg.data.entity.ArtistEntity;
@@ -16,6 +17,7 @@ import javax.inject.Inject;
 import retrofit2.Retrofit;
 import timber.log.Timber;
 
+@TargetApi(16)
 public class YandexCloudSource implements ArtistDataSource {
 
     private final YandexRestAdapter restAdapter;

@@ -4,7 +4,7 @@ import com.orcchg.musicsquare.ui.MvpPresenter;
 import com.orcchg.musicsquare.ui.MvpView;
 import com.orcchg.musicsquare.ui.viewobject.ArtistDetailsVO;
 
-public interface DetailsContract {
+interface DetailsContract {
     interface View extends MvpView {
         void setGrade(int grade);
         void showArtist(ArtistDetailsVO artist);

@@ -86,12 +86,7 @@ public class ListActivity extends BaseActivity<ListContract.View, ListContract.P
     // ------------------------------------------
     private void initView() {
         swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorAccent));
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                presenter.retry();
-            }
-        });
+        swipeRefreshLayout.setOnRefreshListener(() -> presenter.retry());
 
         if (ViewUtility.isLargeScreen(this)) {
             artistsList.setLayoutManager(new GridLayoutManager(this, getResources().getInteger(R.integer.grid_span)));
@@ -100,7 +95,7 @@ public class ListActivity extends BaseActivity<ListContract.View, ListContract.P
             artistsList.setLayoutManager(new LinearLayoutManager(this));
         }
         
-        artistsAdapter = new ListAdapter(new ArrayList<ArtistListItemVO>(), (view, artistId) -> { presenter.openArtistDetails(view, artistId); });
+        artistsAdapter = new ListAdapter(new ArrayList<>(), (view, artistId) -> presenter.openArtistDetails(view, artistId));
         artistsList.setAdapter(artistsAdapter);
     }
     

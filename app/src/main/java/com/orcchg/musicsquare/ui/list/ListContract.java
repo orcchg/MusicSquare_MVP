@@ -6,7 +6,7 @@ import com.orcchg.musicsquare.ui.viewobject.ArtistListItemVO;
 
 import java.util.List;
 
-public interface ListContract {
+interface ListContract {
     interface View extends MvpView {
         void showArtists(List<ArtistListItemVO> artists);
         void showError();

@@ -12,7 +12,7 @@ public class UIThread implements PostExecuteScheduler {
     private static final Handler UI_LOOP_HANDLER = new Handler(Looper.getMainLooper());
 
     @Inject
-    public UIThread() {}
+    UIThread() {}
 
     @Override
     public void post(Runnable command) {

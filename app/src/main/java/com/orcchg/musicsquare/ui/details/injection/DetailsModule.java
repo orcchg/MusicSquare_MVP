@@ -35,8 +35,6 @@ public class DetailsModule {
      * to instantiate the class with {@link GetArtistDetails#artistId} specified, because the object
      * is configurable.
      *
-     * @param getArtistList parameter to configure an instance of {@link GetArtistDetails} class
-     *                      before it will be actually injected by {@link DetailsComponent} implementation.
      * @return an instance to inject
      */
     @Provides

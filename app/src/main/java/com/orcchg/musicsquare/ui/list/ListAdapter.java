@@ -1,6 +1,5 @@
 package com.orcchg.musicsquare.ui.list;
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
@@ -23,17 +22,17 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import fr.castorflex.android.circularprogressbar.CircularProgressBar;
 
-public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
+class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 
     private final List<ArtistListItemVO> artists;
     private final ItemClickListener listener;
 
-    static interface ItemClickListener {
+    interface ItemClickListener {
         void onItemClick(View view, long artistId);
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        private View rootView;
+        View rootView;
         @Nullable @BindView(R.id.fl_grid_item) View gridItemView;  // only on large screens
         @BindView(R.id.pb_loading) CircularProgressBar progressBar;
         @BindView(R.id.iv_cover) ImageView iconView;
@@ -62,10 +61,10 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
         final Context context = holder.rootView.getContext();
         final ArtistListItemVO artist = this.artists.get(position);
 
-        holder.rootView.setOnClickListener((view) -> { this.listener.onItemClick(holder.iconView, artist.getId()); });
+        holder.rootView.setOnClickListener((view) -> this.listener.onItemClick(holder.iconView, artist.getId()));
 
         if (holder.gridItemView != null) {
-            holder.gridItemView.setOnClickListener((view) -> { this.listener.onItemClick(holder.iconView, artist.getId()); });
+            holder.gridItemView.setOnClickListener((view) -> this.listener.onItemClick(holder.iconView, artist.getId()));
         }
 
         holder.titleView.setText(artist.getName());
@@ -92,11 +91,11 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
         return this.artists.size();
     }
 
-    public void populate(List<ArtistListItemVO> items) {
+    void populate(List<ArtistListItemVO> items) {
         this.artists.addAll(items);
     }
 
-    public void clear() {
+    void clear() {
         this.artists.clear();
     }
 }
