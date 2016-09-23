@@ -13,11 +13,15 @@ import com.orcchg.musicsquare.injection.component.ApplicationComponent;
 import com.orcchg.musicsquare.injection.component.DaggerPermissionManagerComponent;
 import com.orcchg.musicsquare.injection.component.PermissionManagerComponent;
 import com.orcchg.musicsquare.injection.module.PermissionManagerModule;
+import com.orcchg.musicsquare.navigation.Navigator;
+
+import javax.inject.Inject;
 
 public abstract class BaseActivity<V extends MvpView, P extends MvpPresenter<V>>
         extends AppCompatActivity implements MvpView {
 
     protected P presenter;
+    protected @Inject Navigator navigator;
     protected PermissionManagerComponent permissionManagerComponent;
 
     @NonNull

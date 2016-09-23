@@ -1,21 +1,19 @@
-package com.orcchg.musicsquare.ui.list;
+package com.orcchg.musicsquare.ui.tab;
 
 import com.orcchg.musicsquare.ui.MvpPresenter;
 import com.orcchg.musicsquare.ui.MvpView;
-import com.orcchg.musicsquare.ui.viewobject.ArtistListItemVO;
 
 import java.util.List;
 
-public interface ListContract {
+public interface TabContract {
     interface View extends MvpView {
-        void openArtistDetails(android.view.View view, long artistId);
-        void showArtists(List<ArtistListItemVO> artists);
+        void showTabs(List<String[]> titles);
         void showError();
         void showLoading();
     }
 
     interface Presenter extends MvpPresenter<View> {
-        void loadArtists();
+        void loadGenres();
         void retry();
     }
 }

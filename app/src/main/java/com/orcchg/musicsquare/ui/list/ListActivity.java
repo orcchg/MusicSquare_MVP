@@ -1,68 +1,37 @@
 package com.orcchg.musicsquare.ui.list;
 
 import android.app.AlertDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.graphics.drawable.DrawableCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import com.orcchg.musicsquare.R;
-import com.orcchg.musicsquare.ui.BaseActivity;
-import com.orcchg.musicsquare.ui.list.injection.DaggerListComponent;
-import com.orcchg.musicsquare.ui.list.injection.ListComponent;
-import com.orcchg.musicsquare.ui.viewobject.ArtistListItemVO;
-import com.orcchg.musicsquare.util.GridItemDecorator;
+import com.orcchg.musicsquare.navigation.Navigator;
 import com.orcchg.musicsquare.util.ViewUtility;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 
-public class ListActivity extends BaseActivity<ListContract.View, ListContract.Presenter> implements ListContract.View {
+public class ListActivity extends AppCompatActivity {
 
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.rl_toolbar_dropshadow) View dropshadowView;
-    @BindView(R.id.swipe_refresh_layout) SwipeRefreshLayout swipeRefreshLayout;
-    @BindView(R.id.rv_musician_list) RecyclerView artistsList;
-    @BindView(R.id.empty_view) View emptyView;
-    @BindView(R.id.loading_view) View loadingView;
-    @BindView(R.id.error_view) View errorView;
 
-    private ListComponent listComponent;
-    private ListAdapter artistsAdapter;  // TODO: inject
-    
-    @OnClick(R.id.btn_retry)
-    public void onRetryClick() {
-        presenter.retry();
-    }
+    @Inject Navigator navigator;
 
-    @NonNull
-    @Override
-    protected ListContract.Presenter createPresenter() {
-        return listComponent.presenter();
-    }
-
-    @Override
-    protected void injectDependencies() {
-        /**
-         * Create concrete {@link ListComponent} dagger-implementation directly, because
-         * the component has no-args constructor.
-         */
-        listComponent = DaggerListComponent.builder()
-                .applicationComponent(getApplicationComponent())
-                .build();
-        listComponent.inject(this);  // inject all injectable field here in {@link ListActivity}.
+    public static Intent getCallingIntent(@NonNull Context context) {
+        return new Intent(context, ListActivity.class);
     }
 
     /* Lifecycle */
@@ -75,28 +44,17 @@ public class ListActivity extends BaseActivity<ListContract.View, ListContract.P
         initView();
         initToolbar();
     }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        presenter.loadArtists();
-    }
     
     /* View */
     // ------------------------------------------
     private void initView() {
-        swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorAccent));
-        swipeRefreshLayout.setOnRefreshListener(() -> presenter.retry());
-
-        if (ViewUtility.isLargeScreen(this)) {
-            artistsList.setLayoutManager(new GridLayoutManager(this, getResources().getInteger(R.integer.grid_span)));
-            artistsList.addItemDecoration(new GridItemDecorator(this, (R.dimen.grid_card_spacing)));
-        } else {
-            artistsList.setLayoutManager(new LinearLayoutManager(this));
+        String tag = "list-fragment-tag";
+        FragmentManager fm = getSupportFragmentManager();
+        if (fm.findFragmentByTag(tag) == null) {
+            ListFragment fragment = ListFragment.newInstance();
+            fm.beginTransaction().replace(R.id.container, fragment, tag).commit();
+            fm.executePendingTransactions();
         }
-        
-        artistsAdapter = new ListAdapter(new ArrayList<>(), (view, artistId) -> presenter.openArtistDetails(view, artistId));
-        artistsList.setAdapter(artistsAdapter);
     }
     
     private void initToolbar() {
@@ -117,6 +75,9 @@ public class ListActivity extends BaseActivity<ListContract.View, ListContract.P
                     ViewUtility.enableImageTransition(checked);
                     item.setChecked(checked);
                     return true;
+                case R.id.tabs:
+                    ListActivity.this.navigator.openTabsScreen(ListActivity.this);
+                    return true;
             }
             return false;
         });
@@ -129,42 +90,7 @@ public class ListActivity extends BaseActivity<ListContract.View, ListContract.P
         }
     }
 
-    /* Contract */
-    // ------------------------------------------
-    @Override
-    public void showArtists(List<ArtistListItemVO> artists) {
-        swipeRefreshLayout.setRefreshing(false);
-        loadingView.setVisibility(View.GONE);
-        errorView.setVisibility(View.GONE);
-        dropshadowView.setVisibility(View.VISIBLE);
-
-        if (artists == null || artists.isEmpty()) {
-            emptyView.setVisibility(View.VISIBLE);
-        } else {
-            artistsList.setVisibility(View.VISIBLE);
-            artistsAdapter.clear();
-            artistsAdapter.populate(artists);
-            artistsAdapter.notifyDataSetChanged();
-        }
-    }
-
-    @Override
-    public void showError() {
-        swipeRefreshLayout.setRefreshing(false);
-        artistsList.setVisibility(View.GONE);
-        emptyView.setVisibility(View.GONE);
-        loadingView.setVisibility(View.GONE);
-        errorView.setVisibility(View.VISIBLE);
-        dropshadowView.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void showLoading() {
-        swipeRefreshLayout.setRefreshing(false);
-        artistsList.setVisibility(View.GONE);
-        emptyView.setVisibility(View.GONE);
-        loadingView.setVisibility(View.VISIBLE);
-        errorView.setVisibility(View.GONE);
-        dropshadowView.setVisibility(View.INVISIBLE);  // don't overlap with progress bar
+    void showShadow(boolean show) {
+        dropshadowView.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
     }
 }

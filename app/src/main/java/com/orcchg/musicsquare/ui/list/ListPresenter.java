@@ -1,20 +1,12 @@
 package com.orcchg.musicsquare.ui.list;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Build;
-import android.support.v4.app.ActivityOptionsCompat;
-import android.view.View;
-
 import com.domain.interactor.GetArtistList;
 import com.domain.interactor.InvalidateCache;
 import com.domain.interactor.UseCase;
 import com.domain.model.Artist;
 import com.orcchg.musicsquare.ui.BasePresenter;
-import com.orcchg.musicsquare.ui.details.DetailsActivity;
 import com.orcchg.musicsquare.ui.viewobject.ArtistListItemVO;
 import com.orcchg.musicsquare.ui.viewobject.mapper.ArtistListItemMapper;
-import com.orcchg.musicsquare.util.ViewUtility;
 
 import java.util.List;
 
@@ -46,20 +38,6 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
     public void loadArtists() {
         if (isViewAttached()) getView().showLoading();
         this.getArtistListUseCase.execute();
-    }
-
-    @Override
-    public void openArtistDetails(View view, long artistId) {
-        if (isViewAttached()) {
-            Activity context = (Activity) getView();
-            Intent intent = DetailsActivity.getStartIntent(context, artistId);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && ViewUtility.isImageTransitionEnabled()) {
-                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(context, view, "profile");
-                context.startActivity(intent, options.toBundle());
-            } else {
-                context.startActivity(intent);
-            }
-        }
     }
 
     @Override

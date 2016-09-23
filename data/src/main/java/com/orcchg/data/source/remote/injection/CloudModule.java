@@ -26,31 +26,27 @@ public class CloudModule {
         this.context = context;
     }
 
-    @Provides
-    @Singleton
+    @Provides @Singleton
     Cache provideOkHttpCache() {
         int cacheSize = 10 * 1024 * 1024;  // 10 MiB
         return new Cache(this.context.getCacheDir(), cacheSize);
     }
 
-    @Provides
-    @Singleton
+    @Provides @Singleton
     Gson provideGson() {
         return new GsonBuilder()
                 .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
                 .create();
     }
 
-    @Provides
-    @Singleton
+    @Provides @Singleton
     HttpLoggingInterceptor provideHttpLoggingInterceptor() {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         return interceptor;
     }
 
-    @Provides
-    @Singleton
+    @Provides @Singleton
     OkHttpClient provideOkHttpClient(HttpLoggingInterceptor interceptor, Cache cache) {
         return new OkHttpClient.Builder()
                 .addInterceptor(interceptor)
@@ -60,8 +56,7 @@ public class CloudModule {
                 .build();
     }
 
-    @Provides
-    @Singleton
+    @Provides @Singleton
     Retrofit.Builder provideRetrofit(Gson gson, OkHttpClient okHttpClient) {
         return new Retrofit.Builder()
                 .addConverterFactory(GsonConverterFactory.create(gson))

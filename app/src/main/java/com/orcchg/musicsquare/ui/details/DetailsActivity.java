@@ -63,13 +63,12 @@ public class DetailsActivity extends BaseActivity<DetailsContract.View, DetailsC
     private long artistId = ArtistUtils.BAD_ARTIST_ID;
     private DetailsComponent detailsComponent;
 
-    @NonNull
-    @Override
+    @NonNull @Override
     protected DetailsContract.Presenter createPresenter() {
         return detailsComponent.presenter();
     }
 
-    public static Intent getStartIntent(Context context, long artistId) {
+    public static Intent getCallingIntent(Context context, long artistId) {
         Intent intent = new Intent(context, DetailsActivity.class);
         intent.putExtra(EXTRA_ARTIST_ID, artistId);
         return intent;

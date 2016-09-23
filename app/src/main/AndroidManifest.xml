@@ -19,6 +19,9 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".ui.tab.TabActivity"
+                  android:label="@string/str_musicians_list"/>
+
         <activity android:name=".ui.details.DetailsActivity"
                   android:label="@string/str_title_details"
                   android:theme="@style/DetailsTheme"/>

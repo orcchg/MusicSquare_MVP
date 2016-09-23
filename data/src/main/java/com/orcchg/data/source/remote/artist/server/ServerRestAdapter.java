@@ -16,6 +16,9 @@ interface ServerRestAdapter {
     @GET("/all")
     Call<List<SmallArtistEntity>> getArtists();
 
+    @GET("/genres")
+    Call<List<String>> getGenres();
+
     @GET("/single")
     Call<ArtistEntity> getArtist(@Query("id") long artistId);
 }

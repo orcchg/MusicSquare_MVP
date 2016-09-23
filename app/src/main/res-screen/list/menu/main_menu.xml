@@ -12,4 +12,10 @@
         android:title="@string/str_animation"
         android:checkable="true"
         app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/tabs"
+        android:title="@string/str_tabs"
+        android:checkable="true"
+        app:showAsAction="never"/>
 </menu>
