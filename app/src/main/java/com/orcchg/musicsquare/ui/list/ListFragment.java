@@ -1,5 +1,6 @@
 package com.orcchg.musicsquare.ui.list;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,6 +16,7 @@ import com.orcchg.musicsquare.R;
 import com.orcchg.musicsquare.ui.BaseFragment;
 import com.orcchg.musicsquare.ui.list.injection.DaggerListComponent;
 import com.orcchg.musicsquare.ui.list.injection.ListComponent;
+import com.orcchg.musicsquare.ui.util.ShadowHolder;
 import com.orcchg.musicsquare.ui.viewobject.ArtistListItemVO;
 import com.orcchg.musicsquare.util.GridItemDecorator;
 import com.orcchg.musicsquare.util.ViewUtility;
@@ -43,6 +45,7 @@ public class ListFragment extends BaseFragment<ListContract.View, ListContract.P
         presenter.retry();
     }
 
+    private ShadowHolder shadowHolder;
     private String[] genres;
 
     @NonNull
@@ -76,10 +79,18 @@ public class ListFragment extends BaseFragment<ListContract.View, ListContract.P
     /* View */
     // ------------------------------------------
     @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (ShadowHolder.class.isInstance(activity)) {
+            shadowHolder = (ShadowHolder) activity;
+        }
+    }
+
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
-        genres = args.getStringArray(BUNDLE_KEY_GENRES);
+        this.genres = args.getStringArray(BUNDLE_KEY_GENRES);
     }
 
     @Nullable
@@ -108,7 +119,7 @@ public class ListFragment extends BaseFragment<ListContract.View, ListContract.P
     @Override
     public void onStart() {
         super.onStart();
-        presenter.loadArtists();
+        presenter.loadArtists(this.genres);
     }
 
     /* Contract */
@@ -120,16 +131,17 @@ public class ListFragment extends BaseFragment<ListContract.View, ListContract.P
         errorView.setVisibility(View.GONE);
 
         if (artists == null || artists.isEmpty()) {
+            artistsList.setVisibility(View.GONE);
             emptyView.setVisibility(View.VISIBLE);
         } else {
+            emptyView.setVisibility(View.GONE);
             artistsList.setVisibility(View.VISIBLE);
             artistsAdapter.clear();
             artistsAdapter.populate(artists);
             artistsAdapter.notifyDataSetChanged();
         }
 
-        ListActivity activity = (ListActivity) getActivity();
-        activity.showShadow(true);
+        if (shadowHolder != null) shadowHolder.showShadow(true);
     }
 
     @Override
@@ -140,8 +152,7 @@ public class ListFragment extends BaseFragment<ListContract.View, ListContract.P
         loadingView.setVisibility(View.GONE);
         errorView.setVisibility(View.VISIBLE);
 
-        ListActivity activity = (ListActivity) getActivity();
-        activity.showShadow(true);
+        if (shadowHolder != null) shadowHolder.showShadow(true);
     }
 
     @Override
@@ -152,8 +163,7 @@ public class ListFragment extends BaseFragment<ListContract.View, ListContract.P
         loadingView.setVisibility(View.VISIBLE);
         errorView.setVisibility(View.GONE);
 
-        ListActivity activity = (ListActivity) getActivity();
-        activity.showShadow(false);  // don't overlap with progress bar
+        if (shadowHolder != null) shadowHolder.showShadow(false);  // don't overlap with progress bar
     }
 
     @Override

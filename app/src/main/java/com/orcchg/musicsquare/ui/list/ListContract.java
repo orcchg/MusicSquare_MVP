@@ -16,6 +16,9 @@ public interface ListContract {
 
     interface Presenter extends MvpPresenter<View> {
         void loadArtists();
+        void loadArtists(int limit, int offset);
+        void loadArtists(String... genres);
+        void loadArtists(int limit, int offset, String... genres);
         void retry();
     }
 }

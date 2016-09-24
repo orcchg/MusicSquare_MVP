@@ -11,6 +11,7 @@ import com.orcchg.data.source.local.DatabaseHelper;
 import com.orcchg.data.source.local.artist.ArtistLocalSource;
 import com.orcchg.data.source.local.artist.ArtistLocalSourceImpl;
 import com.orcchg.data.source.remote.artist.ArtistDataSource;
+import com.orcchg.data.source.remote.artist.GenresDataSource;
 import com.orcchg.data.source.remote.artist.server.ServerCloudSource;
 import com.orcchg.data.source.remote.artist.yandex.YandexCloudSource;
 import com.orcchg.data.source.repository.artist.ServerArtistRepositoryImpl;
@@ -58,6 +59,11 @@ public class ApplicationModule {
 
     @Provides @Singleton @Named("serverCloud")
     ArtistDataSource provideServerDataSource(ServerCloudSource dataSource) {
+        return dataSource;
+    }
+
+    @Provides @Singleton
+    GenresDataSource provideGenresDataSource(ServerCloudSource dataSource) {
         return dataSource;
     }
 

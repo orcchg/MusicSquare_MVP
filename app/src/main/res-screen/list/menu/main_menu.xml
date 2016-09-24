@@ -3,6 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/tabs"
+        android:title="@string/str_tabs"
+        app:showAsAction="ifRoom"/>
+
+    <item
         android:id="@+id/about"
         android:title="@string/str_about"
         app:showAsAction="never"/>
@@ -10,12 +15,6 @@
     <item
         android:id="@+id/animation"
         android:title="@string/str_animation"
-        android:checkable="true"
-        app:showAsAction="never"/>
-
-    <item
-        android:id="@+id/tabs"
-        android:title="@string/str_tabs"
         android:checkable="true"
         app:showAsAction="never"/>
 </menu>

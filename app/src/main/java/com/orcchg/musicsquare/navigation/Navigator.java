@@ -8,18 +8,18 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.view.View;
 
+import com.orcchg.musicsquare.injection.PerActivity;
 import com.orcchg.musicsquare.ui.details.DetailsActivity;
 import com.orcchg.musicsquare.ui.list.ListActivity;
 import com.orcchg.musicsquare.ui.tab.TabActivity;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
-@Singleton
+@PerActivity
 public class Navigator {
 
     @Inject
-    Navigator() {
+    public Navigator() {
     }
 
     public void openListScreen(@NonNull Context context) {

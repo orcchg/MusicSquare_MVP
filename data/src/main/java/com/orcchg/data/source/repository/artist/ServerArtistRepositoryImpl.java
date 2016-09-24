@@ -35,15 +35,22 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
 
     @Override
     public List<Artist> artists() {
-        List<Artist> artists = new ArrayList<>();
-        List<SmallArtistEntity> data = this.cloudSource.artists();//this.getDataSource().artists();
-//        if (this.checkCacheStaled()) {
-//            this.localSource.updateSmallArtists(data);
-//        }
-        for (SmallArtistEntity entity : data) {
-            artists.add(this.smallArtistMapper.map(entity));
-        }
-        return artists;
+        return artists(-1, 0);
+    }
+
+    @Override
+    public List<Artist> artists(int limit, int offset) {
+        return artists(limit, offset, null);
+    }
+
+    @Override
+    public List<Artist> artists(String... genres) {
+        return artists(-1, 0, genres);
+    }
+
+    @Override
+    public List<Artist> artists(int limit, int offset, String... genres) {
+        return processListOfEntities(this.cloudSource.artists(limit, offset, genres));  //this.getDataSource().artists();
     }
 
     @Override
@@ -74,5 +81,16 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
     private ArtistDataSource getDataSource(long artistId) {
         return this.checkCacheStaled() ||
               !this.localSource.hasArtist(artistId) ? this.cloudSource : this.localSource;
+    }
+
+    private List<Artist> processListOfEntities(List<SmallArtistEntity> data) {
+//        if (this.checkCacheStaled()) {
+//            this.localSource.updateSmallArtists(data);
+//        }
+        List<Artist> artists = new ArrayList<>();
+        for (SmallArtistEntity entity : data) {
+            artists.add(this.smallArtistMapper.map(entity));
+        }
+        return artists;
     }
 }

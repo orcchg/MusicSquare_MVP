@@ -4,6 +4,7 @@ import com.domain.interactor.GetGenresList;
 import com.domain.interactor.UseCase;
 import com.orcchg.musicsquare.ui.BasePresenter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -38,7 +39,12 @@ public class TabPresenter extends BasePresenter<TabContract.View> implements Tab
         return new UseCase.OnPostExecuteCallback<List<String>>() {
             @Override
             public void onFinish(List<String> genres) {
-                // TODO: merge dublicates
+                // TODO: merge duplicates
+                List<String[]> titles = new ArrayList<>();
+                for (String genre : genres) {
+                    String[] array = new String[]{genre};
+                    titles.add(array);
+                }
                 if (isViewAttached()) getView().showTabs(titles);
             }
 

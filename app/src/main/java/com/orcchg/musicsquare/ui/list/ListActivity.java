@@ -15,7 +15,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import com.orcchg.musicsquare.R;
+import com.orcchg.musicsquare.injection.component.DaggerNavigationComponent;
+import com.orcchg.musicsquare.injection.component.NavigationComponent;
 import com.orcchg.musicsquare.navigation.Navigator;
+import com.orcchg.musicsquare.ui.util.ShadowHolder;
 import com.orcchg.musicsquare.util.ViewUtility;
 
 import javax.inject.Inject;
@@ -23,15 +26,21 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class ListActivity extends AppCompatActivity {
+public class ListActivity extends AppCompatActivity implements ShadowHolder {
 
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.rl_toolbar_dropshadow) View dropshadowView;
 
     @Inject Navigator navigator;
+    NavigationComponent navigationComponent;
 
     public static Intent getCallingIntent(@NonNull Context context) {
         return new Intent(context, ListActivity.class);
+    }
+
+    private void injectDependencies() {
+        navigationComponent = DaggerNavigationComponent.create();
+        navigationComponent.inject(this);
     }
 
     /* Lifecycle */
@@ -39,6 +48,7 @@ public class ListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        injectDependencies();
         setContentView(R.layout.activity_music_list);
         ButterKnife.bind(this);
         initView();
@@ -58,12 +68,14 @@ public class ListActivity extends AppCompatActivity {
     }
     
     private void initToolbar() {
-        toolbar.setTitle(R.string.str_musicians_list);
-        toolbar.setTitleTextColor(getResources().getColor(android.R.color.white));
+        toolbar.setNavigationOnClickListener((view) -> finish());
         toolbar.inflateMenu(R.menu.main_menu);
         toolbar.getMenu().findItem(R.id.animation).setChecked(ViewUtility.isImageTransitionEnabled());
         toolbar.setOnMenuItemClickListener((item) -> {
             switch (item.getItemId()) {
+                case R.id.tabs:
+                    ListActivity.this.navigator.openTabsScreen(ListActivity.this);
+                    return true;
                 case R.id.about:
                     new AlertDialog.Builder(this)
                             .setTitle(R.string.str_about)
@@ -74,9 +86,6 @@ public class ListActivity extends AppCompatActivity {
                     boolean checked = !ViewUtility.isImageTransitionEnabled();
                     ViewUtility.enableImageTransition(checked);
                     item.setChecked(checked);
-                    return true;
-                case R.id.tabs:
-                    ListActivity.this.navigator.openTabsScreen(ListActivity.this);
                     return true;
             }
             return false;
@@ -90,7 +99,8 @@ public class ListActivity extends AppCompatActivity {
         }
     }
 
-    void showShadow(boolean show) {
+    @Override
+    public void showShadow(boolean show) {
         dropshadowView.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
     }
 }

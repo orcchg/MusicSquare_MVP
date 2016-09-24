@@ -16,14 +16,23 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            android:fitsSystemWindows="true"/>
+            android:background="?colorPrimary"
+            android:fitsSystemWindows="true"
+            app:navigationIcon="@drawable/ic_arrow_back_white_24dp"
+            app:titleTextColor="@color/textIcons"
+            app:title="@string/str_musicians_list"/>
 
         <android.support.design.widget.TabLayout
             android:id="@+id/tab_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:elevation="6dp"
+            app:layout_scrollFlags="scroll|enterAlways"
+            app:tabBackground="?colorPrimary"
+            app:tabMode="scrollable"
+            app:tabIndicatorColor="?colorAccent"
+            app:tabTextColor="@color/textDivider"
+            app:tabSelectedTextColor="@color/textIcons"/>
 
     </android.support.design.widget.AppBarLayout>
 
@@ -33,6 +42,10 @@
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+
+    <include layout="@layout/rv_empty_musicians"/>
+    <include layout="@layout/loading_view"/>
+    <include layout="@layout/error_view"/>
 
     <RelativeLayout
         android:id="@+id/rl_toolbar_dropshadow"

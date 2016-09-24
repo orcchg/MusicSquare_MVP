@@ -14,7 +14,8 @@ interface ServerRestAdapter {
     String ENDPOINT = "http://194.190.63.108:9123/";
 
     @GET("/all")
-    Call<List<SmallArtistEntity>> getArtists();
+    Call<List<SmallArtistEntity>> getArtists(@Query("limit") Integer limit,
+        @Query("offset") Integer offset, @Query("genres") String genres);
 
     @GET("/genres")
     Call<List<String>> getGenres();

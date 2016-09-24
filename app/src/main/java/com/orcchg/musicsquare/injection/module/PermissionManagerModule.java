@@ -18,8 +18,7 @@ public class PermissionManagerModule {
         this.context = context;
     }
 
-    @Provides
-    @Singleton
+    @Provides @Singleton
     PermissionManager providePermissionManager() {
         return new PermissionManager(this.context);
     }

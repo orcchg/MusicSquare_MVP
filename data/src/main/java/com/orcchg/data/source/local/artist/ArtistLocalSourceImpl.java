@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import hugo.weaving.DebugLog;
-import timber.log.Timber;
 
 /**
  * Cache that stores {@link ArtistEntity} models locally.
@@ -32,8 +31,7 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
 
     /* Lifecycle */
     // --------------------------------------------------------------------------------------------
-    @DebugLog
-    @Override
+    @DebugLog @Override
     public void create() {
         this.database.open();
         this.database.execSql(ArtistDatabaseContract.CREATE_TABLE_STATEMENT);
@@ -55,15 +53,14 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
 
     /* Cache stuff */
     // ------------------------------------------
-    @DebugLog
-    @Override
+    @DebugLog @Override
     public boolean isEmpty() {
         this.database.open();
         Cursor cursor = this.database.rawQuery(ArtistDatabaseContract.READ_ALL_SMALL_STATEMENT);
         boolean result = true;
         if (cursor.moveToFirst()) {
             int total = cursor.getInt(0);
-            Timber.v("Total in cache: %s", total);
+//            Timber.v("Total in cache: %s", total);
             result = total == 0;
         }
         cursor.close();
@@ -71,8 +68,7 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
         return result;
     }
 
-    @DebugLog
-    @Override
+    @DebugLog @Override
     public boolean isExpired() {
         long currentTime = System.currentTimeMillis();
         long lastUpdateTime = this.database.getLastCacheUpdateTimeMillis(SETTINGS_KEY_LAST_CACHE_UPDATE);
@@ -83,8 +79,7 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
         return expired;
     }
 
-    @DebugLog
-    @Override
+    @DebugLog @Override
     public void clear() {
         this.database.open();
         this.database.execSql(ArtistDatabaseContract.CLEAR_TABLE_STATEMENT);
@@ -96,15 +91,13 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
     // --------------------------------------------------------------------------------------------
     /* Artists */
     // ------------------------------------------
-    @DebugLog
-    @Override
+    @DebugLog @Override
     public boolean hasArtist(long artistId) {
         String statement = String.format(ArtistDatabaseContract.CONTAINS_STATEMENT, artistId);
         return checkStatement(statement);
     }
 
-    @DebugLog
-    @Override
+    @DebugLog @Override
     public void addArtist(ArtistEntity artist) {
         this.database.open();
         this.database.beginTransaction();
@@ -117,8 +110,7 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
         this.database.close();
     }
 
-    @DebugLog
-    @Override
+    @DebugLog @Override
     public void addArtists(List<ArtistEntity> artists) {
         this.database.open();
         this.database.beginTransaction();
@@ -133,14 +125,12 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
         this.database.close();
     }
 
-    @DebugLog
-    @Override
+    @DebugLog @Override
     public void updateArtists(List<ArtistEntity> artists) {
         addArtists(artists);  // using REPLACE clause
     }
 
-    @DebugLog
-    @Override
+    @DebugLog @Override
     public void removeArtists(ArtistsSpecification specification) {
         String statement = specification == null ? ArtistDatabaseContract.DELETE_ALL_STATEMENT :
                 String.format(ArtistDatabaseContract.DELETE_STATEMENT, specification.getSelectionArgs());
@@ -148,8 +138,7 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
         executeStatement(statement);
     }
 
-    @DebugLog
-    @Override
+    @DebugLog @Override
     public List<ArtistEntity> queryArtists(ArtistsSpecification specification) {
         final String statement = specification == null ? ArtistDatabaseContract.READ_ALL_STATEMENT :
                 String.format(ArtistDatabaseContract.READ_STATEMENT, specification.getSelectionArgs());
@@ -160,7 +149,7 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
         while (cursor.moveToNext()) {
             ArtistEntity artist = createArtistFromCursor(cursor);
             list.add(artist);
-            Timber.v(artist.toString());
+//            Timber.v(artist.toString());
         }
         cursor.close();
         this.database.close();
@@ -169,15 +158,13 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
 
     /* Small artists */
     // ------------------------------------------
-    @DebugLog
-    @Override
+    @DebugLog @Override
     public boolean hasSmallArtist(long artistId) {
         String statement = String.format(ArtistDatabaseContract.CONTAINS_SMALL_STATEMENT, artistId);
         return checkStatement(statement);
     }
 
-    @DebugLog
-    @Override
+    @DebugLog @Override
     public void addSmallArtist(SmallArtistEntity artist) {
         this.database.open();
         this.database.beginTransaction();
@@ -190,8 +177,7 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
         this.database.close();
     }
 
-    @DebugLog
-    @Override
+    @DebugLog @Override
     public void addSmallArtists(List<SmallArtistEntity> artists) {
         this.database.open();
         this.database.beginTransaction();
@@ -206,8 +192,7 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
         this.database.close();
     }
 
-    @DebugLog
-    @Override
+    @DebugLog @Override
     public void updateSmallArtists(List<SmallArtistEntity> artists) {
         addSmallArtists(artists);  // using REPLACE clause
     }
@@ -221,36 +206,42 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
         executeStatement(statement);
     }
 
-    @DebugLog
-    @Override
+    @DebugLog @Override
     public List<SmallArtistEntity> querySmallArtists(ArtistsSpecification specification) {
-        final String statement = specification == null ? ArtistDatabaseContract.READ_ALL_SMALL_STATEMENT :
-                String.format(ArtistDatabaseContract.READ_SMALL_STATEMENT, specification.getSelectionArgs());
+        String statement = specification == null ? ArtistDatabaseContract.READ_ALL_SMALL_STATEMENT :
+            String.format(ArtistDatabaseContract.READ_SMALL_STATEMENT, specification.getSelectionArgs());
 
-        this.database.open();
-        Cursor cursor = this.database.rawQuery(statement);
-        List<SmallArtistEntity> list = new ArrayList<>();
-        while (cursor.moveToNext()) {
-            SmallArtistEntity artist = createSmallArtistFromCursor(cursor);
-            list.add(artist);
-            Timber.v(artist.toString());
-        }
-        cursor.close();
-        this.database.close();
-        return list;
+        return executeSelectionBySpecifiedQuery(statement);
     }
 
     /* Data source implementation */
     // ------------------------------------------
-    @DebugLog
-    @Override
+    @DebugLog @Override
     public List<SmallArtistEntity> artists() {
         return querySmallArtists(null);
     }
 
-    @DebugLog
-    @Nullable
     @Override
+    public List<SmallArtistEntity> artists(int limit, int offset) {
+        String statement = String.format(ArtistDatabaseContract.READ_ALL_SMALL_STATEMENT_LIMIT, limit, offset);
+        return executeSelectionBySpecifiedQuery(statement);
+    }
+
+    @Override
+    public List<SmallArtistEntity> artists(String... genres) {
+        ArtistsSpecification specification = new ByGenresArtistsSpecification(genres);
+        String statement = String.format(ArtistDatabaseContract.READ_SMALL_STATEMENT, specification.getSelectionArgs());
+        return executeSelectionBySpecifiedQuery(statement);
+    }
+
+    @Override
+    public List<SmallArtistEntity> artists(int limit, int offset, String... genres) {
+        ArtistsSpecification specification = new ByGenresArtistsSpecification(genres);
+        String statement = String.format(ArtistDatabaseContract.READ_SMALL_STATEMENT_LIMIT, specification.getSelectionArgs(), limit, offset);
+        return executeSelectionBySpecifiedQuery(statement);
+    }
+
+    @DebugLog @Nullable @Override
     public ArtistEntity artist(long artistId) {
         List<ArtistEntity> list = queryArtists(new ByIdArtistsSpecification(artistId));
         if (!list.isEmpty()) return list.get(0);
@@ -334,5 +325,19 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
         return new SmallArtistEntity.Builder(id, name)
                 .setCover(cover_small)
                 .build();
+    }
+
+    private List<SmallArtistEntity> executeSelectionBySpecifiedQuery(String statement) {
+        this.database.open();
+        Cursor cursor = this.database.rawQuery(statement);
+        List<SmallArtistEntity> list = new ArrayList<>();
+        while (cursor.moveToNext()) {
+            SmallArtistEntity artist = createSmallArtistFromCursor(cursor);
+            list.add(artist);
+//            Timber.v(artist.toString());
+        }
+        cursor.close();
+        this.database.close();
+        return list;
     }
 }

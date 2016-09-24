@@ -1,6 +1,7 @@
 package com.orcchg.data.source.remote.artist.server;
 
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 
 import com.orcchg.data.entity.ArtistEntity;
 import com.orcchg.data.entity.SmallArtistEntity;
@@ -28,9 +29,27 @@ public class ServerCloudSource implements ArtistDataSource, GenresDataSource {
 
     @Override
     public List<SmallArtistEntity> artists() {
+        return artists(-1, 0);
+    }
+
+    @Override
+    public List<SmallArtistEntity> artists(int limit, int offset) {
+        return artists(limit, offset, null);
+    }
+
+    @Override
+    public List<SmallArtistEntity> artists(String... genres) {
+        return artists(-1, 0, genres);
+    }
+
+    @Override
+    public List<SmallArtistEntity> artists(int limit, int offset, String... genres) {
         try {
+            Integer Limit = limit == -1 ? null : limit;
+            Integer Offset = offset == 0 ? null : offset;
+            String genresQuery = genres == null || genres.length == 0 ? null : TextUtils.join(",", genres);
             Timber.i("Requesting artists from Server cloud...");
-            return this.restAdapter.getArtists().execute().body();
+            return this.restAdapter.getArtists(Limit, Offset, genresQuery).execute().body();
         } catch (IOException e) {
             Timber.e("Network error: %s", e);
             throw new NetworkException();
@@ -45,8 +64,8 @@ public class ServerCloudSource implements ArtistDataSource, GenresDataSource {
             return this.restAdapter.getArtist(artistId).execute().body();
         } catch (IOException e) {
             Timber.e("Network error: %s", e);
+            throw new NetworkException();
         }
-        return null;
     }
 
     @Override
@@ -56,7 +75,7 @@ public class ServerCloudSource implements ArtistDataSource, GenresDataSource {
             return this.restAdapter.getGenres().execute().body();
         } catch (IOException e) {
             Timber.e("Network error: %s", e);
+            throw new NetworkException();
         }
-        return null;
     }
 }

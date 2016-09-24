@@ -5,6 +5,8 @@ package com.orcchg.data.source.local.artist;
  */
 class ArtistDatabaseContract {
 
+    static final String LIMIT_OFFSET = " LIMIT %s OFFSET %s ";
+
     ArtistDatabaseContract() {
         // protect from accidental instantiation
     }
@@ -33,39 +35,42 @@ class ArtistDatabaseContract {
             ArtistsTable.COLUMN_NAME_LINK + " TEXT DEFAULT \"\", " +
             ArtistsTable.COLUMN_NAME_DESCRIPTION + " TEXT DEFAULT \"\", " +
             ArtistsTable.COLUMN_NAME_COVER_LARGE + " TEXT DEFAULT \"\", " +
-            ArtistsTable.COLUMN_NAME_COVER_SMALL + " TEXT DEFAULT \"\");";
+            ArtistsTable.COLUMN_NAME_COVER_SMALL + " TEXT DEFAULT \"\")";
 
     static final String CREATE_TABLE_SMALL_STATEMENT =
             "CREATE TABLE IF NOT EXISTS " + ArtistsTable.TABLE_SMALL_NAME + " (" +
                     ArtistsTable.COLUMN_NAME_ID + " INTEGER UNIQUE, " +
                     ArtistsTable.COLUMN_NAME_NAME + " TEXT DEFAULT \"\", " +
-                    ArtistsTable.COLUMN_NAME_COVER_SMALL + " TEXT DEFAULT \"\");";
+                    ArtistsTable.COLUMN_NAME_COVER_SMALL + " TEXT DEFAULT \"\")";
 
     static final String CLEAR_TABLE_STATEMENT =
-            "DROP TABLE IF EXISTS " + ArtistsTable.TABLE_NAME + ";";
+            "DROP TABLE IF EXISTS " + ArtistsTable.TABLE_NAME;
 
     static final String CLEAR_TABLE_SMALL_STATEMENT =
-            "DROP TABLE IF EXISTS " + ArtistsTable.TABLE_SMALL_NAME + ";";
+            "DROP TABLE IF EXISTS " + ArtistsTable.TABLE_SMALL_NAME;
 
     static final String READ_ALL_STATEMENT =
-            "SELECT * FROM " + ArtistsTable.TABLE_NAME + ";";
+            "SELECT * FROM " + ArtistsTable.TABLE_NAME;
 
     static final String READ_ALL_SMALL_STATEMENT =
             "SELECT " + ArtistsTable.COLUMN_NAME_ID + "," +
                     ArtistsTable.COLUMN_NAME_NAME + "," +
                     ArtistsTable.COLUMN_NAME_COVER_SMALL +
-            " FROM " + ArtistsTable.TABLE_NAME + ";";
+            " FROM " + ArtistsTable.TABLE_NAME;
+    static final String READ_ALL_SMALL_STATEMENT_LIMIT = READ_ALL_SMALL_STATEMENT + LIMIT_OFFSET;
 
-    static final String READ_STATEMENT = READ_ALL_STATEMENT + " WHERE %s;";
-    static final String READ_SMALL_STATEMENT = READ_ALL_SMALL_STATEMENT + " WHERE %s;";
+    static final String READ_STATEMENT = READ_ALL_STATEMENT + " WHERE %s ";
+    static final String READ_STATEMENT_LIMIT = READ_ALL_STATEMENT + LIMIT_OFFSET;
+    static final String READ_SMALL_STATEMENT = READ_ALL_SMALL_STATEMENT + " WHERE %s ";
+    static final String READ_SMALL_STATEMENT_LIMIT = READ_SMALL_STATEMENT + LIMIT_OFFSET;
 
     static final String CONTAINS_STATEMENT =
             "SELECT EXISTS(SELECT 1 FROM " + ArtistsTable.TABLE_NAME +
-                    " WHERE " + ArtistsTable.COLUMN_NAME_ID + " == %s LIMIT 1);";
+                    " WHERE " + ArtistsTable.COLUMN_NAME_ID + " == %s LIMIT 1)";
 
     static final String CONTAINS_SMALL_STATEMENT =
             "SELECT EXISTS(SELECT 1 FROM " + ArtistsTable.TABLE_SMALL_NAME +
-                    " WHERE " + ArtistsTable.COLUMN_NAME_ID + " == %s LIMIT 1);";
+                    " WHERE " + ArtistsTable.COLUMN_NAME_ID + " == %s LIMIT 1)";
 
 
     static final String INSERT_STATEMENT =
@@ -79,18 +84,18 @@ class ArtistDatabaseContract {
                     ArtistsTable.COLUMN_NAME_DESCRIPTION + ", " +
                     ArtistsTable.COLUMN_NAME_COVER_LARGE + ", " +
                     ArtistsTable.COLUMN_NAME_COVER_SMALL + ") " +
-                    "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?);";
+                    "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     static final String INSERT_SMALL_STATEMENT =
             "INSERT OR REPLACE INTO " + ArtistsTable.TABLE_SMALL_NAME + " (" +
                     ArtistsTable.COLUMN_NAME_ID + ", " +
                     ArtistsTable.COLUMN_NAME_NAME + ", " +
                     ArtistsTable.COLUMN_NAME_COVER_SMALL + ") " +
-                    "VALUES(?, ?, ?);";
+                    "VALUES(?, ?, ?)";
 
-    static final String DELETE_ALL_STATEMENT = "DELETE FROM " + ArtistsTable.TABLE_NAME + ";";
-    static final String DELETE_ALL_SMALL_STATEMENT = "DELETE FROM " + ArtistsTable.TABLE_SMALL_NAME + ";";
+    static final String DELETE_ALL_STATEMENT = "DELETE FROM " + ArtistsTable.TABLE_NAME;
+    static final String DELETE_ALL_SMALL_STATEMENT = "DELETE FROM " + ArtistsTable.TABLE_SMALL_NAME;
 
-    static final String DELETE_STATEMENT = "DELETE FROM " + ArtistsTable.TABLE_NAME + " WHERE %s;";
-    static final String DELETE_SMALL_STATEMENT = "DELETE FROM " + ArtistsTable.TABLE_SMALL_NAME + " WHERE %s;";
+    static final String DELETE_STATEMENT = "DELETE FROM " + ArtistsTable.TABLE_NAME + " WHERE %s ";
+    static final String DELETE_SMALL_STATEMENT = "DELETE FROM " + ArtistsTable.TABLE_SMALL_NAME + " WHERE %s ";
 }

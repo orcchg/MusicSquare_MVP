@@ -14,7 +14,45 @@ import javax.inject.Inject;
  */
 public class GetArtistList extends UseCase<List<Artist>> {
 
+    public static class Parameters {
+        int limit = -1;
+        int offset = 0;
+        String[] genres;
+
+        private Parameters(Builder builder) {
+            this.limit = builder.limit;
+            this.offset = builder.offset;
+            this.genres = builder.genres;
+        }
+
+        public static class Builder {
+            int limit = -1;
+            int offset = 0;
+            String[] genres;
+
+            public Builder setLimit(int limit) {
+                this.limit = limit;
+                return this;
+            }
+
+            public Builder setOffset(int offset) {
+                this.offset = offset;
+                return this;
+            }
+
+            public Builder setGenres(String[] genres) {
+                this.genres = genres;
+                return this;
+            }
+
+            public Parameters build() {
+                return new Parameters(this);
+            }
+        }
+    }
+
     final IArtistRepository artistRepository;
+    Parameters parameters;
 
     /**
      * Constructs an instance of {@link GetArtistList} use case.
@@ -34,12 +72,19 @@ public class GetArtistList extends UseCase<List<Artist>> {
         this.artistRepository = artistRepository;
     }
 
+    public void setParameters(Parameters parameters) {
+        this.parameters = parameters;
+    }
+
     @Override
     protected UseCaseRunner<List<Artist>> buildUseCaseExecuteCallback() {
         return new UseCaseRunner<List<Artist>>() {
             @Override
             public List<Artist> execute() {
-                return GetArtistList.this.artistRepository.artists();
+                int limit = GetArtistList.this.parameters.limit;
+                int offset = GetArtistList.this.parameters.offset;
+                String[] genres = GetArtistList.this.parameters.genres;
+                return GetArtistList.this.artistRepository.artists(limit, offset, genres);
             }
         };
     }
