@@ -27,12 +27,8 @@ public class TabPresenter extends BasePresenter<TabContract.View> implements Tab
 
     @Override
     public void retry() {
-        invalidateCache();
-    }
-
-    private void invalidateCache() {
-        if (isViewAttached()) getView().showLoading();
-        // TODO this.invalidateCacheUseCase.execute();
+        // TODO: invalidate cached genres
+        loadGenres();
     }
 
     private UseCase.OnPostExecuteCallback<List<String>> createGetGenresCallback() {

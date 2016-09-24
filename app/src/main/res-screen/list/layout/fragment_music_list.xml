@@ -3,8 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:layout_height="match_parent">
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh_layout"
@@ -19,8 +18,7 @@
             android:paddingLeft="@dimen/list_view_padding_left"
             android:paddingStart="@dimen/list_view_padding_left"
             android:paddingRight="@dimen/list_view_padding_right"
-            android:paddingEnd="@dimen/list_view_padding_right"
-            android:fitsSystemWindows="true"/>
+            android:paddingEnd="@dimen/list_view_padding_right"/>
     </android.support.v4.widget.SwipeRefreshLayout>
 
     <include layout="@layout/rv_empty_musicians"/>

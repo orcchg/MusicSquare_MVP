@@ -2,6 +2,7 @@ package com.orcchg.musicsquare.ui.list;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -30,6 +31,7 @@ import butterknife.OnClick;
 
 public class ListFragment extends BaseFragment<ListContract.View, ListContract.Presenter> implements ListContract.View {
     private static final String BUNDLE_KEY_GENRES = "bundle_key_genres";
+    private static final String BUNDLE_KEY_LM_STATE = "bundle_key_lm_state";
 
     @BindView(R.id.swipe_refresh_layout) SwipeRefreshLayout swipeRefreshLayout;
     @BindView(R.id.rv_musician_list) RecyclerView artistsList;
@@ -39,6 +41,7 @@ public class ListFragment extends BaseFragment<ListContract.View, ListContract.P
 
     private ListComponent listComponent;
     private ListAdapter artistsAdapter;
+    private RecyclerView.LayoutManager layoutManager;
 
     @OnClick(R.id.btn_retry)
     public void onRetryClick() {
@@ -104,14 +107,20 @@ public class ListFragment extends BaseFragment<ListContract.View, ListContract.P
         swipeRefreshLayout.setOnRefreshListener(() -> presenter.retry());
 
         if (ViewUtility.isLargeScreen(getActivity())) {
-            artistsList.setLayoutManager(new GridLayoutManager(getActivity(), getResources().getInteger(R.integer.grid_span)));
+            layoutManager = new GridLayoutManager(getActivity(), getResources().getInteger(R.integer.grid_span));
             artistsList.addItemDecoration(new GridItemDecorator(getActivity(), (R.dimen.grid_card_spacing)));
         } else {
-            artistsList.setLayoutManager(new LinearLayoutManager(getActivity()));
+            layoutManager = new LinearLayoutManager(getActivity());
         }
 
         artistsAdapter = new ListAdapter(new ArrayList<>(), this::openArtistDetails);
         artistsList.setAdapter(artistsAdapter);
+
+        if (savedInstanceState != null) {
+            Parcelable state = savedInstanceState.getParcelable(BUNDLE_KEY_LM_STATE);
+            layoutManager.onRestoreInstanceState(state);
+        }
+        artistsList.setLayoutManager(layoutManager);
 
         return rootView;
     }
@@ -120,6 +129,13 @@ public class ListFragment extends BaseFragment<ListContract.View, ListContract.P
     public void onStart() {
         super.onStart();
         presenter.loadArtists(this.genres);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        Parcelable state = layoutManager.onSaveInstanceState();
+        outState.putParcelable(BUNDLE_KEY_LM_STATE, state);
+        super.onSaveInstanceState(outState);
     }
 
     /* Contract */
