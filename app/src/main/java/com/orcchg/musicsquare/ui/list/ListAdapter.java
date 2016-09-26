@@ -22,12 +22,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import fr.castorflex.android.circularprogressbar.CircularProgressBar;
 
-public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
+class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 
     private final List<ArtistListItemVO> artists;
     private final ItemClickListener listener;
 
-    public interface ItemClickListener {
+    interface ItemClickListener {
         void onItemClick(View view, long artistId);
     }
 
@@ -45,7 +45,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
         }
     }
 
-    public ListAdapter(List<ArtistListItemVO> artists, ItemClickListener listener) {
+    ListAdapter(List<ArtistListItemVO> artists, ItemClickListener listener) {
         this.artists = artists;
         this.listener = listener;
     }
@@ -91,11 +91,11 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
         return this.artists.size();
     }
 
-    public void populate(List<ArtistListItemVO> items) {
+    void populate(List<ArtistListItemVO> items) {
         this.artists.addAll(items);
     }
 
-    public void clear() {
+    void clear() {
         this.artists.clear();
     }
 }
