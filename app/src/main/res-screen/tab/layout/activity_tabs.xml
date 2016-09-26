@@ -18,6 +18,7 @@
             android:background="?colorPrimary"
             android:elevation="0dp"
             android:minHeight="?attr/actionBarSize"
+            app:layout_scrollFlags="scroll|enterAlways"
             app:navigationIcon="@drawable/ic_arrow_back_white_24dp"
             app:titleTextColor="@color/textIcons"
             app:title="@string/str_genres_list"/>
@@ -28,7 +29,6 @@
             android:layout_height="@dimen/tabs_max_height"
             android:background="?colorPrimary"
             android:elevation="0dp"
-            app:layout_scrollFlags="scroll|enterAlways"
             app:tabMode="scrollable"
             app:tabIndicatorColor="?colorAccent"
             app:tabIndicatorHeight="@dimen/tabs_indicator_height"
