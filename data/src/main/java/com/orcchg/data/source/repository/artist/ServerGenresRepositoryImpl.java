@@ -7,7 +7,9 @@ import com.orcchg.data.source.remote.artist.GenresDataSource;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 public class ServerGenresRepositoryImpl implements IGenresRepository {
 
     private final GenresDataSource cloudSource;

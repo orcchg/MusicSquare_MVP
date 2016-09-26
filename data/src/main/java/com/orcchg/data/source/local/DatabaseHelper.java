@@ -8,11 +8,16 @@ import android.database.sqlite.SQLiteStatement;
 import java.io.File;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+import hugo.weaving.DebugLog;
+import timber.log.Timber;
+
+@Singleton
 public class DatabaseHelper {
 
     private static final int DATABASE_VERSION = 1;
-    private static final String DATABASE_NAME = "MusicSquareDatabase.db";
+    private static final String DATABASE_NAME = "MusicSquareDatabase";
 
     private static final String SETTINGS_FILE_NAME = "MusicSquareSettings";
 
@@ -22,8 +27,9 @@ public class DatabaseHelper {
     private File databaseFile;
     private LifeCycleCallback lifeCycleCallback;
     private int oldVersion;
+    private int openCounter;
 
-    @Inject
+    @DebugLog @Inject
     DatabaseHelper(Context context, FileManager fileManager) {
         this.context = context;
         this.fileManager = fileManager;
@@ -33,22 +39,38 @@ public class DatabaseHelper {
     /* Lifecycle */
     // ------------------------------------------
     public interface LifeCycleCallback {
+        void onCreate();
         void onUpgrade();
         void onDowngrade();
     }
 
-    private void openOrCreateDatabase() {
+    @DebugLog
+    private boolean openOrCreateDatabase() {
+        boolean isNewDb = !this.databaseFile.exists();
         this.database = SQLiteDatabase.openOrCreateDatabase(this.databaseFile, null);
         this.oldVersion = this.database.getVersion();
         this.database.setVersion(DATABASE_VERSION);
+        return isNewDb;
     }
 
+    @DebugLog
     private void checkVersion() {
-        if (this.oldVersion < DATABASE_VERSION) {
+        int oldVersion = this.oldVersion;
+        Timber.i("Database version: %s", oldVersion);
+        this.oldVersion = DATABASE_VERSION;  // protect from recursion
+        if (oldVersion <= 1) {
+            Timber.v("Skip upgrade-downgrade event for the very first version");
+            return;
+        }
+        if (oldVersion < DATABASE_VERSION) {
             if (this.lifeCycleCallback != null) this.lifeCycleCallback.onUpgrade();
-        } else if (this.oldVersion > DATABASE_VERSION) {
+        } else if (oldVersion > DATABASE_VERSION) {
             if (this.lifeCycleCallback != null) this.lifeCycleCallback.onDowngrade();
         }
+    }
+
+    private void checkCounter() {
+        if (this.openCounter < 0) throw new RuntimeException("Open counter is negative !");
     }
 
     public void setLifeCycleCallback(LifeCycleCallback lifeCycleCallback) {
@@ -57,15 +79,36 @@ public class DatabaseHelper {
 
     /* Interface */
     // --------------------------------------------------------------------------------------------
+    @DebugLog
     public void open() {
+        checkCounter();
+        ++this.openCounter;
+        Timber.v("Helper address: %s, open counter: %s", hashCode(), this.openCounter);
+        if (this.openCounter > 1) {
+            Timber.i("Database is already opened");
+            return;
+        }
         if (this.database == null || !this.database.isOpen()) {
-            openOrCreateDatabase();
+            if (openOrCreateDatabase() && this.lifeCycleCallback != null) {
+                this.lifeCycleCallback.onCreate();
+            }
         }
         checkVersion();
     }
 
+    @DebugLog
     public void close() {
-        this.database.close();
+        --this.openCounter;
+        checkCounter();
+        if (this.openCounter == 0) {
+            Timber.i("Database to be closed");
+            this.database.close();
+        }
+    }
+
+    @DebugLog
+    public boolean isOpened() {
+        return this.openCounter > 0;
     }
 
     public void execSql(String sql) {

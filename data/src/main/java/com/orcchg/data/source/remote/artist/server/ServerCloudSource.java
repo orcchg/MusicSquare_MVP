@@ -14,10 +14,12 @@ import java.io.IOException;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import retrofit2.Retrofit;
 import timber.log.Timber;
 
+@Singleton
 public class ServerCloudSource implements ArtistDataSource, GenresDataSource {
 
     private final ServerRestAdapter restAdapter;

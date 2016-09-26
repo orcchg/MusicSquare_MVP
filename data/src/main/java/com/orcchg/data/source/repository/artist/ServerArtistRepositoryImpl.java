@@ -50,23 +50,23 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
 
     @Override
     public List<Artist> artists(int limit, int offset, List<String> genres) {
-        return processListOfEntities(this.cloudSource.artists(limit, offset, genres));  //this.getDataSource().artists();
+        return processListOfEntities(this.getDataSource().artists(limit, offset, genres));
     }
 
     @Override
     public Artist artist(long artistId) {
-        ArtistEntity artistEntity = this.cloudSource.artist(artistId);//this.getDataSource(artistId).artist(artistId);
-//        if (this.checkCacheStaled() || !this.localSource.hasArtist(artistId)) {
-//            List<ArtistEntity> artistEntities = new ArrayList<>();
-//            artistEntities.add(artistEntity);
-//            this.localSource.updateArtists(artistEntities);
-//        }
+        ArtistEntity artistEntity = this.getDataSource(artistId).artist(artistId);
+        if (this.checkCacheStaled() || !this.localSource.hasArtist(artistId)) {
+            List<ArtistEntity> artistEntities = new ArrayList<>();
+            artistEntities.add(artistEntity);
+            this.localSource.updateArtists(artistEntities);
+        }
         return this.artistMapper.map(artistEntity);
     }
 
     @Override
     public boolean clear() {
-//        this.localSource.clear();
+        this.localSource.clear();
         return true;
     }
 
@@ -84,9 +84,9 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
     }
 
     private List<Artist> processListOfEntities(List<SmallArtistEntity> data) {
-//        if (this.checkCacheStaled()) {
-//            this.localSource.updateSmallArtists(data);
-//        }
+        if (this.checkCacheStaled()) {
+            this.localSource.updateSmallArtists(data);
+        }
         List<Artist> artists = new ArrayList<>();
         for (SmallArtistEntity entity : data) {
             artists.add(this.smallArtistMapper.map(entity));

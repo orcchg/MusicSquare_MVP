@@ -13,10 +13,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import retrofit2.Retrofit;
 import timber.log.Timber;
 
+@Singleton
 @TargetApi(16)
 public class YandexCloudSource implements ArtistDataSource {
 

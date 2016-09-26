@@ -19,6 +19,7 @@ import com.orcchg.musicsquare.injection.component.DaggerNavigationComponent;
 import com.orcchg.musicsquare.injection.component.NavigationComponent;
 import com.orcchg.musicsquare.navigation.Navigator;
 import com.orcchg.musicsquare.ui.util.ShadowHolder;
+import com.orcchg.musicsquare.util.SampleDb;
 import com.orcchg.musicsquare.util.ViewUtility;
 
 import javax.inject.Inject;
@@ -53,6 +54,9 @@ public class ListActivity extends AppCompatActivity implements ShadowHolder {
         ButterKnife.bind(this);
         initView();
         initToolbar();
+
+        SampleDb sampleDb = new SampleDb(this);
+        sampleDb.check();
     }
     
     /* View */

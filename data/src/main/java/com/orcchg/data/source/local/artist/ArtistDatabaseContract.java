@@ -5,7 +5,7 @@ package com.orcchg.data.source.local.artist;
  */
 class ArtistDatabaseContract {
 
-    static final String LIMIT_OFFSET = " LIMIT %s OFFSET %s ";
+    private static final String LIMIT_OFFSET = " LIMIT %s OFFSET %s ";
 
     ArtistDatabaseContract() {
         // protect from accidental instantiation
@@ -49,6 +49,9 @@ class ArtistDatabaseContract {
     static final String CLEAR_TABLE_SMALL_STATEMENT =
             "DROP TABLE IF EXISTS " + ArtistsTable.TABLE_SMALL_NAME;
 
+    static final String COUNT_ALL_STATEMENT = "SELECT COUNT(*) FROM " + ArtistsTable.TABLE_NAME;
+    static final String COUNT_ALL_SMALL_STATEMENT = "SELECT COUNT(*) FROM " + ArtistsTable.TABLE_SMALL_NAME;
+
     static final String READ_ALL_STATEMENT =
             "SELECT * FROM " + ArtistsTable.TABLE_NAME;
 
@@ -56,7 +59,7 @@ class ArtistDatabaseContract {
             "SELECT " + ArtistsTable.COLUMN_NAME_ID + "," +
                     ArtistsTable.COLUMN_NAME_NAME + "," +
                     ArtistsTable.COLUMN_NAME_COVER_SMALL +
-            " FROM " + ArtistsTable.TABLE_NAME;
+            " FROM " + ArtistsTable.TABLE_SMALL_NAME;
     static final String READ_ALL_SMALL_STATEMENT_LIMIT = READ_ALL_SMALL_STATEMENT + LIMIT_OFFSET;
 
     static final String READ_STATEMENT = READ_ALL_STATEMENT + " WHERE %s ";

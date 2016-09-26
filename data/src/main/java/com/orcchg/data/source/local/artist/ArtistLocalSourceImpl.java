@@ -12,11 +12,15 @@ import com.orcchg.data.source.local.DatabaseHelper;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Singleton;
+
 import hugo.weaving.DebugLog;
+import timber.log.Timber;
 
 /**
  * Cache that stores {@link ArtistEntity} models locally.
  */
+@Singleton
 public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.LifeCycleCallback {
 
     private static final String SETTINGS_KEY_LAST_CACHE_UPDATE = "last_cache_update";
@@ -39,13 +43,18 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
         this.database.close();
     }
 
-    @Override
+    @DebugLog @Override
+    public void onCreate() {
+        create();
+    }
+
+    @DebugLog @Override
     public void onUpgrade() {
         clear();
         create();
     }
 
-    @Override
+    @DebugLog @Override
     public void onDowngrade() {
         clear();
         create();
@@ -56,11 +65,11 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
     @DebugLog @Override
     public boolean isEmpty() {
         this.database.open();
-        Cursor cursor = this.database.rawQuery(ArtistDatabaseContract.READ_ALL_SMALL_STATEMENT);
+        Cursor cursor = this.database.rawQuery(ArtistDatabaseContract.COUNT_ALL_SMALL_STATEMENT);
         boolean result = true;
         if (cursor.moveToFirst()) {
             int total = cursor.getInt(0);
-//            Timber.v("Total in cache: %s", total);
+            Timber.v("Total in cache: %s", total);
             result = total == 0;
         }
         cursor.close();
@@ -70,13 +79,13 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
 
     @DebugLog @Override
     public boolean isExpired() {
-        long currentTime = System.currentTimeMillis();
-        long lastUpdateTime = this.database.getLastCacheUpdateTimeMillis(SETTINGS_KEY_LAST_CACHE_UPDATE);
-        boolean expired = ((currentTime - lastUpdateTime) > EXPIRATION_TIME);
-        if (expired) {
-            this.clear();
-        }
-        return expired;
+//        long currentTime = System.currentTimeMillis();
+//        long lastUpdateTime = this.database.getLastCacheUpdateTimeMillis(SETTINGS_KEY_LAST_CACHE_UPDATE);
+//        boolean expired = ((currentTime - lastUpdateTime) > EXPIRATION_TIME);
+//        if (expired) {
+//            this.clear();
+//        }
+        return false;  // TODO: fix:   expired;
     }
 
     @DebugLog @Override
@@ -197,8 +206,7 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
         addSmallArtists(artists);  // using REPLACE clause
     }
 
-    @DebugLog
-    @Override
+    @DebugLog @Override
     public void removeSmallArtists(ArtistsSpecification specification) {
         String statement = specification == null ? ArtistDatabaseContract.DELETE_ALL_SMALL_STATEMENT :
                 String.format(ArtistDatabaseContract.DELETE_SMALL_STATEMENT, specification.getSelectionArgs());
@@ -221,24 +229,30 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
         return querySmallArtists(null);
     }
 
-    @Override
+    @DebugLog @Override
     public List<SmallArtistEntity> artists(int limit, int offset) {
         String statement = String.format(ArtistDatabaseContract.READ_ALL_SMALL_STATEMENT_LIMIT, limit, offset);
         return executeSelectionBySpecifiedQuery(statement);
     }
 
-    @Override
-    public List<SmallArtistEntity> artists(List<String> genres) {
-        ArtistsSpecification specification = new ByGenresArtistsSpecification(genres);
-        String statement = String.format(ArtistDatabaseContract.READ_SMALL_STATEMENT, specification.getSelectionArgs());
-        return executeSelectionBySpecifiedQuery(statement);
+    @DebugLog @Override
+    public List<SmallArtistEntity> artists(@Nullable List<String> genres) {
+        if (genres != null) {
+            ArtistsSpecification specification = new ByGenresArtistsSpecification(genres);
+            String statement = String.format(ArtistDatabaseContract.READ_SMALL_STATEMENT, specification.getSelectionArgs());
+            return executeSelectionBySpecifiedQuery(statement);
+        }
+        return artists();
     }
 
-    @Override
-    public List<SmallArtistEntity> artists(int limit, int offset, List<String> genres) {
-        ArtistsSpecification specification = new ByGenresArtistsSpecification(genres);
-        String statement = String.format(ArtistDatabaseContract.READ_SMALL_STATEMENT_LIMIT, specification.getSelectionArgs(), limit, offset);
-        return executeSelectionBySpecifiedQuery(statement);
+    @DebugLog @Override
+    public List<SmallArtistEntity> artists(int limit, int offset, @Nullable List<String> genres) {
+        if (genres != null) {
+            ArtistsSpecification specification = new ByGenresArtistsSpecification(genres);
+            String statement = String.format(ArtistDatabaseContract.READ_SMALL_STATEMENT_LIMIT, specification.getSelectionArgs(), limit, offset);
+            return executeSelectionBySpecifiedQuery(statement);
+        }
+        return artists(limit, offset);
     }
 
     @DebugLog @Nullable @Override
@@ -334,7 +348,7 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
         while (cursor.moveToNext()) {
             SmallArtistEntity artist = createSmallArtistFromCursor(cursor);
             list.add(artist);
-//            Timber.v(artist.toString());
+            Timber.v(artist.toString());
         }
         cursor.close();
         this.database.close();
