@@ -3,6 +3,7 @@ package com.orcchg.data.source.remote.artist.server;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
+import com.domain.model.Genre;
 import com.orcchg.data.entity.ArtistEntity;
 import com.orcchg.data.entity.SmallArtistEntity;
 import com.orcchg.data.exception.NetworkException;
@@ -38,16 +39,16 @@ public class ServerCloudSource implements ArtistDataSource, GenresDataSource {
     }
 
     @Override
-    public List<SmallArtistEntity> artists(String... genres) {
+    public List<SmallArtistEntity> artists(List<String> genres) {
         return artists(-1, 0, genres);
     }
 
     @Override
-    public List<SmallArtistEntity> artists(int limit, int offset, String... genres) {
+    public List<SmallArtistEntity> artists(int limit, int offset, List<String> genres) {
         try {
             Integer Limit = limit == -1 ? null : limit;
             Integer Offset = offset == 0 ? null : offset;
-            String genresQuery = genres == null || genres.length == 0 ? null : TextUtils.join(",", genres);
+            String genresQuery = genres == null || genres.isEmpty() ? null : TextUtils.join(",", genres);
             Timber.i("Requesting artists from Server cloud...");
             return this.restAdapter.getArtists(Limit, Offset, genresQuery).execute().body();
         } catch (IOException e) {
@@ -69,7 +70,7 @@ public class ServerCloudSource implements ArtistDataSource, GenresDataSource {
     }
 
     @Override
-    public List<String> genres() {
+    public List<Genre> genres() {
         try {
             Timber.d("Requesting genres from cloud...");
             return this.restAdapter.getGenres().execute().body();

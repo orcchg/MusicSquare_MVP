@@ -1,5 +1,6 @@
 package com.orcchg.data.source.remote.artist.server;
 
+import com.domain.model.Genre;
 import com.orcchg.data.entity.ArtistEntity;
 import com.orcchg.data.entity.SmallArtistEntity;
 
@@ -18,7 +19,7 @@ interface ServerRestAdapter {
         @Query("offset") Integer offset, @Query("genres") String genres);
 
     @GET("/genres")
-    Call<List<String>> getGenres();
+    Call<List<Genre>> getGenres();
 
     @GET("/single")
     Call<ArtistEntity> getArtist(@Query("id") long artistId);

@@ -56,13 +56,13 @@ public class YandexCloudSource implements ArtistDataSource {
     }
 
     @Override
-    public List<SmallArtistEntity> artists(String... genres) {
+    public List<SmallArtistEntity> artists(List<String> genres) {
         Timber.w("Query parameters not supported !");
         return artists();
     }
 
     @Override
-    public List<SmallArtistEntity> artists(int limit, int offset, String... genres) {
+    public List<SmallArtistEntity> artists(int limit, int offset, List<String> genres) {
         Timber.w("Query parameters not supported !");
         return artists();
     }

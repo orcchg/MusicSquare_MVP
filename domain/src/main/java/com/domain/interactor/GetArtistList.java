@@ -17,9 +17,9 @@ public class GetArtistList extends UseCase<List<Artist>> {
     public static class Parameters {
         int limit = -1;
         int offset = 0;
-        String[] genres;
+        List<String> genres;
 
-        private Parameters(Builder builder) {
+        Parameters(Builder builder) {
             this.limit = builder.limit;
             this.offset = builder.offset;
             this.genres = builder.genres;
@@ -28,7 +28,7 @@ public class GetArtistList extends UseCase<List<Artist>> {
         public static class Builder {
             int limit = -1;
             int offset = 0;
-            String[] genres;
+            List<String> genres;
 
             public Builder setLimit(int limit) {
                 this.limit = limit;
@@ -40,7 +40,7 @@ public class GetArtistList extends UseCase<List<Artist>> {
                 return this;
             }
 
-            public Builder setGenres(String[] genres) {
+            public Builder setGenres(List<String> genres) {
                 this.genres = genres;
                 return this;
             }
@@ -83,7 +83,7 @@ public class GetArtistList extends UseCase<List<Artist>> {
             public List<Artist> execute() {
                 int limit = GetArtistList.this.parameters.limit;
                 int offset = GetArtistList.this.parameters.offset;
-                String[] genres = GetArtistList.this.parameters.genres;
+                List<String> genres = GetArtistList.this.parameters.genres;
                 return GetArtistList.this.artistRepository.artists(limit, offset, genres);
             }
         };

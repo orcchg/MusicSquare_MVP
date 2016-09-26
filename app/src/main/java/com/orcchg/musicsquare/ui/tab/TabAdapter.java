@@ -4,28 +4,29 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
+import com.domain.model.Genre;
 import com.orcchg.musicsquare.ui.list.ListFragment;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TabAdapter extends FragmentStatePagerAdapter {
+class TabAdapter extends FragmentStatePagerAdapter {
 
-    private final List<String[]> tabs;
+    private final List<Genre> tabs;
 
-    public TabAdapter(FragmentManager fm) {
+    TabAdapter(FragmentManager fm) {
         super(fm);
         this.tabs = new ArrayList<>();
     }
 
-    void setTabs(List<String[]> tabs) {
+    void setTabs(List<Genre> genres) {
         this.tabs.clear();
-        this.tabs.addAll(tabs);
+        this.tabs.addAll(genres);
     }
 
     @Override
     public Fragment getItem(int position) {
-        return ListFragment.newInstance(tabs.get(position));
+        return ListFragment.newInstance((ArrayList<String>) tabs.get(position).getGenres());
     }
 
     @Override
@@ -35,6 +36,6 @@ public class TabAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public CharSequence getPageTitle(int position) {
-        return this.tabs.isEmpty() ? "" : this.tabs.get(position)[0];
+        return this.tabs.isEmpty() ? "" : this.tabs.get(position).getName();
     }
 }

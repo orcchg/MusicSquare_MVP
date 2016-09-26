@@ -44,12 +44,12 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
     }
 
     @Override
-    public List<Artist> artists(String... genres) {
+    public List<Artist> artists(List<String> genres) {
         return artists(-1, 0, genres);
     }
 
     @Override
-    public List<Artist> artists(int limit, int offset, String... genres) {
+    public List<Artist> artists(int limit, int offset, List<String> genres) {
         return processListOfEntities(this.cloudSource.artists(limit, offset, genres));  //this.getDataSource().artists();
     }
 

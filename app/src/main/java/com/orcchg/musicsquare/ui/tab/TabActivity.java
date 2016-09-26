@@ -16,6 +16,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
+import com.domain.model.Genre;
 import com.orcchg.musicsquare.R;
 import com.orcchg.musicsquare.ui.BaseActivity;
 import com.orcchg.musicsquare.ui.tab.injection.DaggerTabComponent;
@@ -50,19 +51,29 @@ public class TabActivity extends BaseActivity<TabContract.View, TabContract.Pres
     static class Memento {
         private static final String BUNDLE_KEY_CURRENT_PAGE = "bundle_key_current_page";
         private static final String BUNDLE_KEY_FIRST_TIME_SELECT = "bundle_key_first_time_select";
+        private static final String BUNDLE_KEY_COLOR_PRIMARY = "bundle_key_color_primary";
+        private static final String BUNDLE_KEY_COLOR_PRIMARY_DARK = "bundle_key_color_primary_dark";
+        private static final String BUNDLE_KEY_COLOR_ACCENT = "bundle_key_color_accent";
 
         int currentPage;
         boolean firstTimeSelect = true;
+        @ColorInt int colorPrimary, colorPrimaryDark, colorAccent;
 
         void toBundle(@NonNull Bundle outState) {
             outState.putInt(BUNDLE_KEY_CURRENT_PAGE, currentPage);
             outState.putBoolean(BUNDLE_KEY_FIRST_TIME_SELECT, firstTimeSelect);
+            outState.putInt(BUNDLE_KEY_COLOR_PRIMARY, colorPrimary);
+            outState.putInt(BUNDLE_KEY_COLOR_PRIMARY_DARK, colorPrimaryDark);
+            outState.putInt(BUNDLE_KEY_COLOR_ACCENT, colorAccent);
         }
 
         static Memento fromBundle(@NonNull Bundle savedInstanceState) {
             Memento memento = new Memento();
             memento.currentPage = savedInstanceState.getInt(BUNDLE_KEY_CURRENT_PAGE);
             memento.firstTimeSelect = savedInstanceState.getBoolean(BUNDLE_KEY_FIRST_TIME_SELECT);
+            memento.colorPrimary = savedInstanceState.getInt(BUNDLE_KEY_COLOR_PRIMARY);
+            memento.colorPrimaryDark = savedInstanceState.getInt(BUNDLE_KEY_COLOR_PRIMARY_DARK);
+            memento.colorAccent = savedInstanceState.getInt(BUNDLE_KEY_COLOR_ACCENT);
             return memento;
         }
     }
@@ -98,7 +109,7 @@ public class TabActivity extends BaseActivity<TabContract.View, TabContract.Pres
 
         setContentView(R.layout.activity_tabs);
         ButterKnife.bind(this);
-        initResources();
+        initResources(savedInstanceState);
         initView();
         initToolbar();
     }
@@ -117,7 +128,7 @@ public class TabActivity extends BaseActivity<TabContract.View, TabContract.Pres
 
     /* View */
     // ------------------------------------------
-    private void initResources() {
+    private void initResources(@Nullable Bundle savedInstanceState) {
         TypedArray ta1 = getResources().obtainTypedArray(R.array.colorsPrimary);
         TypedArray ta2 = getResources().obtainTypedArray(R.array.colorsPrimaryDark);
         TypedArray ta3 = getResources().obtainTypedArray(R.array.colorsAccent);
@@ -129,9 +140,16 @@ public class TabActivity extends BaseActivity<TabContract.View, TabContract.Pres
             colorsPrimaryDark[i] = ta2.getColor(i, 0);
             colorsAccent[i] = ta3.getColor(i, 0);
         }
-        colorsPrimary[ta1.length()] = ViewUtils.getAttributeColor(this, R.attr.colorPrimary);
-        colorsPrimaryDark[ta2.length()] = ViewUtils.getAttributeColor(this, R.attr.colorPrimaryDark);
-        colorsAccent[ta3.length()] = ViewUtils.getAttributeColor(this, R.attr.colorAccent);
+
+        if (savedInstanceState == null) {
+          memento.colorPrimary = ViewUtils.getAttributeColor(this, R.attr.colorPrimary);
+          memento.colorPrimaryDark = ViewUtils.getAttributeColor(this, R.attr.colorPrimaryDark);
+          memento.colorAccent = ViewUtils.getAttributeColor(this, R.attr.colorAccent);
+        }
+
+        colorsPrimary[ta1.length()] = memento.colorPrimary;
+        colorsPrimaryDark[ta2.length()] = memento.colorPrimaryDark;
+        colorsAccent[ta3.length()] = memento.colorAccent;
         ta1.recycle();
         ta2.recycle();
         ta3.recycle();
@@ -141,7 +159,7 @@ public class TabActivity extends BaseActivity<TabContract.View, TabContract.Pres
         tabsAdapter = new TabAdapter(getSupportFragmentManager());
 
         viewPager.setAdapter(tabsAdapter);
-        viewPager.setOffscreenPageLimit(4);
+        viewPager.setOffscreenPageLimit(1);
         viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -211,14 +229,16 @@ public class TabActivity extends BaseActivity<TabContract.View, TabContract.Pres
 
         TypeEvaluator evaluator = new ArgbEvaluator();
         Random random = new Random();
-        int fromIndex = random.nextInt(colorsPrimary.length);
         int toIndex = random.nextInt(colorsPrimary.length);
-        @ColorInt int fromColor = colorsPrimary[fromIndex];
+        @ColorInt int fromColor = memento.colorPrimary;
         @ColorInt int toColor = colorsPrimary[toIndex];
-        @ColorInt int fromColorDark = colorsPrimaryDark[fromIndex];
+        memento.colorPrimary = toColor;
+        @ColorInt int fromColorDark = memento.colorPrimaryDark;
         @ColorInt int toColorDark = colorsPrimaryDark[toIndex];
-        @ColorInt int fromAccent = colorsAccent[fromIndex];
+        memento.colorPrimaryDark = toColorDark;
+        @ColorInt int fromAccent = memento.colorAccent;
         @ColorInt int toAccent = colorsAccent[toIndex];
+        memento.colorAccent = toAccent;
         ValueAnimator animator = ValueAnimator.ofObject(evaluator, fromColor, toColor);
         ValueAnimator animatorDark = ValueAnimator.ofObject(evaluator, fromColorDark, toColorDark);
         ValueAnimator animatorAccent = ValueAnimator.ofObject(evaluator, fromAccent, toAccent);
@@ -236,11 +256,11 @@ public class TabActivity extends BaseActivity<TabContract.View, TabContract.Pres
     /* Contract */
     // ------------------------------------------
     @Override
-    public void showTabs(List<String[]> titles) {
+    public void showTabs(List<Genre> genres) {
         loadingView.setVisibility(View.GONE);
         errorView.setVisibility(View.GONE);
 
-        if (titles == null || titles.isEmpty()) {
+        if (genres == null || genres.isEmpty()) {
             dropshadowView.setVisibility(View.VISIBLE);
             emptyView.setVisibility(View.VISIBLE);
             tabLayout.setVisibility(View.GONE);
@@ -250,7 +270,7 @@ public class TabActivity extends BaseActivity<TabContract.View, TabContract.Pres
             emptyView.setVisibility(View.GONE);
             tabLayout.setVisibility(View.VISIBLE);
             viewPager.setVisibility(View.VISIBLE);
-            tabsAdapter.setTabs(titles);
+            tabsAdapter.setTabs(genres);
             tabsAdapter.notifyDataSetChanged();
 
             viewPager.setCurrentItem(memento.currentPage);

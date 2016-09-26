@@ -2,9 +2,9 @@ package com.orcchg.musicsquare.ui.tab;
 
 import com.domain.interactor.GetGenresList;
 import com.domain.interactor.UseCase;
+import com.domain.model.Genre;
 import com.orcchg.musicsquare.ui.BasePresenter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -31,17 +31,11 @@ public class TabPresenter extends BasePresenter<TabContract.View> implements Tab
         loadGenres();
     }
 
-    private UseCase.OnPostExecuteCallback<List<String>> createGetGenresCallback() {
-        return new UseCase.OnPostExecuteCallback<List<String>>() {
+    private UseCase.OnPostExecuteCallback<List<Genre>> createGetGenresCallback() {
+        return new UseCase.OnPostExecuteCallback<List<Genre>>() {
             @Override
-            public void onFinish(List<String> genres) {
-                // TODO: merge duplicates
-                List<String[]> titles = new ArrayList<>();
-                for (String genre : genres) {
-                    String[] array = new String[]{genre};
-                    titles.add(array);
-                }
-                if (isViewAttached()) getView().showTabs(titles);
+            public void onFinish(List<Genre> genres) {
+                if (isViewAttached()) getView().showTabs(genres);
             }
 
             @Override

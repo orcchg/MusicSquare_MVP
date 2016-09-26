@@ -49,7 +49,7 @@ public class ListFragment extends BaseFragment<ListContract.View, ListContract.P
     }
 
     private ShadowHolder shadowHolder;
-    private String[] genres;
+    private ArrayList<String> genres;
 
     @NonNull
     @Override
@@ -71,9 +71,13 @@ public class ListFragment extends BaseFragment<ListContract.View, ListContract.P
 
     /* Lifecycle */
     // ------------------------------------------
-    public static ListFragment newInstance(String... genres) {
+    public static ListFragment newInstance() {
+        return newInstance(null);
+    }
+
+    public static ListFragment newInstance(@Nullable ArrayList<String> genres) {
         Bundle args = new Bundle();
-        args.putStringArray(BUNDLE_KEY_GENRES, genres);
+        args.putStringArrayList(BUNDLE_KEY_GENRES, genres);
         ListFragment fragment = new ListFragment();
         fragment.setArguments(args);
         return fragment;
@@ -93,7 +97,7 @@ public class ListFragment extends BaseFragment<ListContract.View, ListContract.P
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
-        this.genres = args.getStringArray(BUNDLE_KEY_GENRES);
+        this.genres = args.getStringArrayList(BUNDLE_KEY_GENRES);
     }
 
     @Nullable

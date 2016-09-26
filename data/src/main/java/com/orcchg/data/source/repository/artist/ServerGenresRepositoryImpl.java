@@ -1,5 +1,6 @@
 package com.orcchg.data.source.repository.artist;
 
+import com.domain.model.Genre;
 import com.domain.repository.IGenresRepository;
 import com.orcchg.data.source.remote.artist.GenresDataSource;
 
@@ -18,7 +19,7 @@ public class ServerGenresRepositoryImpl implements IGenresRepository {
     }
 
     @Override
-    public List<String> genres() {
+    public List<Genre> genres() {
         return this.cloudSource.genres();
     }
 

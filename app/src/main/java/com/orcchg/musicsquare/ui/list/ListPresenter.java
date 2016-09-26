@@ -17,7 +17,7 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
     private final GetArtistList getArtistListUseCase;
     private final InvalidateCache invalidateCacheUseCase;
 
-    String[] genres;
+    List<String> genres;
 
     /**
      * Constructs an instance of {@link ListPresenter}.
@@ -47,12 +47,12 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
     }
 
     @Override
-    public void loadArtists(String... genres) {
+    public void loadArtists(List<String> genres) {
         loadArtists(-1, 0, genres);
     }
 
     @Override
-    public void loadArtists(int limit, int offset, String... genres) {
+    public void loadArtists(int limit, int offset, List<String> genres) {
         this.genres = genres;
         if (isViewAttached()) getView().showLoading();
         GetArtistList.Parameters parameters = new GetArtistList.Parameters.Builder()
@@ -90,10 +90,10 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
         };
     }
 
-    private UseCase.OnPostExecuteCallback createInvalidateCacheCallback() {
-        return new UseCase.OnPostExecuteCallback() {
+    private UseCase.OnPostExecuteCallback<Boolean> createInvalidateCacheCallback() {
+        return new UseCase.OnPostExecuteCallback<Boolean>() {
             @Override
-            public void onFinish(Object values) {
+            public void onFinish(Boolean values) {
                 loadArtists(ListPresenter.this.genres);
             }
 

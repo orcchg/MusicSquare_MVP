@@ -1,9 +1,11 @@
 package com.orcchg.data.source.local.artist;
 
-public class ByGenresArtistsSpecification implements ArtistsSpecification {
-    private final String[] genres;
+import java.util.List;
 
-    ByGenresArtistsSpecification(String... genres) {
+class ByGenresArtistsSpecification implements ArtistsSpecification {
+    private final List<String> genres;
+
+    ByGenresArtistsSpecification(List<String> genres) {
         this.genres = genres;
     }
 

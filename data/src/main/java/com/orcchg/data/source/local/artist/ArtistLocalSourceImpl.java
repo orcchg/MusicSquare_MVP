@@ -228,14 +228,14 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
     }
 
     @Override
-    public List<SmallArtistEntity> artists(String... genres) {
+    public List<SmallArtistEntity> artists(List<String> genres) {
         ArtistsSpecification specification = new ByGenresArtistsSpecification(genres);
         String statement = String.format(ArtistDatabaseContract.READ_SMALL_STATEMENT, specification.getSelectionArgs());
         return executeSelectionBySpecifiedQuery(statement);
     }
 
     @Override
-    public List<SmallArtistEntity> artists(int limit, int offset, String... genres) {
+    public List<SmallArtistEntity> artists(int limit, int offset, List<String> genres) {
         ArtistsSpecification specification = new ByGenresArtistsSpecification(genres);
         String statement = String.format(ArtistDatabaseContract.READ_SMALL_STATEMENT_LIMIT, specification.getSelectionArgs(), limit, offset);
         return executeSelectionBySpecifiedQuery(statement);

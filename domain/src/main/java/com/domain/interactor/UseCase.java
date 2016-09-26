@@ -47,7 +47,7 @@ public abstract class UseCase<Result> {
      *
      * @param postExecuteCallback how to process the result
      */
-    public void setPostExecuteCallback(OnPostExecuteCallback postExecuteCallback) {
+    public void setPostExecuteCallback(OnPostExecuteCallback<Result> postExecuteCallback) {
         this.postExecuteCallback = postExecuteCallback;
     }
 
