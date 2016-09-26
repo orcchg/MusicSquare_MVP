@@ -43,11 +43,11 @@ class ArtistDatabaseContract {
                     ArtistsTable.COLUMN_NAME_NAME + " TEXT DEFAULT \"\", " +
                     ArtistsTable.COLUMN_NAME_COVER_SMALL + " TEXT DEFAULT \"\")";
 
-    static final String CLEAR_TABLE_STATEMENT =
-            "DROP TABLE IF EXISTS " + ArtistsTable.TABLE_NAME;
+    static final String DELETE_TABLE_STATEMENT = "DROP TABLE IF EXISTS " + ArtistsTable.TABLE_NAME;
+    static final String DELETE_TABLE_SMALL_STATEMENT = "DROP TABLE IF EXISTS " + ArtistsTable.TABLE_SMALL_NAME;
 
-    static final String CLEAR_TABLE_SMALL_STATEMENT =
-            "DROP TABLE IF EXISTS " + ArtistsTable.TABLE_SMALL_NAME;
+    static final String CLEAR_TABLE_STATEMENT = "DELETE FROM " + ArtistsTable.TABLE_NAME;
+    static final String CLEAR_TABLE_SMALL_STATEMENT = "DELETE FROM " + ArtistsTable.TABLE_SMALL_NAME;
 
     static final String COUNT_ALL_STATEMENT = "SELECT COUNT(*) FROM " + ArtistsTable.TABLE_NAME;
     static final String COUNT_ALL_SMALL_STATEMENT = "SELECT COUNT(*) FROM " + ArtistsTable.TABLE_SMALL_NAME;
