@@ -1,5 +1,7 @@
 package com.orcchg.data.source.repository.artist;
 
+import android.support.annotation.IntDef;
+
 import com.domain.model.Artist;
 import com.domain.repository.IArtistRepository;
 import com.orcchg.data.entity.ArtistEntity;
@@ -9,6 +11,8 @@ import com.orcchg.data.entity.mapper.SmallArtistMapper;
 import com.orcchg.data.source.local.artist.ArtistLocalSource;
 import com.orcchg.data.source.remote.artist.ArtistDataSource;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,11 +22,17 @@ import javax.inject.Singleton;
 
 @Singleton
 public class ServerArtistRepositoryImpl implements IArtistRepository {
+    private static final int SOURCE_REMOTE = 0;
+    private static final int SOURCE_LOCAL = 1;
+    @IntDef({SOURCE_REMOTE, SOURCE_LOCAL})
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface SourceType {}
 
     private final ArtistDataSource cloudSource;
     private final ArtistLocalSource localSource;
     private final SmallArtistMapper smallArtistMapper;
     private final ArtistMapper artistMapper;
+    private @SourceType int source;
 
     @Inject
     ServerArtistRepositoryImpl(@Named("serverCloud") ArtistDataSource cloudSource, ArtistLocalSource localSource,
@@ -56,7 +66,8 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
     @Override
     public Artist artist(long artistId) {
         ArtistEntity artistEntity = this.getDataSource(artistId).artist(artistId);
-        if (this.checkCacheStaled() || !this.localSource.hasArtist(artistId)) {
+        if (this.source == SOURCE_REMOTE &&
+            (this.checkCacheStaled() || !this.localSource.hasArtist(artistId))) {
             List<ArtistEntity> artistEntities = new ArrayList<>();
             artistEntities.add(artistEntity);
             this.localSource.updateArtists(artistEntities);
@@ -75,16 +86,21 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
     }
 
     private ArtistDataSource getDataSource() {
-        return this.checkCacheStaled() ? this.cloudSource : this.localSource;
+        return getDataSource(-1);
     }
 
     private ArtistDataSource getDataSource(long artistId) {
-        return this.checkCacheStaled() ||
-              !this.localSource.hasArtist(artistId) ? this.cloudSource : this.localSource;
+        if (this.checkCacheStaled() || (artistId >= 0 && !this.localSource.hasArtist(artistId))) {
+            this.source = SOURCE_REMOTE;
+            return this.cloudSource;
+        } else {
+            this.source = SOURCE_LOCAL;
+            return this.localSource;
+        }
     }
 
     private List<Artist> processListOfEntities(List<SmallArtistEntity> data) {
-        if (this.checkCacheStaled()) {
+        if (this.source == SOURCE_REMOTE && this.checkCacheStaled()) {
             this.localSource.updateSmallArtists(data);
         }
         List<Artist> artists = new ArrayList<>();
