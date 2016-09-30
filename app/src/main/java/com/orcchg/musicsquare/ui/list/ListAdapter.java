@@ -33,7 +33,7 @@ class ListAdapter extends RecyclerView.Adapter<AbstractViewHolder> {
     public AbstractViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         switch (viewType) {
             case VIEW_TYPE_NORMAL:
-                return new ArtistViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.rv_item_musician, parent, false), this.listener);
+                return new ArtistViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.rv_item_musician, parent, false), listener);
             case VIEW_TYPE_LOADING:
                 return new LoadingViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.rv_item_loading, parent, false));
         }
@@ -43,19 +43,19 @@ class ListAdapter extends RecyclerView.Adapter<AbstractViewHolder> {
     @Override
     public void onBindViewHolder(AbstractViewHolder holder, int position) {
         if (getItemViewType(position) == VIEW_TYPE_LOADING) return;
-        ArtistListItemVO artist = this.artists.get(position);
+        ArtistListItemVO artist = artists.get(position);
         NormalViewHolder normalViewHolder = (NormalViewHolder) holder;
         normalViewHolder.bind(artist);
     }
 
     @Override
     public int getItemCount() {
-        return this.artists.isEmpty() ? 0 : this.artists.size() + (this.isThereMore ? 1 : 0);
+        return artists.isEmpty() ? 0 : artists.size() + (isThereMore ? 1 : 0);
     }
 
     @Override
     public int getItemViewType(int position) {
-        boolean isLoading = this.isThereMore && position == getItemCount() - 1;
+        boolean isLoading = isThereMore && position == getItemCount() - 1;
         return isLoading ? VIEW_TYPE_LOADING : VIEW_TYPE_NORMAL;
     }
 
@@ -68,7 +68,7 @@ class ListAdapter extends RecyclerView.Adapter<AbstractViewHolder> {
     }
 
     void clear() {
-        this.artists.clear();
+        artists.clear();
         notifyDataSetChanged();
     }
 }

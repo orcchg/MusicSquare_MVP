@@ -74,33 +74,33 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
 
     @Override
     public Artist artist(long artistId) {
-        ArtistEntity artistEntity = this.getDataSource(artistId).artist(artistId);
-        if (this.source == SOURCE_REMOTE &&
-            (checkCacheStaled() || !this.localSource.hasArtist(artistId))) {
+        ArtistEntity artistEntity = getDataSource(artistId).artist(artistId);
+        if (source == SOURCE_REMOTE &&
+            (checkCacheStaled() || !localSource.hasArtist(artistId))) {
             List<ArtistEntity> artistEntities = new ArrayList<>();
             artistEntities.add(artistEntity);
-            this.localSource.updateArtists(artistEntities);
+            localSource.updateArtists(artistEntities);
         }
-        return this.artistMapper.map(artistEntity);
+        return artistMapper.map(artistEntity);
     }
 
     @Override
     public boolean clear() {
-        this.localSource.clear();
+        localSource.clear();
         return true;
     }
 
     @Override
     public TotalValue total() {
         // total items count is always fetched from remote cloud to be actual
-        TotalValueEntity totalValueEntity = this.cloudSource.total();
-        return this.totalValueMapper.map(totalValueEntity);
+        TotalValueEntity totalValueEntity = cloudSource.total();
+        return totalValueMapper.map(totalValueEntity);
     }
 
     /* Internal */
     // --------------------------------------------------------------------------------------------
     private boolean checkCacheStaled() {
-        return this.localSource.isEmpty() || this.localSource.isExpired();
+        return localSource.isEmpty() || localSource.isExpired();
     }
 
     private ArtistDataSource getDataSource() {
@@ -108,17 +108,17 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
     }
 
     private ArtistDataSource getDataSource(long artistId) {
-        if (checkCacheStaled() || (artistId >= 0 && !this.localSource.hasArtist(artistId))) {
-            this.source = SOURCE_REMOTE;
-            return this.cloudSource;
+        if (checkCacheStaled() || (artistId >= 0 && !localSource.hasArtist(artistId))) {
+            source = SOURCE_REMOTE;
+            return cloudSource;
         } else {
-            this.source = SOURCE_LOCAL;
-            return this.localSource;
+            source = SOURCE_LOCAL;
+            return localSource;
         }
     }
 
     private List<SmallArtistEntity> getArtists(int limit, int offset, List<String> genres) {
-        int total = this.localSource.totalItems();
+        int total = localSource.totalItems();
         int available = total - offset;
         int needed = limit + offset - total;
         Timber.v("Total %s, Available %s, Needed %s", total, available, needed);
@@ -126,8 +126,8 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
         // case 0: total is enough - get all items from local cache.
         if (needed <= 0) {
             Timber.v("Case 1: get all from local cache");
-            this.source = SOURCE_LOCAL;
-            return this.localSource.artists(limit, offset, genres);
+            source = SOURCE_LOCAL;
+            return localSource.artists(limit, offset, genres);
         }
 
         // case 2: total is less - get all items as requested from remote cloud.
@@ -135,31 +135,31 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
             limit -= available;
             offset += available;
             Timber.v("Case 2: get all from cloud, limit = %s, offset = %s", limit, offset);
-            this.source = SOURCE_REMOTE;
-            return this.cloudSource.artists(limit, offset, genres);
+            source = SOURCE_REMOTE;
+            return cloudSource.artists(limit, offset, genres);
         }
 
         // case 3: get available items from local cache and the rest from remote cloud,
         // adjusting limit and offset in order to make them aligned with the initial request.
         List<SmallArtistEntity> local = new ArrayList<>();
         if (available > 0 && needed > 0) {
-            this.source = SOURCE_REMOTE;  // force update local cache
+            source = SOURCE_REMOTE;  // force update local cache
             int newOffset = offset + available;
             Timber.v("Case 3: get (%s, %s) from local cache and (%s, %s) from cloud", available, offset, needed, newOffset);
-            local = this.localSource.artists(available, offset, genres);
-            List<SmallArtistEntity> remote = this.cloudSource.artists(needed, newOffset, genres);
+            local = localSource.artists(available, offset, genres);
+            List<SmallArtistEntity> remote = cloudSource.artists(needed, newOffset, genres);
             local.addAll(remote);
         }
         return local;
     }
 
     private List<Artist> processListOfEntities(List<SmallArtistEntity> data) {
-        if (this.source == SOURCE_REMOTE) {
-            this.localSource.updateSmallArtists(data);
+        if (source == SOURCE_REMOTE) {
+            localSource.updateSmallArtists(data);
         }
         List<Artist> artists = new ArrayList<>();
         for (SmallArtistEntity entity : data) {
-            artists.add(this.smallArtistMapper.map(entity));
+            artists.add(smallArtistMapper.map(entity));
         }
         return artists;
     }

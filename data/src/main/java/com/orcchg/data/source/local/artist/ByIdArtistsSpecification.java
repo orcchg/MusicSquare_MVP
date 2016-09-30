@@ -15,6 +15,6 @@ class ByIdArtistsSpecification implements ArtistsSpecification {
 
     @Override
     public String getSelectionArgs() {
-        return ArtistDatabaseContract.ArtistsTable.COLUMN_NAME_ID + " = " + Long.toString(this.id);
+        return ArtistDatabaseContract.ArtistsTable.COLUMN_NAME_ID + " = " + Long.toString(id);
     }
 }

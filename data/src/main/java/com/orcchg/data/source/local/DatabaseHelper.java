@@ -46,10 +46,10 @@ public class DatabaseHelper {
 
     @DebugLog
     private boolean openOrCreateDatabase() {
-        boolean isNewDb = !this.databaseFile.exists();
-        this.database = SQLiteDatabase.openOrCreateDatabase(this.databaseFile, null);
-        this.oldVersion = this.database.getVersion();
-        this.database.setVersion(DATABASE_VERSION);
+        boolean isNewDb = !databaseFile.exists();
+        database = SQLiteDatabase.openOrCreateDatabase(databaseFile, null);
+        oldVersion = database.getVersion();
+        database.setVersion(DATABASE_VERSION);
         return isNewDb;
     }
 
@@ -63,14 +63,14 @@ public class DatabaseHelper {
             return;
         }
         if (oldVersion < DATABASE_VERSION) {
-            if (this.lifeCycleCallback != null) this.lifeCycleCallback.onUpgrade();
+            if (lifeCycleCallback != null) lifeCycleCallback.onUpgrade();
         } else if (oldVersion > DATABASE_VERSION) {
-            if (this.lifeCycleCallback != null) this.lifeCycleCallback.onDowngrade();
+            if (lifeCycleCallback != null) lifeCycleCallback.onDowngrade();
         }
     }
 
     private void checkCounter() {
-        if (this.openCounter < 0) throw new RuntimeException("Open counter is negative !");
+        if (openCounter < 0) throw new RuntimeException("Open counter is negative !");
     }
 
     public void setLifeCycleCallback(LifeCycleCallback lifeCycleCallback) {
@@ -82,15 +82,15 @@ public class DatabaseHelper {
     @DebugLog
     public void open() {
         checkCounter();
-        ++this.openCounter;
-        Timber.v("Helper address: %s, open counter: %s", hashCode(), this.openCounter);
-        if (this.openCounter > 1) {
+        ++openCounter;
+        Timber.v("Helper address: %s, open counter: %s", hashCode(), openCounter);
+        if (openCounter > 1) {
             Timber.i("Database is already opened");
             return;
         }
-        if (this.database == null || !this.database.isOpen()) {
-            if (openOrCreateDatabase() && this.lifeCycleCallback != null) {
-                this.lifeCycleCallback.onCreate();
+        if (database == null || !database.isOpen()) {
+            if (openOrCreateDatabase() && lifeCycleCallback != null) {
+                lifeCycleCallback.onCreate();
             }
         }
         checkVersion();
@@ -98,43 +98,43 @@ public class DatabaseHelper {
 
     @DebugLog
     public void close() {
-        --this.openCounter;
+        --openCounter;
         checkCounter();
-        if (this.openCounter == 0) {
+        if (openCounter == 0) {
             Timber.i("Database to be closed");
-            this.database.close();
+            database.close();
         }
     }
 
     @DebugLog
     public boolean isOpened() {
-        return this.openCounter > 0;
+        return openCounter > 0;
     }
 
     public void execSql(String sql) {
-        this.database.execSQL(sql);
+        database.execSQL(sql);
     }
 
     public Cursor rawQuery(String statement) {
-        return this.database.rawQuery(statement, null);
+        return database.rawQuery(statement, null);
     }
 
     /* Raw transaction */
     // ------------------------------------------
     public void beginTransaction() {
-        this.database.beginTransaction();
+        database.beginTransaction();
     }
 
     public SQLiteStatement compileStatement(String statement) {
-        return this.database.compileStatement(statement);
+        return database.compileStatement(statement);
     }
 
     public void setTransactionSuccessful() {
-        this.database.setTransactionSuccessful();
+        database.setTransactionSuccessful();
     }
 
     public void endTransaction() {
-        this.database.endTransaction();
+        database.endTransaction();
     }
 
     /* Expiration */
@@ -144,13 +144,13 @@ public class DatabaseHelper {
      */
     public void setLastCacheUpdateTimeMillis(String key) {
         long currentMillis = System.currentTimeMillis();
-        this.fileManager.writeToPreferences(this.context, SETTINGS_FILE_NAME, key, currentMillis);
+        fileManager.writeToPreferences(context, SETTINGS_FILE_NAME, key, currentMillis);
     }
 
     /**
      * Get in millis, the last time the cache was accessed.
      */
     public long getLastCacheUpdateTimeMillis(String key) {
-        return this.fileManager.getFromPreferences(this.context, SETTINGS_FILE_NAME, key);
+        return fileManager.getFromPreferences(context, SETTINGS_FILE_NAME, key);
     }
 }

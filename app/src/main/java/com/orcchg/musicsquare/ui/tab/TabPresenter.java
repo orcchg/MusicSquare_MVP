@@ -19,10 +19,12 @@ public class TabPresenter extends BasePresenter<TabContract.View> implements Tab
         this.getGenresListUseCase.setPostExecuteCallback(createGetGenresCallback());
     }
 
+    /* Contract */
+    // --------------------------------------------------------------------------------------------
     @Override
     public void loadGenres() {
         if (isViewAttached()) getView().showLoading();
-        this.getGenresListUseCase.execute();
+        getGenresListUseCase.execute();
     }
 
     @Override
@@ -31,6 +33,8 @@ public class TabPresenter extends BasePresenter<TabContract.View> implements Tab
         loadGenres();
     }
 
+    /* Callback */
+    // --------------------------------------------------------------------------------------------
     private UseCase.OnPostExecuteCallback<List<Genre>> createGetGenresCallback() {
         return new UseCase.OnPostExecuteCallback<List<Genre>>() {
             @Override

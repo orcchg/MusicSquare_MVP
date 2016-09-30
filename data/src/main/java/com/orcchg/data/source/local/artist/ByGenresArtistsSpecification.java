@@ -13,7 +13,7 @@ class ByGenresArtistsSpecification implements ArtistsSpecification {
     public String getSelectionArgs() {
         String delimiter = "";
         StringBuilder builder = new StringBuilder();
-        for (String genre : this.genres) {
+        for (String genre : genres) {
             builder.append(delimiter)
                     .append(ArtistDatabaseContract.ArtistsTable.COLUMN_NAME_GENRES)
                     .append(" LIKE '%").append(genre).append("%' ");

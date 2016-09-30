@@ -41,6 +41,6 @@ public class DetailsModule {
     @PerActivity
     GetArtistDetails provideGetArtistDetails(IArtistRepository artistRepository,
             ThreadExecutor threadExecutor, PostExecuteScheduler postExecuteScheduler) {
-        return new GetArtistDetails(this.artistId, artistRepository, threadExecutor, postExecuteScheduler);
+        return new GetArtistDetails(artistId, artistRepository, threadExecutor, postExecuteScheduler);
     }
 }

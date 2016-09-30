@@ -89,12 +89,12 @@ public abstract class BaseActivity<V extends MvpView, P extends MvpPresenter<V>>
     }
 
     protected PermissionManagerComponent getPermissionManagerComponent() {
-        return this.permissionManagerComponent;
+        return permissionManagerComponent;
     }
 
     private void injectPermissionManager() {
-        this.permissionManagerComponent = DaggerPermissionManagerComponent.builder()
-                .permissionManagerModule(new PermissionManagerModule(this.getApplicationContext()))
-                .build();
+        permissionManagerComponent = DaggerPermissionManagerComponent.builder()
+            .permissionManagerModule(new PermissionManagerModule(getApplicationContext()))
+            .build();
     }
 }

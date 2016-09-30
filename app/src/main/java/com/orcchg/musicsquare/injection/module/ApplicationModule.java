@@ -39,7 +39,7 @@ public class ApplicationModule {
 
     @Provides @Singleton
     Context provideApplicationContext() {
-        return this.application.getApplicationContext();
+        return application.getApplicationContext();
     }
 
     @Provides @Singleton

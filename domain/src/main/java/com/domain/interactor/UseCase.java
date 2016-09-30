@@ -57,17 +57,17 @@ public abstract class UseCase<Result> implements Runnable {
      * {@link UseCase#postExecuteCallback}.
      */
     public void execute() {
-        this.threadExecutor.execute(this);
+        threadExecutor.execute(this);
     }
 
     @Override
     public void run() {
         try {
             Result result = doAction();
-            UseCase.this.postExecuteScheduler.post(UseCase.this.wrapToRunnable(result));
+            postExecuteScheduler.post(wrapToRunnable(result));
         } catch (Throwable error) {
             error.printStackTrace();
-            UseCase.this.postExecuteScheduler.post(UseCase.this.wrapToRunnable(error));
+            postExecuteScheduler.post(wrapToRunnable(error));
         }
     }
 
@@ -77,7 +77,7 @@ public abstract class UseCase<Result> implements Runnable {
         return new Runnable() {
             @Override
             public void run() {
-                UseCase.this.postExecuteCallback.onFinish(result);
+                postExecuteCallback.onFinish(result);
             }
         };
     }
@@ -86,7 +86,7 @@ public abstract class UseCase<Result> implements Runnable {
         return new Runnable() {
             @Override
             public void run() {
-                UseCase.this.postExecuteCallback.onError(error);
+                postExecuteCallback.onError(error);
             }
         };
     }

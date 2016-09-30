@@ -27,8 +27,8 @@ public class ServerCloudSource implements ArtistDataSource, GenresDataSource {
 
     @Inject
     ServerCloudSource(Retrofit.Builder retrofit) {
-        this.restAdapter = retrofit.baseUrl(ServerRestAdapter.ENDPOINT).build()
-                .create(ServerRestAdapter.class);
+        restAdapter = retrofit.baseUrl(ServerRestAdapter.ENDPOINT).build()
+            .create(ServerRestAdapter.class);
     }
 
     @Override
@@ -53,7 +53,7 @@ public class ServerCloudSource implements ArtistDataSource, GenresDataSource {
             Integer Offset = offset == 0 ? null : offset;
             String genresQuery = genres == null || genres.isEmpty() ? null : TextUtils.join(",", genres);
             Timber.i("Requesting artists from Server cloud...");
-            return this.restAdapter.artists(Limit, Offset, genresQuery).execute().body();
+            return restAdapter.artists(Limit, Offset, genresQuery).execute().body();
         } catch (IOException e) {
             Timber.e("Network error: %s", e);
             throw new NetworkException();
@@ -65,7 +65,7 @@ public class ServerCloudSource implements ArtistDataSource, GenresDataSource {
     public ArtistEntity artist(long artistId) {
         try {
             Timber.d("Requesting artist from cloud...");
-            return this.restAdapter.artist(artistId).execute().body();
+            return restAdapter.artist(artistId).execute().body();
         } catch (IOException e) {
             Timber.e("Network error: %s", e);
             throw new NetworkException();
@@ -76,7 +76,7 @@ public class ServerCloudSource implements ArtistDataSource, GenresDataSource {
     public List<Genre> genres() {
         try {
             Timber.d("Requesting genres from cloud...");
-            return this.restAdapter.genres().execute().body();
+            return restAdapter.genres().execute().body();
         } catch (IOException e) {
             Timber.e("Network error: %s", e);
             throw new NetworkException();
@@ -93,7 +93,7 @@ public class ServerCloudSource implements ArtistDataSource, GenresDataSource {
         try {
             Timber.d("Requesting total artists count from cloud...");
             String genresQuery = genres == null || genres.isEmpty() ? null : TextUtils.join(",", genres);
-            return this.restAdapter.total(genresQuery).execute().body();
+            return restAdapter.total(genresQuery).execute().body();
         } catch (IOException e) {
             Timber.e("Network error: %s", e);
             throw new NetworkException();

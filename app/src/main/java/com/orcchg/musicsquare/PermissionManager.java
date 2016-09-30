@@ -30,8 +30,7 @@ public class PermissionManager {
     /* Internal */
     // --------------------------------------------------------------------------------------------
     private boolean hasPermission(String permission) {
-        return ContextCompat.checkSelfPermission(this.context, permission) ==
-                PackageManager.PERMISSION_GRANTED;
+        return ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED;
     }
 
     private void requestPermissions(Activity activity, int requestCode, String... permissions) {

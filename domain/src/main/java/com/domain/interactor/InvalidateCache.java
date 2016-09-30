@@ -19,6 +19,6 @@ public class InvalidateCache extends UseCase<Boolean> {
 
     @Override
     protected Boolean doAction() {
-        return InvalidateCache.this.artistRepository.clear();
+        return artistRepository.clear();
     }
 }

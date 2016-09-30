@@ -34,6 +34,6 @@ public class GetArtistDetails extends UseCase<Artist> {
 
     @Override
     protected Artist doAction() {
-        return GetArtistDetails.this.artistRepository.artist(GetArtistDetails.this.artistId);
+        return artistRepository.artist(artistId);
     }
 }

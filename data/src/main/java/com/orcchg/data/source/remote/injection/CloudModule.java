@@ -29,7 +29,7 @@ public class CloudModule {
     @Provides @Singleton
     Cache provideOkHttpCache() {
         int cacheSize = 10 * 1024 * 1024;  // 10 MiB
-        return new Cache(this.context.getCacheDir(), cacheSize);
+        return new Cache(context.getCacheDir(), cacheSize);
     }
 
     @Provides @Singleton

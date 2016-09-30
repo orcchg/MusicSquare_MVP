@@ -30,7 +30,7 @@ public class Navigator {
     public void openDetailsScreen(@NonNull Context context, long artistId, View view) {
         Intent intent = DetailsActivity.getCallingIntent(context, artistId);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
-            view != null &&Activity.class.isInstance(context)) {
+            view != null && Activity.class.isInstance(context)) {
             Activity activity = (Activity) context;
             ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(activity, view, "profile");
             context.startActivity(intent, options.toBundle());

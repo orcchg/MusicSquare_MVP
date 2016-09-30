@@ -17,9 +17,9 @@ public class AndroidApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        this.initializeLogger();
-        this.initializeInjector();
-        this.initializeLeakDetection();
+        initializeLogger();
+        initializeInjector();
+        initializeLeakDetection();
     }
 
     private void initializeLogger() {
@@ -32,14 +32,14 @@ public class AndroidApplication extends Application {
     }
 
     private void initializeInjector() {
-        this.applicationComponent = DaggerApplicationComponent.builder()
-                .cloudModule(new CloudModule(this))
-                .applicationModule(new ApplicationModule(this))
-                .build();
+        applicationComponent = DaggerApplicationComponent.builder()
+            .cloudModule(new CloudModule(this))
+            .applicationModule(new ApplicationModule(this))
+            .build();
     }
 
     public ApplicationComponent getApplicationComponent() {
-        return this.applicationComponent;
+        return applicationComponent;
     }
 
     private void initializeLeakDetection() {

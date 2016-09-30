@@ -30,20 +30,20 @@ public class YandexCloudSource implements ArtistDataSource {
 
     @Inject
     YandexCloudSource(Retrofit.Builder retrofit) {
-        this.restAdapter = retrofit.baseUrl(YandexRestAdapter.ENDPOINT).build()
-                .create(YandexRestAdapter.class);
-        this.artists = new LongSparseArray<>();
+        restAdapter = retrofit.baseUrl(YandexRestAdapter.ENDPOINT).build()
+            .create(YandexRestAdapter.class);
+        artists = new LongSparseArray<>();
     }
 
     @Override
     public List<SmallArtistEntity> artists() {
         try {
             Timber.i("Requesting artists from Yandex cloud...");
-            List<ArtistEntity> models = this.restAdapter.getArtists("artists.json").execute().body();
+            List<ArtistEntity> models = restAdapter.getArtists("artists.json").execute().body();
             List<SmallArtistEntity> smallModels = new ArrayList<>(models.size());
             ArtistEntitySlicer mapper = new ArtistEntitySlicer();
             for (ArtistEntity model : models) {
-                this.artists.put(model.getId(), model);
+                artists.put(model.getId(), model);
                 smallModels.add(mapper.map(model));
             }
             return smallModels;
@@ -73,7 +73,7 @@ public class YandexCloudSource implements ArtistDataSource {
 
     @Override
     public ArtistEntity artist(long artistId) {
-        return this.artists.get(artistId);
+        return artists.get(artistId);
     }
 
     @Override

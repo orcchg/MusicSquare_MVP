@@ -39,10 +39,10 @@ public class ArtistViewHolder extends NormalViewHolder {
     public void bind(ArtistListItemVO viewObject) {
         final Context context = rootView.getContext();
 
-        rootView.setOnClickListener((view) -> this.listener.onItemClick(iconView, viewObject.getId()));
+        rootView.setOnClickListener((view) -> listener.onItemClick(iconView, viewObject.getId()));
 
         if (gridItemView != null) {
-            gridItemView.setOnClickListener((view) -> this.listener.onItemClick(iconView, viewObject.getId()));
+            gridItemView.setOnClickListener((view) -> listener.onItemClick(iconView, viewObject.getId()));
         }
 
         titleView.setText(viewObject.getName());

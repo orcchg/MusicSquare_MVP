@@ -22,6 +22,8 @@ public class DetailsPresenter extends BasePresenter<DetailsContract.View> implem
         this.getArtistDetailsUseCase.setPostExecuteCallback(createGetDetailsCallback());
     }
 
+    /* Contract */
+    // --------------------------------------------------------------------------------------------
     @Override
     public void start() {
         loadArtistDetails();
@@ -30,9 +32,11 @@ public class DetailsPresenter extends BasePresenter<DetailsContract.View> implem
     @Override
     public void loadArtistDetails() {
 //        if (isViewAttached()) getView().showLoading();  // TODO: load details async
-        this.getArtistDetailsUseCase.execute();
+        getArtistDetailsUseCase.execute();
     }
 
+    /* Callback */
+    // --------------------------------------------------------------------------------------------
     private UseCase.OnPostExecuteCallback<Artist> createGetDetailsCallback() {
         return new UseCase.OnPostExecuteCallback<Artist>() {
             @Override

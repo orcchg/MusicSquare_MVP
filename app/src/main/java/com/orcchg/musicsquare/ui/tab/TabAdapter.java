@@ -16,12 +16,12 @@ class TabAdapter extends FragmentStatePagerAdapter {
 
     TabAdapter(FragmentManager fm) {
         super(fm);
-        this.tabs = new ArrayList<>();
+        tabs = new ArrayList<>();
     }
 
     void setTabs(List<Genre> genres) {
-        this.tabs.clear();
-        this.tabs.addAll(genres);
+        tabs.clear();
+        tabs.addAll(genres);
     }
 
     @Override
@@ -31,11 +31,11 @@ class TabAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-        return this.tabs.size();
+        return tabs.size();
     }
 
     @Override
     public CharSequence getPageTitle(int position) {
-        return this.tabs.isEmpty() ? "" : this.tabs.get(position).getName();
+        return tabs.isEmpty() ? "" : tabs.get(position).getName();
     }
 }

@@ -78,7 +78,7 @@ public class ListActivity extends AppCompatActivity implements ShadowHolder {
         toolbar.setOnMenuItemClickListener((item) -> {
             switch (item.getItemId()) {
                 case R.id.tabs:
-                    ListActivity.this.navigator.openTabsScreen(ListActivity.this);
+                    navigator.openTabsScreen(ListActivity.this);
                     return true;
                 case R.id.about:
                     new AlertDialog.Builder(this)

@@ -199,14 +199,14 @@ public class ListFragment extends BaseFragment<ListContract.View, ListContract.P
             return;  // skip scroll up
         }
 
-        int last = this.layoutManager.findLastVisibleItemPosition();
-        if (this.lastVisible == last) {
+        int last = layoutManager.findLastVisibleItemPosition();
+        if (lastVisible == last) {
             return;  // skip scroll due to layout
         }
 
-        this.lastVisible = last;
-        int total = this.layoutManager.getItemCount();
-        this.presenter.onScroll(total - last);
+        lastVisible = last;
+        int total = layoutManager.getItemCount();
+        presenter.onScroll(total - last);
     }
 }
 

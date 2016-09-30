@@ -20,17 +20,17 @@ public class ThreadExecutor {
 
     @Inject
     public ThreadExecutor() {
-        this.workQueue = new LinkedBlockingQueue<>();
-        this.threadFactory = new JobThreadFactory();
-        this.threadPoolExecutor = new ThreadPoolExecutor(INITIAL_POOL_SIZE, MAX_POOL_SIZE,
-                KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT, this.workQueue, this.threadFactory);
+        workQueue = new LinkedBlockingQueue<>();
+        threadFactory = new JobThreadFactory();
+        threadPoolExecutor = new ThreadPoolExecutor(INITIAL_POOL_SIZE, MAX_POOL_SIZE,
+            KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT, workQueue, threadFactory);
     }
 
     public void execute(Runnable command) {
         if (command == null) {
             throw new IllegalArgumentException("Runnable to execute cannot be null");
         }
-        this.threadPoolExecutor.execute(command);
+        threadPoolExecutor.execute(command);
     }
 
     protected static class JobThreadFactory implements ThreadFactory {

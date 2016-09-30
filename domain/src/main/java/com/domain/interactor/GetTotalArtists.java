@@ -20,6 +20,6 @@ public class GetTotalArtists extends UseCase<TotalValue> {
 
     @Override
     protected TotalValue doAction() {
-        return GetTotalArtists.this.artistRepository.total();
+        return artistRepository.total();
     }
 }

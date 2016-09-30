@@ -22,6 +22,6 @@ public class GetGenresList extends UseCase<List<Genre>> {
 
     @Override
     protected List<Genre> doAction() {
-        return GetGenresList.this.genresRepository.genres();
+        return genresRepository.genres();
     }
 }

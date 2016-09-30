@@ -40,10 +40,10 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
     // --------------------------------------------------------------------------------------------
     @DebugLog @Override
     public void create() {
-        this.database.open();
-        this.database.execSql(ArtistDatabaseContract.CREATE_TABLE_STATEMENT);
-        this.database.execSql(ArtistDatabaseContract.CREATE_TABLE_SMALL_STATEMENT);
-        this.database.close();
+        database.open();
+        database.execSql(ArtistDatabaseContract.CREATE_TABLE_STATEMENT);
+        database.execSql(ArtistDatabaseContract.CREATE_TABLE_SMALL_STATEMENT);
+        database.close();
     }
 
     @DebugLog @Override
@@ -67,8 +67,8 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
     // ------------------------------------------
     @DebugLog @Override
     public boolean isEmpty() {
-        this.database.open();
-        Cursor cursor = this.database.rawQuery(COUNT_ALL_SMALL_STATEMENT);
+        database.open();
+        Cursor cursor = database.rawQuery(COUNT_ALL_SMALL_STATEMENT);
         boolean result = true;
         if (cursor.moveToFirst()) {
             int total = cursor.getInt(0);
@@ -76,27 +76,27 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
             result = total == 0;
         }
         cursor.close();
-        this.database.close();
+        database.close();
         return result;
     }
 
     @DebugLog @Override
     public boolean isExpired() {
 //        long currentTime = System.currentTimeMillis();
-//        long lastUpdateTime = this.database.getLastCacheUpdateTimeMillis(SETTINGS_KEY_LAST_CACHE_UPDATE);
+//        long lastUpdateTime = database.getLastCacheUpdateTimeMillis(SETTINGS_KEY_LAST_CACHE_UPDATE);
 //        boolean expired = ((currentTime - lastUpdateTime) > EXPIRATION_TIME);
 //        if (expired) {
-//            this.clear();
+//            clear();
 //        }
         return false;  // TODO: fix:   expired;
     }
 
     @DebugLog @Override
     public void clear() {
-        this.database.open();
-        this.database.execSql(ArtistDatabaseContract.CLEAR_TABLE_STATEMENT);
-        this.database.execSql(ArtistDatabaseContract.CLEAR_TABLE_SMALL_STATEMENT);
-        this.database.close();
+        database.open();
+        database.execSql(ArtistDatabaseContract.CLEAR_TABLE_STATEMENT);
+        database.execSql(ArtistDatabaseContract.CLEAR_TABLE_SMALL_STATEMENT);
+        database.close();
     }
 
     @DebugLog @Override
@@ -117,30 +117,30 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
 
     @DebugLog @Override
     public void addArtist(ArtistEntity artist) {
-        this.database.open();
-        this.database.beginTransaction();
-        SQLiteStatement insert = this.database.compileStatement(ArtistDatabaseContract.INSERT_STATEMENT);
+        database.open();
+        database.beginTransaction();
+        SQLiteStatement insert = database.compileStatement(ArtistDatabaseContract.INSERT_STATEMENT);
 
         insertArtist(insert, artist);
 
-        this.database.setTransactionSuccessful();
-        this.database.endTransaction();
-        this.database.close();
+        database.setTransactionSuccessful();
+        database.endTransaction();
+        database.close();
     }
 
     @DebugLog @Override
     public void addArtists(List<ArtistEntity> artists) {
-        this.database.open();
-        this.database.beginTransaction();
-        SQLiteStatement insert = this.database.compileStatement(ArtistDatabaseContract.INSERT_STATEMENT);
+        database.open();
+        database.beginTransaction();
+        SQLiteStatement insert = database.compileStatement(ArtistDatabaseContract.INSERT_STATEMENT);
 
         for (ArtistEntity artist : artists) {
             insertArtist(insert, artist);
         }
 
-        this.database.setTransactionSuccessful();
-        this.database.endTransaction();
-        this.database.close();
+        database.setTransactionSuccessful();
+        database.endTransaction();
+        database.close();
     }
 
     @DebugLog @Override
@@ -161,8 +161,8 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
         final String statement = specification == null ? ArtistDatabaseContract.READ_ALL_STATEMENT :
                 String.format(ArtistDatabaseContract.READ_STATEMENT, specification.getSelectionArgs());
 
-        this.database.open();
-        Cursor cursor = this.database.rawQuery(statement);
+        database.open();
+        Cursor cursor = database.rawQuery(statement);
         List<ArtistEntity> list = new ArrayList<>();
         while (cursor.moveToNext()) {
             ArtistEntity artist = createArtistFromCursor(cursor);
@@ -170,7 +170,7 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
 //            Timber.v(artist.toString());
         }
         cursor.close();
-        this.database.close();
+        database.close();
         return list;
     }
 
@@ -184,30 +184,30 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
 
     @DebugLog @Override
     public void addSmallArtist(SmallArtistEntity artist) {
-        this.database.open();
-        this.database.beginTransaction();
-        SQLiteStatement insert = this.database.compileStatement(ArtistDatabaseContract.INSERT_SMALL_STATEMENT);
+        database.open();
+        database.beginTransaction();
+        SQLiteStatement insert = database.compileStatement(ArtistDatabaseContract.INSERT_SMALL_STATEMENT);
 
         insertSmallArtist(insert, artist);
 
-        this.database.setTransactionSuccessful();
-        this.database.endTransaction();
-        this.database.close();
+        database.setTransactionSuccessful();
+        database.endTransaction();
+        database.close();
     }
 
     @DebugLog @Override
     public void addSmallArtists(List<SmallArtistEntity> artists) {
-        this.database.open();
-        this.database.beginTransaction();
-        SQLiteStatement insert = this.database.compileStatement(ArtistDatabaseContract.INSERT_SMALL_STATEMENT);
+        database.open();
+        database.beginTransaction();
+        SQLiteStatement insert = database.compileStatement(ArtistDatabaseContract.INSERT_SMALL_STATEMENT);
 
         for (SmallArtistEntity artist : artists) {
             insertSmallArtist(insert, artist);
         }
 
-        this.database.setTransactionSuccessful();
-        this.database.endTransaction();
-        this.database.close();
+        database.setTransactionSuccessful();
+        database.endTransaction();
+        database.close();
     }
 
     @DebugLog @Override
@@ -324,13 +324,13 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
     }
 
     private void executeStatementIgnoreResult(String statement) {
-        this.database.open();
-        this.database.beginTransaction();
-        SQLiteStatement object = this.database.compileStatement(statement);
+        database.open();
+        database.beginTransaction();
+        SQLiteStatement object = database.compileStatement(statement);
         object.execute();
-        this.database.setTransactionSuccessful();
-        this.database.endTransaction();
-        this.database.close();
+        database.setTransactionSuccessful();
+        database.endTransaction();
+        database.close();
     }
 
     private boolean checkStatement(String statement) {
@@ -346,27 +346,27 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
     @Nullable
     private <Result> Result performStatement(String statement, ProcessCursor<Result> cursorProcessor) {
         Result result = null;
-        this.database.open();
-        Cursor cursor = this.database.rawQuery(statement);
+        database.open();
+        Cursor cursor = database.rawQuery(statement);
         if (cursor.moveToFirst()) {
             result = cursorProcessor.process(cursor);
         }
         cursor.close();
-        this.database.close();
+        database.close();
         return result;
     }
 
     @Nullable
     private <Result> List<Result> performLoopStatement(String statement, ProcessCursor<Result> cursorProcessor) {
-        this.database.open();
-        Cursor cursor = this.database.rawQuery(statement);
+        database.open();
+        Cursor cursor = database.rawQuery(statement);
         List<Result> list = new ArrayList<>();
         while (cursor.moveToNext()) {
             Result result = cursorProcessor.process(cursor);
             list.add(result);
         }
         cursor.close();
-        this.database.close();
+        database.close();
         return list;
     }
 

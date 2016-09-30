@@ -25,16 +25,16 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
     private static final int LIMIT_PER_REQUEST = 20;
     private static final int LOAD_MORE_THRESHOLD = 1;
 
-    private ListAdapter artistsAdapter;
+    ListAdapter artistsAdapter;
 
     private final GetArtistList getArtistListUseCase;
     private final GetTotalArtists getTotalArtistsUseCase;
     private final InvalidateCache invalidateCacheUseCase;
 
-    private int currentSize = 0;
-    private int currentOffset = 0;
-    private int totalArtists = 0;
-    private List<String> genres;
+    int currentSize = 0;
+    int currentOffset = 0;
+    int totalArtists = 0;
+    List<String> genres;
 
     /**
      * Constructs an instance of {@link ListPresenter}.
@@ -60,9 +60,11 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
     @DebugLog @Override
     public void onStart() {
         super.onCreate();
-        if (isViewAttached()) getView().getListView().setAdapter(this.artistsAdapter);
+        if (isViewAttached()) getView().getListView().setAdapter(artistsAdapter);
     }
 
+    /* Contract */
+    // --------------------------------------------------------------------------------------------
     @DebugLog @Override
     public void loadArtists() {
         loadArtists(-1, 0);
@@ -82,7 +84,7 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
     public void loadArtists(int limit, int offset, List<String> genres) {
         this.genres = genres;
         if (isViewAttached()) {
-            if (this.totalArtists <= 0) {
+            if (totalArtists <= 0) {
                 getView().showLoading();
             }
         }
@@ -91,8 +93,8 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
                 .setOffset(offset)
                 .setGenres(genres)
                 .build();
-        this.getArtistListUseCase.setParameters(parameters);
-        this.getArtistListUseCase.execute();
+        getArtistListUseCase.setParameters(parameters);
+        getArtistListUseCase.execute();
     }
 
     @DebugLog @Override
@@ -104,7 +106,7 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
     public void openArtistDetails(View view, long artistId) {
         if (isViewAttached()) {
             Activity activity = getView().getActivity();
-            this.navigator.openDetailsScreen(activity, artistId,
+            navigator.openDetailsScreen(activity, artistId,
                     ViewUtility.isImageTransitionEnabled() ? view : null);
         }
     }
@@ -112,8 +114,8 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
     @DebugLog @Override
     public void onScroll(int itemsLeftToEnd) {
         if (isThereMore() && itemsLeftToEnd <= LOAD_MORE_THRESHOLD) {
-            this.currentOffset += LIMIT_PER_REQUEST;
-            loadArtists(LIMIT_PER_REQUEST, this.currentOffset, this.genres);
+            currentOffset += LIMIT_PER_REQUEST;
+            loadArtists(LIMIT_PER_REQUEST, currentOffset, genres);
         }
     }
 
@@ -124,32 +126,38 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
 
     @DebugLog @Override
     public void start() {
-        if (this.totalArtists <= 0) {
-            this.artistsAdapter.clear();
-            this.getTotalArtistsUseCase.execute();
+        if (totalArtists <= 0) {
+            artistsAdapter.clear();
+            getTotalArtistsUseCase.execute();
         } else {
-            loadArtists(LIMIT_PER_REQUEST, 0, this.genres);
+            loadArtists(LIMIT_PER_REQUEST, 0, genres);
         }
     }
 
     /* Internal */
     // --------------------------------------------------------------------------------------------
     private void invalidateCache() {
-        this.currentSize = 0;
-        this.currentOffset = 0;
-        this.totalArtists = 0;
+        currentSize = 0;
+        currentOffset = 0;
+        totalArtists = 0;
         if (isViewAttached()) getView().showLoading();
-        this.invalidateCacheUseCase.execute();
+        invalidateCacheUseCase.execute();
     }
 
+    boolean isThereMore() {
+        return totalArtists > currentSize + currentOffset;
+    }
+
+    /* Callback */
+    // --------------------------------------------------------------------------------------------
     private UseCase.OnPostExecuteCallback<List<Artist>> createGetListCallback() {
         return new UseCase.OnPostExecuteCallback<List<Artist>>() {
             @DebugLog @Override
             public void onFinish(List<Artist> artists) {
-                ListPresenter.this.currentSize += artists.size();
+                currentSize += artists.size();
                 ArtistListItemMapper mapper = new ArtistListItemMapper();
                 List<ArtistListItemVO> artistsVO = mapper.map(artists);
-                ListPresenter.this.artistsAdapter.populate(artistsVO, isThereMore());
+                artistsAdapter.populate(artistsVO, isThereMore());
                 if (isViewAttached()) {
                     getView().showArtists(artistsVO);
                 }
@@ -167,8 +175,8 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
             @DebugLog @Override
             public void onFinish(TotalValue total) {
                 Timber.d("Total artists: %s", total.getValue());
-                ListPresenter.this.totalArtists = total.getValue();
-                loadArtists(LIMIT_PER_REQUEST, 0, ListPresenter.this.genres);
+                totalArtists = total.getValue();
+                loadArtists(LIMIT_PER_REQUEST, 0, genres);
             }
 
             @DebugLog @Override
@@ -190,9 +198,5 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
                 if (isViewAttached()) getView().showError();
             }
         };
-    }
-
-    boolean isThereMore() {
-        return this.totalArtists > this.currentSize + this.currentOffset;
     }
 }
