@@ -18,14 +18,8 @@ public interface ListContract {
     }
 
     interface Presenter extends MvpPresenter<View> {
-        void loadArtists();
-        void loadArtists(int limit, int offset);
-        void loadArtists(List<String> genres);
-        void loadArtists(int limit, int offset, List<String> genres);
         void retry();
-        void openArtistDetails(android.view.View view, long artistId);
         void onScroll(int itemsLeftToEnd);
         void setGenres(List<String> genres);
-        void start();
     }
 }

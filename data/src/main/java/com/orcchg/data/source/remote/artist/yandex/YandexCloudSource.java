@@ -38,7 +38,7 @@ public class YandexCloudSource implements ArtistDataSource {
     @Override
     public List<SmallArtistEntity> artists() {
         try {
-            Timber.i("Requesting artists from Yandex cloud...");
+            Timber.d("Requesting artists from Yandex cloud...");
             List<ArtistEntity> models = restAdapter.getArtists("artists.json").execute().body();
             List<SmallArtistEntity> smallModels = new ArrayList<>(models.size());
             ArtistEntitySlicer mapper = new ArtistEntitySlicer();

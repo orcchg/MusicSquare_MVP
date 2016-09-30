@@ -10,8 +10,6 @@ import com.orcchg.musicsquare.ui.viewobject.mapper.ArtistDetailsMapper;
 
 import javax.inject.Inject;
 
-import timber.log.Timber;
-
 public class DetailsPresenter extends BasePresenter<DetailsContract.View> implements DetailsContract.Presenter {
 
     private final GetArtistDetails getArtistDetailsUseCase;
@@ -47,7 +45,6 @@ public class DetailsPresenter extends BasePresenter<DetailsContract.View> implem
                 if (isViewAttached()) {
                     getView().showArtist(artistVO);
                     getView().setGrade(grade);
-                    Timber.v("Grade: %s", grade);
                 }
             }
 

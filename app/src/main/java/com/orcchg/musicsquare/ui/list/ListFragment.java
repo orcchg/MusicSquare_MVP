@@ -29,28 +29,45 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import hugo.weaving.DebugLog;
+import timber.log.Timber;
 
 public class ListFragment extends BaseFragment<ListContract.View, ListContract.Presenter> implements ListContract.View {
     private static final String BUNDLE_KEY_GENRES = "bundle_key_genres";
-    private static final String BUNDLE_KEY_LM_STATE = "bundle_key_lm_state";
 
     @BindView(R.id.swipe_refresh_layout) SwipeRefreshLayout swipeRefreshLayout;
     @BindView(R.id.rv_musician_list) RecyclerView artistsList;
     @BindView(R.id.empty_view) View emptyView;
     @BindView(R.id.loading_view) View loadingView;
     @BindView(R.id.error_view) View errorView;
+    @OnClick(R.id.btn_retry)
+    public void onRetryClick() {
+        presenter.retry();
+    }
 
     private ListComponent listComponent;
     private LinearLayoutManager layoutManager;
 
     private int lastVisible = -1;
 
-    @OnClick(R.id.btn_retry)
-    public void onRetryClick() {
-        presenter.retry();
+    private ShadowHolder shadowHolder;
+
+    static class Memento {
+        private static final String BUNDLE_KEY_LM_STATE = "bundle_key_lm_state";
+
+        Parcelable layoutManagerState;
+
+        void toBundle(@NonNull Bundle outState) {
+            outState.putParcelable(BUNDLE_KEY_LM_STATE, layoutManagerState);
+        }
+
+        static Memento fromBundle(@NonNull Bundle savedInstanceState) {
+            Memento memento = new Memento();
+            memento.layoutManagerState = savedInstanceState.getParcelable(BUNDLE_KEY_LM_STATE);
+            return memento;
+        }
     }
 
-    private ShadowHolder shadowHolder;
+    Memento memento = new Memento();
 
     @NonNull @Override
     protected ListContract.Presenter createPresenter() {
@@ -85,7 +102,7 @@ public class ListFragment extends BaseFragment<ListContract.View, ListContract.P
 
     /* View */
     // ------------------------------------------
-    @DebugLog @Override
+    @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         if (ShadowHolder.class.isInstance(activity)) {
@@ -93,7 +110,7 @@ public class ListFragment extends BaseFragment<ListContract.View, ListContract.P
         }
     }
 
-    @DebugLog @Override
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
@@ -101,7 +118,7 @@ public class ListFragment extends BaseFragment<ListContract.View, ListContract.P
         presenter.setGenres(genres);
     }
 
-    @DebugLog @Nullable @Override
+    @Nullable @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         View rootView = inflater.inflate(R.layout.fragment_music_list, container, false);
@@ -118,10 +135,8 @@ public class ListFragment extends BaseFragment<ListContract.View, ListContract.P
         }
 
         if (savedInstanceState != null) {
-            Parcelable state = savedInstanceState.getParcelable(BUNDLE_KEY_LM_STATE);
-            layoutManager.onRestoreInstanceState(state);
+            memento = Memento.fromBundle(savedInstanceState);
         }
-        artistsList.setLayoutManager(layoutManager);
         artistsList.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -133,27 +148,31 @@ public class ListFragment extends BaseFragment<ListContract.View, ListContract.P
         return rootView;
     }
 
-    @DebugLog @Override
+    @Override
     public void onStart() {
         super.onStart();
-        presenter.start();
+        if (memento.layoutManagerState != null) {
+            Timber.i("Restored state of layout manager");
+            layoutManager.onRestoreInstanceState(memento.layoutManagerState);
+        }
+        artistsList.setLayoutManager(layoutManager);
     }
 
     @DebugLog @Override
     public void onSaveInstanceState(Bundle outState) {
-        Parcelable state = layoutManager.onSaveInstanceState();
-        outState.putParcelable(BUNDLE_KEY_LM_STATE, state);
+        memento.layoutManagerState = layoutManager.onSaveInstanceState();
+        memento.toBundle(outState);
         super.onSaveInstanceState(outState);
     }
 
     /* Contract */
     // ------------------------------------------
-    @DebugLog @Override
+    @Override
     public RecyclerView getListView() {
         return artistsList;
     }
 
-    @DebugLog @Override
+    @Override
     public void showArtists(List<ArtistListItemVO> artists) {
         swipeRefreshLayout.setRefreshing(false);
         loadingView.setVisibility(View.GONE);
@@ -170,7 +189,7 @@ public class ListFragment extends BaseFragment<ListContract.View, ListContract.P
         if (shadowHolder != null) shadowHolder.showShadow(true);
     }
 
-    @DebugLog @Override
+    @Override
     public void showError() {
         swipeRefreshLayout.setRefreshing(false);
         artistsList.setVisibility(View.GONE);
@@ -181,7 +200,7 @@ public class ListFragment extends BaseFragment<ListContract.View, ListContract.P
         if (shadowHolder != null) shadowHolder.showShadow(true);
     }
 
-    @DebugLog @Override
+    @Override
     public void showLoading() {
         swipeRefreshLayout.setRefreshing(false);
         artistsList.setVisibility(View.GONE);

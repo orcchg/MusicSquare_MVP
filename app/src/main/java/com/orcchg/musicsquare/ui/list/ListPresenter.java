@@ -1,6 +1,7 @@
 package com.orcchg.musicsquare.ui.list;
 
 import android.app.Activity;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.domain.interactor.GetArtistList;
@@ -18,23 +19,22 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class ListPresenter extends BasePresenter<ListContract.View> implements ListContract.Presenter {
     private static final int LIMIT_PER_REQUEST = 20;
     private static final int LOAD_MORE_THRESHOLD = 1;
 
-    ListAdapter artistsAdapter;
+    private ListAdapter artistsAdapter;
 
     private final GetArtistList getArtistListUseCase;
     private final GetTotalArtists getTotalArtistsUseCase;
     private final InvalidateCache invalidateCacheUseCase;
 
-    int currentSize = 0;
-    int currentOffset = 0;
-    int totalArtists = 0;
-    List<String> genres;
+    private int currentSize = 0;
+    private int currentOffset = 0;
+    private int totalArtists = 0;
+    private List<String> genres;
 
     /**
      * Constructs an instance of {@link ListPresenter}.
@@ -57,31 +57,60 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
         this.invalidateCacheUseCase.setPostExecuteCallback(createInvalidateCacheCallback());
     }
 
-    @DebugLog @Override
+    @Override
     public void onStart() {
         super.onCreate();
-        if (isViewAttached()) getView().getListView().setAdapter(artistsAdapter);
+        if (isViewAttached()) {
+            RecyclerView list = getView().getListView();
+            if (list.getAdapter() == null) {
+                list.setAdapter(artistsAdapter);
+            }
+        }
+        start();
     }
 
     /* Contract */
     // --------------------------------------------------------------------------------------------
-    @DebugLog @Override
-    public void loadArtists() {
+    @Override
+    public void retry() {
+        invalidateCache();
+    }
+
+    @Override
+    public void onScroll(int itemsLeftToEnd) {
+        if (isThereMore() && itemsLeftToEnd <= LOAD_MORE_THRESHOLD) {
+            currentOffset += LIMIT_PER_REQUEST;
+            loadArtists(LIMIT_PER_REQUEST, currentOffset, genres);
+        }
+    }
+
+    @Override
+    public void setGenres(List<String> genres) {
+        this.genres = genres;
+    }
+
+    /* Internal */
+    // --------------------------------------------------------------------------------------------
+    private void start() {
+        if (totalArtists <= 0) {
+            artistsAdapter.clear();
+            getTotalArtistsUseCase.execute();
+        }
+    }
+
+    private void loadArtists() {
         loadArtists(-1, 0);
     }
 
-    @DebugLog @Override
-    public void loadArtists(int limit, int offset) {
+    private void loadArtists(int limit, int offset) {
         loadArtists(limit, offset, null);
     }
 
-    @DebugLog @Override
-    public void loadArtists(List<String> genres) {
+    private void loadArtists(List<String> genres) {
         loadArtists(-1, 0, genres);
     }
 
-    @DebugLog @Override
-    public void loadArtists(int limit, int offset, List<String> genres) {
+    private void loadArtists(int limit, int offset, List<String> genres) {
         this.genres = genres;
         if (isViewAttached()) {
             if (totalArtists <= 0) {
@@ -97,13 +126,7 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
         getArtistListUseCase.execute();
     }
 
-    @DebugLog @Override
-    public void retry() {
-        invalidateCache();
-    }
-
-    @DebugLog @Override
-    public void openArtistDetails(View view, long artistId) {
+    private void openArtistDetails(View view, long artistId) {
         if (isViewAttached()) {
             Activity activity = getView().getActivity();
             navigator.openDetailsScreen(activity, artistId,
@@ -111,31 +134,6 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
         }
     }
 
-    @DebugLog @Override
-    public void onScroll(int itemsLeftToEnd) {
-        if (isThereMore() && itemsLeftToEnd <= LOAD_MORE_THRESHOLD) {
-            currentOffset += LIMIT_PER_REQUEST;
-            loadArtists(LIMIT_PER_REQUEST, currentOffset, genres);
-        }
-    }
-
-    @DebugLog @Override
-    public void setGenres(List<String> genres) {
-        this.genres = genres;
-    }
-
-    @DebugLog @Override
-    public void start() {
-        if (totalArtists <= 0) {
-            artistsAdapter.clear();
-            getTotalArtistsUseCase.execute();
-        } else {
-            loadArtists(LIMIT_PER_REQUEST, 0, genres);
-        }
-    }
-
-    /* Internal */
-    // --------------------------------------------------------------------------------------------
     private void invalidateCache() {
         currentSize = 0;
         currentOffset = 0;
@@ -144,7 +142,7 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
         invalidateCacheUseCase.execute();
     }
 
-    boolean isThereMore() {
+    private boolean isThereMore() {
         return totalArtists > currentSize + currentOffset;
     }
 
@@ -152,7 +150,7 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
     // --------------------------------------------------------------------------------------------
     private UseCase.OnPostExecuteCallback<List<Artist>> createGetListCallback() {
         return new UseCase.OnPostExecuteCallback<List<Artist>>() {
-            @DebugLog @Override
+            @Override
             public void onFinish(List<Artist> artists) {
                 currentSize += artists.size();
                 ArtistListItemMapper mapper = new ArtistListItemMapper();
@@ -163,7 +161,7 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
                 }
             }
 
-            @DebugLog @Override
+            @Override
             public void onError(Throwable e) {
                 if (isViewAttached()) getView().showError();
             }
@@ -172,14 +170,14 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
 
     private UseCase.OnPostExecuteCallback<TotalValue> createGetTotalCallback() {
         return new UseCase.OnPostExecuteCallback<TotalValue>() {
-            @DebugLog @Override
+            @Override
             public void onFinish(TotalValue total) {
-                Timber.d("Total artists: %s", total.getValue());
+                Timber.i("Total artists: %s", total.getValue());
                 totalArtists = total.getValue();
                 loadArtists(LIMIT_PER_REQUEST, 0, genres);
             }
 
-            @DebugLog @Override
+            @Override
             public void onError(Throwable e) {
                 if (isViewAttached()) getView().showError();
             }
@@ -188,12 +186,12 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
 
     private UseCase.OnPostExecuteCallback<Boolean> createInvalidateCacheCallback() {
         return new UseCase.OnPostExecuteCallback<Boolean>() {
-            @DebugLog @Override
+            @Override
             public void onFinish(Boolean result) {
                 start();
             }
 
-            @DebugLog @Override
+            @Override
             public void onError(Throwable e) {
                 if (isViewAttached()) getView().showError();
             }

@@ -72,7 +72,7 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
         boolean result = true;
         if (cursor.moveToFirst()) {
             int total = cursor.getInt(0);
-            Timber.v("Total in cache: %s", total);
+            Timber.i("Total in cache: %s", total);
             result = total == 0;
         }
         cursor.close();
@@ -167,7 +167,6 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
         while (cursor.moveToNext()) {
             ArtistEntity artist = createArtistFromCursor(cursor);
             list.add(artist);
-//            Timber.v(artist.toString());
         }
         cursor.close();
         database.close();

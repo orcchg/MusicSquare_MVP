@@ -29,7 +29,7 @@ public class DatabaseHelper {
     private int oldVersion;
     private int openCounter;
 
-    @DebugLog @Inject
+    @Inject
     DatabaseHelper(Context context, FileManager fileManager) {
         this.context = context;
         this.fileManager = fileManager;
@@ -44,7 +44,6 @@ public class DatabaseHelper {
         void onDowngrade();
     }
 
-    @DebugLog
     private boolean openOrCreateDatabase() {
         boolean isNewDb = !databaseFile.exists();
         database = SQLiteDatabase.openOrCreateDatabase(databaseFile, null);
@@ -53,13 +52,12 @@ public class DatabaseHelper {
         return isNewDb;
     }
 
-    @DebugLog
     private void checkVersion() {
         int oldVersion = this.oldVersion;
         Timber.i("Database version: %s", oldVersion);
         this.oldVersion = DATABASE_VERSION;  // protect from recursion
         if (oldVersion <= 1) {
-            Timber.v("Skip upgrade-downgrade event for the very first version");
+            Timber.i("Skip upgrade-downgrade event for the very first version");
             return;
         }
         if (oldVersion < DATABASE_VERSION) {
@@ -83,7 +81,7 @@ public class DatabaseHelper {
     public void open() {
         checkCounter();
         ++openCounter;
-        Timber.v("Helper address: %s, open counter: %s", hashCode(), openCounter);
+        Timber.i("Helper address: %s, open counter: %s", hashCode(), openCounter);
         if (openCounter > 1) {
             Timber.i("Database is already opened");
             return;
@@ -106,7 +104,6 @@ public class DatabaseHelper {
         }
     }
 
-    @DebugLog
     public boolean isOpened() {
         return openCounter > 0;
     }
@@ -115,6 +112,7 @@ public class DatabaseHelper {
         database.execSQL(sql);
     }
 
+    @DebugLog
     public Cursor rawQuery(String statement) {
         return database.rawQuery(statement, null);
     }

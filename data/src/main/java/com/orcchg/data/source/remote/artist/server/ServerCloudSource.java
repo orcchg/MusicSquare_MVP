@@ -52,7 +52,7 @@ public class ServerCloudSource implements ArtistDataSource, GenresDataSource {
             Integer Limit = limit == -1 ? null : limit;
             Integer Offset = offset == 0 ? null : offset;
             String genresQuery = genres == null || genres.isEmpty() ? null : TextUtils.join(",", genres);
-            Timber.i("Requesting artists from Server cloud...");
+            Timber.d("Requesting artists from Server cloud...");
             return restAdapter.artists(Limit, Offset, genresQuery).execute().body();
         } catch (IOException e) {
             Timber.e("Network error: %s", e);
