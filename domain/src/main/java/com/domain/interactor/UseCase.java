@@ -10,14 +10,7 @@ import com.domain.executor.ThreadExecutor;
  *
  * @param <Result> Generic type of result on finish of execution.
  */
-public abstract class UseCase<Result> {
-
-    /**
-     * Work-horse method to execute within this {@link UseCase}.
-     */
-    public interface UseCaseRunner<Result> {
-        Result execute();
-    }
+public abstract class UseCase<Result> implements Runnable {
 
     /**
      * Callback to notify when execution of this {@link UseCase} finishes.
@@ -29,7 +22,7 @@ public abstract class UseCase<Result> {
 
     private final ThreadExecutor threadExecutor;
     private final PostExecuteScheduler postExecuteScheduler;
-    private OnPostExecuteCallback postExecuteCallback;
+    OnPostExecuteCallback<Result> postExecuteCallback;
 
     /**
      * Basic construction of a {@link UseCase} class instance.
@@ -52,12 +45,11 @@ public abstract class UseCase<Result> {
     }
 
     /**
-     * Creates a concrete work-horse method baked into {@link UseCaseRunner}
-     * which then will be executed in this {@link UseCase}.
+     * Creates a concrete work-horse method which then will be executed in this {@link UseCase}.
      *
-     * @return concrete work-horse method baked into {@link UseCaseRunner}.
+     * @return concrete result of execution of this {@link UseCase}.
      */
-    protected abstract UseCaseRunner<Result> buildUseCaseExecuteCallback();
+    protected abstract Result doAction();
 
     /**
      * Execute this {@link UseCase} in it's {@link UseCase#threadExecutor} and
@@ -65,27 +57,22 @@ public abstract class UseCase<Result> {
      * {@link UseCase#postExecuteCallback}.
      */
     public void execute() {
-        this.threadExecutor.execute(this.buildUseCaseRunnable());
+        this.threadExecutor.execute(this);
+    }
+
+    @Override
+    public void run() {
+        try {
+            Result result = doAction();
+            UseCase.this.postExecuteScheduler.post(UseCase.this.wrapToRunnable(result));
+        } catch (Throwable error) {
+            error.printStackTrace();
+            UseCase.this.postExecuteScheduler.post(UseCase.this.wrapToRunnable(error));
+        }
     }
 
     /* Internal */
     // ------------------------------------------------------------------------
-    private Runnable buildUseCaseRunnable() {
-        return new Runnable() {
-            @Override
-            public void run() {
-                UseCaseRunner callback = UseCase.this.buildUseCaseExecuteCallback();
-                try {
-                    Result result = (Result) callback.execute();
-                    UseCase.this.postExecuteScheduler.post(UseCase.this.wrapToRunnable(result));
-                } catch (Throwable error) {
-                    error.printStackTrace();
-                    UseCase.this.postExecuteScheduler.post(UseCase.this.wrapToRunnable(error));
-                }
-            }
-        };
-    }
-
     private Runnable wrapToRunnable(final Result result) {
         return new Runnable() {
             @Override

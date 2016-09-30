@@ -50,7 +50,9 @@ class ArtistDatabaseContract {
     static final String CLEAR_TABLE_SMALL_STATEMENT = "DELETE FROM " + ArtistsTable.TABLE_SMALL_NAME;
 
     static final String COUNT_ALL_STATEMENT = "SELECT COUNT(*) FROM " + ArtistsTable.TABLE_NAME;
+    static final String COUNT_ALL_STATEMENT_WHERE = COUNT_ALL_STATEMENT + " WHERE %s ";
     static final String COUNT_ALL_SMALL_STATEMENT = "SELECT COUNT(*) FROM " + ArtistsTable.TABLE_SMALL_NAME;
+    static final String COUNT_ALL_SMALL_STATEMENT_WHERE = COUNT_ALL_SMALL_STATEMENT + " WHERE %s ";
 
     static final String READ_ALL_STATEMENT =
             "SELECT * FROM " + ArtistsTable.TABLE_NAME;

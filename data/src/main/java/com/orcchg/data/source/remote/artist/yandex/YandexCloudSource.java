@@ -1,10 +1,12 @@
 package com.orcchg.data.source.remote.artist.yandex;
 
 import android.annotation.TargetApi;
+import android.support.annotation.Nullable;
 import android.util.LongSparseArray;
 
 import com.orcchg.data.entity.ArtistEntity;
 import com.orcchg.data.entity.SmallArtistEntity;
+import com.orcchg.data.entity.TotalValueEntity;
 import com.orcchg.data.entity.mapper.ArtistEntitySlicer;
 import com.orcchg.data.source.remote.artist.ArtistDataSource;
 
@@ -58,13 +60,13 @@ public class YandexCloudSource implements ArtistDataSource {
     }
 
     @Override
-    public List<SmallArtistEntity> artists(List<String> genres) {
+    public List<SmallArtistEntity> artists(@Nullable List<String> genres) {
         Timber.w("Query parameters not supported !");
         return artists();
     }
 
     @Override
-    public List<SmallArtistEntity> artists(int limit, int offset, List<String> genres) {
+    public List<SmallArtistEntity> artists(int limit, int offset, @Nullable List<String> genres) {
         Timber.w("Query parameters not supported !");
         return artists();
     }
@@ -72,5 +74,15 @@ public class YandexCloudSource implements ArtistDataSource {
     @Override
     public ArtistEntity artist(long artistId) {
         return this.artists.get(artistId);
+    }
+
+    @Override
+    public TotalValueEntity total() {
+        return new TotalValueEntity.Builder(317).build();
+    }
+
+    @Override
+    public TotalValueEntity total(@Nullable List<String> genres) {
+        return new TotalValueEntity.Builder(317).build();
     }
 }

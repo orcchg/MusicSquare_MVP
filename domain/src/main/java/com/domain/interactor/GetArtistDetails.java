@@ -33,12 +33,7 @@ public class GetArtistDetails extends UseCase<Artist> {
     }
 
     @Override
-    protected UseCaseRunner<Artist> buildUseCaseExecuteCallback() {
-        return new UseCaseRunner<Artist>() {
-            @Override
-            public Artist execute() {
-                return GetArtistDetails.this.artistRepository.artist(GetArtistDetails.this.artistId);
-            }
-        };
+    protected Artist doAction() {
+        return GetArtistDetails.this.artistRepository.artist(GetArtistDetails.this.artistId);
     }
 }

@@ -41,11 +41,37 @@ public abstract class BaseActivity<V extends MvpView, P extends MvpPresenter<V>>
         injectDependencies();
         presenter = createPresenter();
         presenter.attachView((V) this);
+        presenter.onCreate();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        presenter.onStart();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        presenter.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        presenter.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        presenter.onStop();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        presenter.onDestroy();
         presenter.detachView();
     }
 

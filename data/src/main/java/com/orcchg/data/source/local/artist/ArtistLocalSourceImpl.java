@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 
 import com.orcchg.data.entity.ArtistEntity;
 import com.orcchg.data.entity.SmallArtistEntity;
+import com.orcchg.data.entity.TotalValueEntity;
 import com.orcchg.data.entity.util.ArtistUtils;
 import com.orcchg.data.source.local.DatabaseHelper;
 
@@ -16,6 +17,8 @@ import javax.inject.Singleton;
 
 import hugo.weaving.DebugLog;
 import timber.log.Timber;
+
+import static com.orcchg.data.source.local.artist.ArtistDatabaseContract.COUNT_ALL_SMALL_STATEMENT;
 
 /**
  * Cache that stores {@link ArtistEntity} models locally.
@@ -65,7 +68,7 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
     @DebugLog @Override
     public boolean isEmpty() {
         this.database.open();
-        Cursor cursor = this.database.rawQuery(ArtistDatabaseContract.COUNT_ALL_SMALL_STATEMENT);
+        Cursor cursor = this.database.rawQuery(COUNT_ALL_SMALL_STATEMENT);
         boolean result = true;
         if (cursor.moveToFirst()) {
             int total = cursor.getInt(0);
@@ -94,6 +97,12 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
         this.database.execSql(ArtistDatabaseContract.CLEAR_TABLE_STATEMENT);
         this.database.execSql(ArtistDatabaseContract.CLEAR_TABLE_SMALL_STATEMENT);
         this.database.close();
+    }
+
+    @DebugLog @Override
+    public int totalItems() {
+        String statement = ArtistDatabaseContract.COUNT_ALL_SMALL_STATEMENT;
+        return intStatement(statement);
     }
 
     /* Repository */
@@ -144,7 +153,7 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
         String statement = specification == null ? ArtistDatabaseContract.DELETE_ALL_STATEMENT :
                 String.format(ArtistDatabaseContract.DELETE_STATEMENT, specification.getSelectionArgs());
 
-        executeStatement(statement);
+        executeStatementIgnoreResult(statement);
     }
 
     @DebugLog @Override
@@ -211,7 +220,7 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
         String statement = specification == null ? ArtistDatabaseContract.DELETE_ALL_SMALL_STATEMENT :
                 String.format(ArtistDatabaseContract.DELETE_SMALL_STATEMENT, specification.getSelectionArgs());
 
-        executeStatement(statement);
+        executeStatementIgnoreResult(statement);
     }
 
     @DebugLog @Override
@@ -262,8 +271,29 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
         return null;
     }
 
+    @Override
+    public TotalValueEntity total() {
+        return total(null);
+    }
+
+    @Override
+    public TotalValueEntity total(@Nullable List<String> genres) {
+        String statement = ArtistDatabaseContract.COUNT_ALL_SMALL_STATEMENT;
+        if (genres != null) {
+            ArtistsSpecification specification = new ByGenresArtistsSpecification(genres);
+            statement = String.format(ArtistDatabaseContract.COUNT_ALL_SMALL_STATEMENT_WHERE, specification.getSelectionArgs());
+        }
+        return new TotalValueEntity.Builder(intStatement(statement)).build();
+    }
+
     /* Internal */
     // --------------------------------------------------------------------------------------------
+    interface ProcessCursor<Result> {
+        Result process(Cursor cursor);
+    }
+
+    /* Insertion */
+    // ------------------------------------------
     private void insertArtist(SQLiteStatement insert, ArtistEntity artist) {
         String link = artist.getWebLink();
         String description = artist.getDescription();
@@ -287,7 +317,13 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
         insert.execute();
     }
 
-    private void executeStatement(String statement) {
+    /* Execution */
+    // ------------------------------------------
+    private List<SmallArtistEntity> executeSelectionBySpecifiedQuery(String statement) {
+        return performLoopStatement(statement, ArtistLocalSourceImpl::createSmallArtistFromCursor);
+    }
+
+    private void executeStatementIgnoreResult(String statement) {
         this.database.open();
         this.database.beginTransaction();
         SQLiteStatement object = this.database.compileStatement(statement);
@@ -298,19 +334,45 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
     }
 
     private boolean checkStatement(String statement) {
-        boolean result = false;
+        Boolean result = performStatement(statement, (cursor) -> (cursor.getInt(0) != 0));
+        return result != null ? result : false;
+    }
 
+    private int intStatement(String statement) {
+        Integer result = performStatement(statement, (cursor) -> (cursor.getInt(0)));
+        return result != null ? result : 0;
+    }
+
+    @Nullable
+    private <Result> Result performStatement(String statement, ProcessCursor<Result> cursorProcessor) {
+        Result result = null;
         this.database.open();
         Cursor cursor = this.database.rawQuery(statement);
         if (cursor.moveToFirst()) {
-            result = cursor.getInt(0) != 0;
+            result = cursorProcessor.process(cursor);
         }
         cursor.close();
         this.database.close();
         return result;
     }
 
-    private ArtistEntity createArtistFromCursor(Cursor cursor) {
+    @Nullable
+    private <Result> List<Result> performLoopStatement(String statement, ProcessCursor<Result> cursorProcessor) {
+        this.database.open();
+        Cursor cursor = this.database.rawQuery(statement);
+        List<Result> list = new ArrayList<>();
+        while (cursor.moveToNext()) {
+            Result result = cursorProcessor.process(cursor);
+            list.add(result);
+        }
+        cursor.close();
+        this.database.close();
+        return list;
+    }
+
+    /* Mapping */
+    // ------------------------------------------
+    private static ArtistEntity createArtistFromCursor(Cursor cursor) {
         long id = cursor.getInt(cursor.getColumnIndex(ArtistDatabaseContract.ArtistsTable.COLUMN_NAME_ID));
         String name = cursor.getString(cursor.getColumnIndex(ArtistDatabaseContract.ArtistsTable.COLUMN_NAME_NAME));
         String genres = cursor.getString(cursor.getColumnIndex(ArtistDatabaseContract.ArtistsTable.COLUMN_NAME_GENRES));
@@ -331,7 +393,7 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
                 .build();
     }
 
-    private SmallArtistEntity createSmallArtistFromCursor(Cursor cursor) {
+    private static SmallArtistEntity createSmallArtistFromCursor(Cursor cursor) {
         long id = cursor.getInt(cursor.getColumnIndex(ArtistDatabaseContract.ArtistsTable.COLUMN_NAME_ID));
         String name = cursor.getString(cursor.getColumnIndex(ArtistDatabaseContract.ArtistsTable.COLUMN_NAME_NAME));
         String cover_small = cursor.getString(cursor.getColumnIndex(ArtistDatabaseContract.ArtistsTable.COLUMN_NAME_COVER_SMALL));
@@ -339,19 +401,5 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
         return new SmallArtistEntity.Builder(id, name)
                 .setCover(cover_small)
                 .build();
-    }
-
-    private List<SmallArtistEntity> executeSelectionBySpecifiedQuery(String statement) {
-        this.database.open();
-        Cursor cursor = this.database.rawQuery(statement);
-        List<SmallArtistEntity> list = new ArrayList<>();
-        while (cursor.moveToNext()) {
-            SmallArtistEntity artist = createSmallArtistFromCursor(cursor);
-            list.add(artist);
-            Timber.v(artist.toString());
-        }
-        cursor.close();
-        this.database.close();
-        return list;
     }
 }

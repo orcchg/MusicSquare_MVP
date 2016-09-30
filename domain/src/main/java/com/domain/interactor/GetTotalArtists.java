@@ -2,23 +2,24 @@ package com.domain.interactor;
 
 import com.domain.executor.PostExecuteScheduler;
 import com.domain.executor.ThreadExecutor;
+import com.domain.model.TotalValue;
 import com.domain.repository.IArtistRepository;
 
 import javax.inject.Inject;
 
-public class InvalidateCache extends UseCase<Boolean> {
+public class GetTotalArtists extends UseCase<TotalValue> {
 
     final IArtistRepository artistRepository;
 
     @Inject
-    InvalidateCache(IArtistRepository artistRepository, ThreadExecutor threadExecutor,
+    GetTotalArtists(IArtistRepository artistRepository, ThreadExecutor threadExecutor,
                     PostExecuteScheduler postExecuteScheduler) {
         super(threadExecutor, postExecuteScheduler);
         this.artistRepository = artistRepository;
     }
 
     @Override
-    protected Boolean doAction() {
-        return InvalidateCache.this.artistRepository.clear();
+    protected TotalValue doAction() {
+        return GetTotalArtists.this.artistRepository.total();
     }
 }

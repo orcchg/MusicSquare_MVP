@@ -77,15 +77,10 @@ public class GetArtistList extends UseCase<List<Artist>> {
     }
 
     @Override
-    protected UseCaseRunner<List<Artist>> buildUseCaseExecuteCallback() {
-        return new UseCaseRunner<List<Artist>>() {
-            @Override
-            public List<Artist> execute() {
-                int limit = GetArtistList.this.parameters.limit;
-                int offset = GetArtistList.this.parameters.offset;
-                List<String> genres = GetArtistList.this.parameters.genres;
-                return GetArtistList.this.artistRepository.artists(limit, offset, genres);
-            }
-        };
+    protected List<Artist> doAction() {
+        int limit = GetArtistList.this.parameters.limit;
+        int offset = GetArtistList.this.parameters.offset;
+        List<String> genres = GetArtistList.this.parameters.genres;
+        return GetArtistList.this.artistRepository.artists(limit, offset, genres);
     }
 }

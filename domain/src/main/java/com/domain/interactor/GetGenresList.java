@@ -21,12 +21,7 @@ public class GetGenresList extends UseCase<List<Genre>> {
     }
 
     @Override
-    protected UseCaseRunner<List<Genre>> buildUseCaseExecuteCallback() {
-        return new UseCaseRunner<List<Genre>>() {
-            @Override
-            public List<Genre> execute() {
-                return GetGenresList.this.genresRepository.genres();
-            }
-        };
+    protected List<Genre> doAction() {
+        return GetGenresList.this.genresRepository.genres();
     }
 }

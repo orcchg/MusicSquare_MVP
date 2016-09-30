@@ -28,6 +28,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import hugo.weaving.DebugLog;
 
 public class ListFragment extends BaseFragment<ListContract.View, ListContract.Presenter> implements ListContract.View {
     private static final String BUNDLE_KEY_GENRES = "bundle_key_genres";
@@ -40,8 +41,9 @@ public class ListFragment extends BaseFragment<ListContract.View, ListContract.P
     @BindView(R.id.error_view) View errorView;
 
     private ListComponent listComponent;
-    private ListAdapter artistsAdapter;
-    private RecyclerView.LayoutManager layoutManager;
+    private LinearLayoutManager layoutManager;
+
+    private int lastVisible = -1;
 
     @OnClick(R.id.btn_retry)
     public void onRetryClick() {
@@ -49,10 +51,8 @@ public class ListFragment extends BaseFragment<ListContract.View, ListContract.P
     }
 
     private ShadowHolder shadowHolder;
-    private ArrayList<String> genres;
 
-    @NonNull
-    @Override
+    @NonNull @Override
     protected ListContract.Presenter createPresenter() {
         return listComponent.presenter();
     }
@@ -85,7 +85,7 @@ public class ListFragment extends BaseFragment<ListContract.View, ListContract.P
 
     /* View */
     // ------------------------------------------
-    @Override
+    @DebugLog @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         if (ShadowHolder.class.isInstance(activity)) {
@@ -93,15 +93,15 @@ public class ListFragment extends BaseFragment<ListContract.View, ListContract.P
         }
     }
 
-    @Override
+    @DebugLog @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
-        this.genres = args.getStringArrayList(BUNDLE_KEY_GENRES);
+        List<String> genres = args.getStringArrayList(BUNDLE_KEY_GENRES);
+        presenter.setGenres(genres);
     }
 
-    @Nullable
-    @Override
+    @DebugLog @Nullable @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         View rootView = inflater.inflate(R.layout.fragment_music_list, container, false);
@@ -117,25 +117,29 @@ public class ListFragment extends BaseFragment<ListContract.View, ListContract.P
             layoutManager = new LinearLayoutManager(getActivity());
         }
 
-        artistsAdapter = new ListAdapter(new ArrayList<>(), this::openArtistDetails);
-        artistsList.setAdapter(artistsAdapter);
-
         if (savedInstanceState != null) {
             Parcelable state = savedInstanceState.getParcelable(BUNDLE_KEY_LM_STATE);
             layoutManager.onRestoreInstanceState(state);
         }
         artistsList.setLayoutManager(layoutManager);
+        artistsList.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                processListScroll(recyclerView, dx, dy);
+            }
+        });
 
         return rootView;
     }
 
-    @Override
+    @DebugLog @Override
     public void onStart() {
         super.onStart();
-        presenter.loadArtists(this.genres);
+        presenter.start();
     }
 
-    @Override
+    @DebugLog @Override
     public void onSaveInstanceState(Bundle outState) {
         Parcelable state = layoutManager.onSaveInstanceState();
         outState.putParcelable(BUNDLE_KEY_LM_STATE, state);
@@ -144,7 +148,12 @@ public class ListFragment extends BaseFragment<ListContract.View, ListContract.P
 
     /* Contract */
     // ------------------------------------------
-    @Override
+    @DebugLog @Override
+    public RecyclerView getListView() {
+        return artistsList;
+    }
+
+    @DebugLog @Override
     public void showArtists(List<ArtistListItemVO> artists) {
         swipeRefreshLayout.setRefreshing(false);
         loadingView.setVisibility(View.GONE);
@@ -156,15 +165,12 @@ public class ListFragment extends BaseFragment<ListContract.View, ListContract.P
         } else {
             emptyView.setVisibility(View.GONE);
             artistsList.setVisibility(View.VISIBLE);
-            artistsAdapter.clear();
-            artistsAdapter.populate(artists);
-            artistsAdapter.notifyDataSetChanged();
         }
 
         if (shadowHolder != null) shadowHolder.showShadow(true);
     }
 
-    @Override
+    @DebugLog @Override
     public void showError() {
         swipeRefreshLayout.setRefreshing(false);
         artistsList.setVisibility(View.GONE);
@@ -175,7 +181,7 @@ public class ListFragment extends BaseFragment<ListContract.View, ListContract.P
         if (shadowHolder != null) shadowHolder.showShadow(true);
     }
 
-    @Override
+    @DebugLog @Override
     public void showLoading() {
         swipeRefreshLayout.setRefreshing(false);
         artistsList.setVisibility(View.GONE);
@@ -186,10 +192,21 @@ public class ListFragment extends BaseFragment<ListContract.View, ListContract.P
         if (shadowHolder != null) shadowHolder.showShadow(false);  // don't overlap with progress bar
     }
 
-    @Override
-    public void openArtistDetails(View view, long artistId) {
-        this.navigator.openDetailsScreen(getActivity(), artistId,
-                ViewUtility.isImageTransitionEnabled() ? view : null);
+    /* Internal */
+    // --------------------------------------------------------------------------------------------
+    void processListScroll(RecyclerView recyclerView, int dx, int dy) {
+        if (dy <= 0) {
+            return;  // skip scroll up
+        }
+
+        int last = this.layoutManager.findLastVisibleItemPosition();
+        if (this.lastVisible == last) {
+            return;  // skip scroll due to layout
+        }
+
+        this.lastVisible = last;
+        int total = this.layoutManager.getItemCount();
+        this.presenter.onScroll(total - last);
     }
 }
 
