@@ -58,8 +58,7 @@ public class ServerArtistCloudSource implements ArtistDataSource {
         }
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public ArtistEntity artist(long artistId) {
         try {
             Timber.d("Requesting artist from cloud...");

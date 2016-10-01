@@ -36,8 +36,7 @@ public class ServerGenreCloudSource implements GenreDataSource {
         }
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public GenreEntity genre(String name) {
         try {
             Timber.d("Requesting genre from cloud...");
@@ -50,14 +49,12 @@ public class ServerGenreCloudSource implements GenreDataSource {
 
     @Override
     public TotalValueEntity total() {
-//        try {
-//            Timber.d("Requesting total genres count from cloud...");
-//            return restAdapter.total().execute().body();
-//        } catch (IOException e) {
-//            Timber.e("Network error: %s", e);
-//            throw new NetworkException();
-//        }
-        // TODO: impl server method
-        return new TotalValueEntity(24);
+        try {
+            Timber.d("Requesting total genres count from cloud...");
+            return restAdapter.total().execute().body();
+        } catch (IOException e) {
+            Timber.e("Network error: %s", e);
+            throw new NetworkException();
+        }
     }
 }
