@@ -1,5 +1,7 @@
 package com.orcchg.musicsquare.ui.tab;
 
+import android.os.Bundle;
+
 import com.domain.interactor.GetGenresList;
 import com.domain.interactor.GetTotalGenres;
 import com.domain.interactor.InvalidateGenreCache;
@@ -12,6 +14,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class TabPresenter extends BasePresenter<TabContract.View> implements TabContract.Presenter {
@@ -20,7 +23,23 @@ public class TabPresenter extends BasePresenter<TabContract.View> implements Tab
     private final GetTotalGenres getTotalGenresUseCase;
     private final InvalidateGenreCache invalidateCacheUseCase;
 
-    private int totalGenres = 0;
+    static class Memento {
+        static final String BUNDLE_KEY_TOTAL_GENRES = "bundle_key_total_genres";
+
+        int totalGenres = 0;
+
+        void toBundle(Bundle outState) {
+            outState.putInt(BUNDLE_KEY_TOTAL_GENRES, totalGenres);
+        }
+
+        static Memento fromBundle(Bundle savedInstanceState) {
+            Memento memento = new Memento();
+            memento.totalGenres = savedInstanceState.getInt(BUNDLE_KEY_TOTAL_GENRES);
+            return memento;
+        }
+    }
+
+    Memento memento;
 
     @Inject
     TabPresenter(GetGenresList getGenresListUseCase, GetTotalGenres getTotalGenresUseCase,
@@ -31,9 +50,10 @@ public class TabPresenter extends BasePresenter<TabContract.View> implements Tab
         this.getGenresListUseCase.setPostExecuteCallback(createGetGenresCallback());
         this.getTotalGenresUseCase.setPostExecuteCallback(createGetTotalCallback());
         this.invalidateCacheUseCase.setPostExecuteCallback(createInvalidateCacheCallback());
+        this.memento = new Memento();
     }
 
-    @Override
+    @DebugLog @Override
     public void onStart() {
         super.onStart();
         start();
@@ -41,31 +61,33 @@ public class TabPresenter extends BasePresenter<TabContract.View> implements Tab
 
     /* Contract */
     // --------------------------------------------------------------------------------------------
-    @Override
-    public void loadGenres() {
-        if (isViewAttached()) {
-            if (totalGenres <= 0) {
-                getView().showLoading();
-            }
-        }
-        getGenresListUseCase.execute();
-    }
-
-    @Override
+    @DebugLog @Override
     public void retry() {
         invalidateCache();
     }
 
     /* Internal */
     // --------------------------------------------------------------------------------------------
+    @DebugLog
     private void start() {
-        if (totalGenres <= 0) {
+        if (memento.totalGenres <= 0) {
             getTotalGenresUseCase.execute();
         }
     }
 
+    @DebugLog
+    private void loadGenres() {
+        if (isViewAttached()) {
+            if (memento.totalGenres <= 0) {
+                getView().showLoading();
+            }
+        }
+        getGenresListUseCase.execute();
+    }
+
+    @DebugLog
     private void invalidateCache() {
-        totalGenres = 0;
+        memento.totalGenres = 0;
         if (isViewAttached()) getView().showLoading();
         invalidateCacheUseCase.execute();
     }
@@ -91,7 +113,7 @@ public class TabPresenter extends BasePresenter<TabContract.View> implements Tab
             @Override
             public void onFinish(TotalValue total) {
                 Timber.i("Total genres: %s", total.getValue());
-                totalGenres = total.getValue();
+                memento.totalGenres = total.getValue();
                 loadGenres();
             }
 

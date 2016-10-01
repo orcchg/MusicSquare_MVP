@@ -12,6 +12,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import hugo.weaving.DebugLog;
 import retrofit2.Retrofit;
 import timber.log.Timber;
 
@@ -25,7 +26,7 @@ public class ServerGenreCloudSource implements GenreDataSource {
                 .create(ServerGenreRestAdapter.class);
     }
 
-    @Override
+    @DebugLog @Override
     public List<GenreEntity> genres() {
         try {
             Timber.d("Requesting genres from cloud...");
@@ -36,7 +37,7 @@ public class ServerGenreCloudSource implements GenreDataSource {
         }
     }
 
-    @Nullable @Override
+    @DebugLog @Nullable @Override
     public GenreEntity genre(String name) {
         try {
             Timber.d("Requesting genre from cloud...");
@@ -47,7 +48,7 @@ public class ServerGenreCloudSource implements GenreDataSource {
         }
     }
 
-    @Override
+    @DebugLog @Override
     public TotalValueEntity total() {
         try {
             Timber.d("Requesting total genres count from cloud...");

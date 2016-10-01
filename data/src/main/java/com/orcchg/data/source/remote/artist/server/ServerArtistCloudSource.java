@@ -15,6 +15,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import hugo.weaving.DebugLog;
 import retrofit2.Retrofit;
 import timber.log.Timber;
 
@@ -29,22 +30,22 @@ public class ServerArtistCloudSource implements ArtistDataSource {
             .create(ServerArtistRestAdapter.class);
     }
 
-    @Override
+    @DebugLog @Override
     public List<SmallArtistEntity> artists() {
         return artists(-1, 0);
     }
 
-    @Override
+    @DebugLog @Override
     public List<SmallArtistEntity> artists(int limit, int offset) {
         return artists(limit, offset, null);
     }
 
-    @Override
+    @DebugLog @Override
     public List<SmallArtistEntity> artists(@Nullable List<String> genres) {
         return artists(-1, 0, genres);
     }
 
-    @Override
+    @DebugLog @Override
     public List<SmallArtistEntity> artists(int limit, int offset, @Nullable List<String> genres) {
         try {
             Integer Limit = limit == -1 ? null : limit;
@@ -58,7 +59,7 @@ public class ServerArtistCloudSource implements ArtistDataSource {
         }
     }
 
-    @Nullable @Override
+    @DebugLog @Nullable @Override
     public ArtistEntity artist(long artistId) {
         try {
             Timber.d("Requesting artist from cloud...");
@@ -69,12 +70,12 @@ public class ServerArtistCloudSource implements ArtistDataSource {
         }
     }
 
-    @Override
+    @DebugLog @Override
     public TotalValueEntity total() {
         return total(null);
     }
 
-    @Override
+    @DebugLog @Override
     public TotalValueEntity total(@Nullable List<String> genres) {
         try {
             Timber.d("Requesting total artists count from cloud...");

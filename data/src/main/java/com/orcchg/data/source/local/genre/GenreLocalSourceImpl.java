@@ -14,6 +14,7 @@ import com.orcchg.data.source.local.base.BaseLocalSourceImpl;
 import java.util.ArrayList;
 import java.util.List;
 
+import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class GenreLocalSourceImpl extends BaseLocalSourceImpl implements GenreLocalSource {
@@ -27,32 +28,37 @@ public class GenreLocalSourceImpl extends BaseLocalSourceImpl implements GenreLo
 
     /* Lifecycle */
     // --------------------------------------------------------------------------------------------
-    public void create() {
+    @DebugLog
+    @Override
+    public void onCreate() {
+        super.onCreate();
         database.open();
         database.execSql(GenreDatabaseContract.CREATE_TABLE_STATEMENT);
         database.close();
     }
 
-    @Override
-    public void onCreate() {
-        create();
-    }
-
-    @Override
+    @DebugLog @Override
     public void onUpgrade() {
-        clear();
-        create();
+        drop();
+        onCreate();
     }
 
-    @Override
+    @DebugLog @Override
     public void onDowngrade() {
-        clear();
-        create();
+        drop();
+        onCreate();
+    }
+
+    @DebugLog
+    private void drop() {
+        database.open();
+        database.execSql(GenreDatabaseContract.DELETE_TABLE_STATEMENT);
+        database.close();
     }
 
     /* Cache stuff */
     // ------------------------------------------
-    @Override
+    @DebugLog @Override
     public boolean isEmpty() {
         if (!isEmpty) return false;
 
@@ -69,12 +75,12 @@ public class GenreLocalSourceImpl extends BaseLocalSourceImpl implements GenreLo
         return isEmpty;
     }
 
-    @Override
+    @DebugLog @Override
     public boolean isExpired() {
         return false;  // TODO: fix:   expired;
     }
 
-    @Override
+    @DebugLog @Override
     public void clear() {
         database.open();
         database.execSql(GenreDatabaseContract.CLEAR_TABLE_STATEMENT);
@@ -82,7 +88,7 @@ public class GenreLocalSourceImpl extends BaseLocalSourceImpl implements GenreLo
         isEmpty = true;
     }
 
-    @Override
+    @DebugLog @Override
     public int totalItems() {
         String statement = GenreDatabaseContract.COUNT_ALL_STATEMENT;
         return intStatement(statement);
@@ -90,14 +96,14 @@ public class GenreLocalSourceImpl extends BaseLocalSourceImpl implements GenreLo
 
     /* Repository */
     // --------------------------------------------------------------------------------------------
-    @Override
+    @DebugLog @Override
     public boolean hasGenre(@Nullable String name) {
         if (TextUtils.isEmpty(name)) return false;
         String statement = String.format(GenreDatabaseContract.CONTAINS_STATEMENT, name);
         return checkStatement(statement);
     }
 
-    @Override
+    @DebugLog @Override
     public void addGenre(GenreEntity genre) {
         database.open();
         database.beginTransaction();
@@ -110,7 +116,7 @@ public class GenreLocalSourceImpl extends BaseLocalSourceImpl implements GenreLo
         database.close();
     }
 
-    @Override
+    @DebugLog @Override
     public void addGenres(List<GenreEntity> genres) {
         database.open();
         database.beginTransaction();
@@ -125,12 +131,12 @@ public class GenreLocalSourceImpl extends BaseLocalSourceImpl implements GenreLo
         database.close();
     }
 
-    @Override
+    @DebugLog @Override
     public void updateGenres(List<GenreEntity> genres) {
         addGenres(genres);  // using REPLACE clause
     }
 
-    @Override
+    @DebugLog @Override
     public void removeGenres(GenreSpecification specification) {
         String statement = specification == null ? GenreDatabaseContract.DELETE_ALL_STATEMENT :
                 String.format(GenreDatabaseContract.DELETE_STATEMENT, specification.getSelectionArgs());
@@ -138,7 +144,7 @@ public class GenreLocalSourceImpl extends BaseLocalSourceImpl implements GenreLo
         executeStatementIgnoreResult(statement);
     }
 
-    @Override
+    @DebugLog @Override
     public List<GenreEntity> queryGenres(GenreSpecification specification) {
         final String statement = specification == null ? GenreDatabaseContract.READ_ALL_STATEMENT :
                 String.format(GenreDatabaseContract.READ_STATEMENT, specification.getSelectionArgs());
@@ -157,19 +163,19 @@ public class GenreLocalSourceImpl extends BaseLocalSourceImpl implements GenreLo
 
     /* Data source implementation */
     // ------------------------------------------
-    @Override
+    @DebugLog @Override
     public List<GenreEntity> genres() {
         return queryGenres(null);
     }
 
-    @Nullable @Override
+    @DebugLog @Nullable @Override
     public GenreEntity genre(String name) {
         List<GenreEntity> list = queryGenres(new ByNameGenreSpecification(name));
         if (!list.isEmpty()) return list.get(0);
         return null;
     }
 
-    @Override
+    @DebugLog @Override
     public TotalValueEntity total() {
         String statement = GenreDatabaseContract.COUNT_ALL_STATEMENT;
         return new TotalValueEntity.Builder(intStatement(statement)).build();

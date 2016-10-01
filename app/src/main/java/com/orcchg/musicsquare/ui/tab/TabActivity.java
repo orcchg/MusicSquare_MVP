@@ -115,12 +115,6 @@ public class TabActivity extends BaseActivity<TabContract.View, TabContract.Pres
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        presenter.loadGenres();
-    }
-
-    @Override
     protected void onSaveInstanceState(Bundle outState) {
         memento.toBundle(outState);
         super.onSaveInstanceState(outState);

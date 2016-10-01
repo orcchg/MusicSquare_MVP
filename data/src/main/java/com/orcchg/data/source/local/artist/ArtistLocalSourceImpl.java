@@ -37,8 +37,9 @@ public class ArtistLocalSourceImpl extends BaseLocalSourceImpl implements Artist
 
     /* Lifecycle */
     // --------------------------------------------------------------------------------------------
-    @DebugLog
-    public void create() {
+    @DebugLog @Override
+    public void onCreate() {
+        super.onCreate();
         database.open();
         database.execSql(ArtistDatabaseContract.CREATE_TABLE_STATEMENT);
         database.execSql(ArtistDatabaseContract.CREATE_TABLE_SMALL_STATEMENT);
@@ -46,20 +47,23 @@ public class ArtistLocalSourceImpl extends BaseLocalSourceImpl implements Artist
     }
 
     @DebugLog @Override
-    public void onCreate() {
-        create();
-    }
-
-    @DebugLog @Override
     public void onUpgrade() {
-        clear();
-        create();
+        drop();
+        onCreate();
     }
 
     @DebugLog @Override
     public void onDowngrade() {
-        clear();
-        create();
+        drop();
+        onCreate();
+    }
+
+    @DebugLog
+    private void drop() {
+        database.open();
+        database.execSql(ArtistDatabaseContract.DELETE_TABLE_STATEMENT);
+        database.execSql(ArtistDatabaseContract.DELETE_TABLE_SMALL_STATEMENT);
+        database.close();
     }
 
     /* Cache stuff */
@@ -272,12 +276,12 @@ public class ArtistLocalSourceImpl extends BaseLocalSourceImpl implements Artist
         return null;
     }
 
-    @Override
+    @DebugLog @Override
     public TotalValueEntity total() {
         return total(null);
     }
 
-    @Override
+    @DebugLog @Override
     public TotalValueEntity total(@Nullable List<String> genres) {
         String statement = ArtistDatabaseContract.COUNT_ALL_SMALL_STATEMENT;
         if (genres != null) {

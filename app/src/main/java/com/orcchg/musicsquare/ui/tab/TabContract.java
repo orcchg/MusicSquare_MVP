@@ -14,7 +14,6 @@ public interface TabContract {
     }
 
     interface Presenter extends MvpPresenter<View> {
-        void loadGenres();
         void retry();
     }
 }

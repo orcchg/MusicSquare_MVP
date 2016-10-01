@@ -1,6 +1,7 @@
 package com.orcchg.musicsquare.ui.list;
 
 import android.app.Activity;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -16,10 +17,12 @@ import com.orcchg.musicsquare.ui.viewobject.ArtistListItemVO;
 import com.orcchg.musicsquare.ui.viewobject.mapper.ArtistListItemMapper;
 import com.orcchg.musicsquare.util.ViewUtility;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
+import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 public class ListPresenter extends BasePresenter<ListContract.View> implements ListContract.Presenter {
@@ -32,10 +35,35 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
     private final GetTotalArtists getTotalArtistsUseCase;
     private final InvalidateArtistCache invalidateCacheUseCase;
 
-    private int currentSize = 0;
-    private int currentOffset = 0;
-    private int totalArtists = 0;
-    private List<String> genres;
+    static class Memento {
+        static final String BUNDLE_KEY_CURRENT_SIZE = "bundle_key_current_size";
+        static final String BUNDLE_KEY_CURRENT_OFFSET = "bundle_key_current_offset";
+        static final String BUNDLE_KEY_TOTAL_ARTISTS = "bundle_key_total_artists";
+        static final String BUNDLE_KEY_GENRES = "bundle_key_genres";
+
+        int currentSize = 0;
+        int currentOffset = 0;
+        int totalArtists = 0;
+        List<String> genres;
+
+        void toBundle(Bundle outState) {
+            outState.putInt(BUNDLE_KEY_CURRENT_SIZE, currentSize);
+            outState.putInt(BUNDLE_KEY_CURRENT_OFFSET, currentOffset);
+            outState.putInt(BUNDLE_KEY_TOTAL_ARTISTS, totalArtists);
+            outState.putStringArrayList(BUNDLE_KEY_GENRES, (ArrayList<String>) genres);
+        }
+
+        static Memento fromBundle(Bundle savedInstanceState) {
+            Memento memento = new Memento();
+            memento.currentSize = savedInstanceState.getInt(BUNDLE_KEY_CURRENT_SIZE);
+            memento.currentOffset = savedInstanceState.getInt(BUNDLE_KEY_CURRENT_OFFSET);
+            memento.totalArtists = savedInstanceState.getInt(BUNDLE_KEY_TOTAL_ARTISTS);
+            memento.genres = savedInstanceState.getStringArrayList(BUNDLE_KEY_GENRES);
+            return memento;
+        }
+    }
+
+    private Memento memento;
 
     /**
      * Constructs an instance of {@link ListPresenter}.
@@ -56,11 +84,12 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
         this.getArtistListUseCase.setPostExecuteCallback(createGetListCallback());
         this.getTotalArtistsUseCase.setPostExecuteCallback(createGetTotalCallback());
         this.invalidateCacheUseCase.setPostExecuteCallback(createInvalidateCacheCallback());
+        this.memento = new Memento();
     }
 
-    @Override
+    @DebugLog @Override
     public void onStart() {
-        super.onCreate();
+        super.onStart();
         if (isViewAttached()) {
             RecyclerView list = getView().getListView();
             if (list.getAdapter() == null) {
@@ -72,54 +101,59 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
 
     /* Contract */
     // --------------------------------------------------------------------------------------------
-    @Override
+    @DebugLog @Override
     public void retry() {
         invalidateCache();
     }
 
-    @Override
+    @DebugLog @Override
     public void onScroll(int itemsLeftToEnd) {
         if (isThereMore() && itemsLeftToEnd <= LOAD_MORE_THRESHOLD) {
-            currentOffset += LIMIT_PER_REQUEST;
-            loadArtists(LIMIT_PER_REQUEST, currentOffset, genres);
+            memento.currentOffset += LIMIT_PER_REQUEST;
+            loadArtists(LIMIT_PER_REQUEST, memento.currentOffset, memento.genres);
         }
     }
 
-    @Override
+    @DebugLog @Override
     public void setGenres(@Nullable List<String> genres) {
-        this.genres = genres;
+        memento.genres = genres;
     }
 
     /* Internal */
     // --------------------------------------------------------------------------------------------
+    @DebugLog
     private void start() {
-        if (totalArtists <= 0) {
+        if (memento.totalArtists <= 0) {
             artistsAdapter.clear();
 
             GetTotalArtists.Parameters parameters = new GetTotalArtists.Parameters.Builder()
-                    .setGenres(genres)
+                    .setGenres(memento.genres)
                     .build();
             getTotalArtistsUseCase.setParameters(parameters);
             getTotalArtistsUseCase.execute();
         }
     }
 
+    @DebugLog
     private void loadArtists() {
         loadArtists(-1, 0);
     }
 
+    @DebugLog
     private void loadArtists(int limit, int offset) {
         loadArtists(limit, offset, null);
     }
 
+    @DebugLog
     private void loadArtists(@Nullable List<String> genres) {
         loadArtists(-1, 0, genres);
     }
 
+    @DebugLog
     private void loadArtists(int limit, int offset, @Nullable List<String> genres) {
-        this.genres = genres;
+        memento.genres = genres;
         if (isViewAttached()) {
-            if (totalArtists <= 0) {
+            if (memento.totalArtists <= 0) {
                 getView().showLoading();
             }
         }
@@ -140,16 +174,18 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
         }
     }
 
+    @DebugLog
     private void invalidateCache() {
-        currentSize = 0;
-        currentOffset = 0;
-        totalArtists = 0;
+        memento.currentSize = 0;
+        memento.currentOffset = 0;
+        memento.totalArtists = 0;
         if (isViewAttached()) getView().showLoading();
         invalidateCacheUseCase.execute();
     }
 
+    @DebugLog
     private boolean isThereMore() {
-        return totalArtists > currentSize + currentOffset;
+        return memento.totalArtists > memento.currentSize + memento.currentOffset;
     }
 
     /* Callback */
@@ -158,7 +194,7 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
         return new UseCase.OnPostExecuteCallback<List<Artist>>() {
             @Override
             public void onFinish(List<Artist> artists) {
-                currentSize += artists.size();
+                memento.currentSize += artists.size();
                 ArtistListItemMapper mapper = new ArtistListItemMapper();
                 List<ArtistListItemVO> artistsVO = mapper.map(artists);
                 artistsAdapter.populate(artistsVO, isThereMore());
@@ -179,8 +215,8 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
             @Override
             public void onFinish(TotalValue total) {
                 Timber.i("Total artists: %s", total.getValue());
-                totalArtists = total.getValue();
-                loadArtists(LIMIT_PER_REQUEST, 0, genres);
+                memento.totalArtists = total.getValue();
+                loadArtists(LIMIT_PER_REQUEST, 0, memento.genres);
             }
 
             @Override

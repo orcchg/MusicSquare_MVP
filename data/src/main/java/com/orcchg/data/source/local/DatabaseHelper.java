@@ -4,8 +4,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
+import android.support.annotation.IntDef;
+import android.util.LongSparseArray;
 
 import java.io.File;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.ref.WeakReference;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -25,7 +30,7 @@ public class DatabaseHelper {
     private final FileManager fileManager;
     private SQLiteDatabase database;
     private File databaseFile;
-    private LifeCycleCallback lifeCycleCallback;
+    private LongSparseArray<WeakReference<LifeCycleCallback>> lifeCycleCallbackRefs;
     private int oldVersion;
     private int openCounter;
 
@@ -34,16 +39,27 @@ public class DatabaseHelper {
         this.context = context;
         this.fileManager = fileManager;
         this.databaseFile = context.getDatabasePath(DATABASE_NAME);
+        this.lifeCycleCallbackRefs = new LongSparseArray<>();
     }
 
     /* Lifecycle */
     // ------------------------------------------
+    private static final int LCC_CREATE = 0;
+    private static final int LCC_UPGRADE = 1;
+    private static final int LCC_DOWNGRADE = 2;
+    private static final int LCC_DESTROY = 3;
+    @IntDef({LCC_CREATE, LCC_UPGRADE, LCC_DOWNGRADE, LCC_DESTROY})
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface LccEvent {}
+
     public interface LifeCycleCallback {
         void onCreate();
         void onUpgrade();
         void onDowngrade();
+        void onDestroy();
     }
 
+    @DebugLog
     private boolean openOrCreateDatabase() {
         boolean isNewDb = !databaseFile.exists();
         database = SQLiteDatabase.openOrCreateDatabase(databaseFile, null);
@@ -52,6 +68,7 @@ public class DatabaseHelper {
         return isNewDb;
     }
 
+    @DebugLog
     private void checkVersion() {
         int oldVersion = this.oldVersion;
         Timber.i("Database version: %s", oldVersion);
@@ -61,9 +78,9 @@ public class DatabaseHelper {
             return;
         }
         if (oldVersion < DATABASE_VERSION) {
-            if (lifeCycleCallback != null) lifeCycleCallback.onUpgrade();
+            notifyUpgrade();
         } else if (oldVersion > DATABASE_VERSION) {
-            if (lifeCycleCallback != null) lifeCycleCallback.onDowngrade();
+            notifyDowngrade();
         }
     }
 
@@ -71,14 +88,60 @@ public class DatabaseHelper {
         if (openCounter < 0) throw new RuntimeException("Open counter is negative !");
     }
 
-    public void setLifeCycleCallback(LifeCycleCallback lifeCycleCallback) {
-        this.lifeCycleCallback = lifeCycleCallback;
+    @DebugLog
+    public void addLifeCycleCallback(LifeCycleCallback lifeCycleCallback) {
+        lifeCycleCallbackRefs.put(lifeCycleCallback.hashCode(), new WeakReference<>(lifeCycleCallback));
+    }
+
+    @DebugLog
+    public void removeLifeCycleCallback(LifeCycleCallback lifeCycleCallback) {
+        lifeCycleCallbackRefs.delete(lifeCycleCallback.hashCode());
+    }
+
+    @DebugLog
+    private void notifyCreate() {
+        notifyLifecycle(LCC_CREATE);
+    }
+
+    @DebugLog
+    private void notifyUpgrade() {
+        notifyLifecycle(LCC_UPGRADE);
+    }
+
+    @DebugLog
+    private void notifyDowngrade() {
+        notifyLifecycle(LCC_DOWNGRADE);
+    }
+
+    @DebugLog
+    private void notifyDestroy() {
+        notifyLifecycle(LCC_DESTROY);
+    }
+
+    @DebugLog
+    private void notifyLifecycle(@LccEvent int event) {
+        for (int i = 0; i < lifeCycleCallbackRefs.size(); ++i) {
+            long key = lifeCycleCallbackRefs.keyAt(i);
+            WeakReference<LifeCycleCallback> lccRef = lifeCycleCallbackRefs.get(key);
+            LifeCycleCallback lcc = lccRef.get();
+            if (lcc != null) {
+                switch (event) {
+                    case LCC_CREATE:     lcc.onCreate();     break;
+                    case LCC_UPGRADE:    lcc.onUpgrade();    break;
+                    case LCC_DOWNGRADE:  lcc.onDowngrade();  break;
+                    case LCC_DESTROY:    lcc.onDestroy();    break;
+                    default:             // no-op
+                }
+            } else {
+                Timber.w("Life-cycle callback has already been GC'ed");
+            }
+        }
     }
 
     /* Interface */
     // --------------------------------------------------------------------------------------------
     @DebugLog
-    public void open() {
+    synchronized public void open() {
         checkCounter();
         ++openCounter;
         Timber.i("Helper address: %s, open counter: %s", hashCode(), openCounter);
@@ -87,51 +150,58 @@ public class DatabaseHelper {
             return;
         }
         if (database == null || !database.isOpen()) {
-            if (openOrCreateDatabase() && lifeCycleCallback != null) {
-                lifeCycleCallback.onCreate();
+            if (openOrCreateDatabase()) {
+                notifyCreate();
             }
         }
         checkVersion();
     }
 
     @DebugLog
-    public void close() {
+    synchronized public void close() {
         --openCounter;
         checkCounter();
         if (openCounter == 0) {
             Timber.i("Database to be closed");
+            notifyDestroy();
             database.close();
         }
     }
 
+    @DebugLog
     public boolean isOpened() {
         return openCounter > 0;
     }
 
-    public void execSql(String sql) {
+    @DebugLog
+    synchronized public void execSql(String sql) {
         database.execSQL(sql);
     }
 
     @DebugLog
-    public Cursor rawQuery(String statement) {
+    synchronized public Cursor rawQuery(String statement) {
         return database.rawQuery(statement, null);
     }
 
     /* Raw transaction */
     // ------------------------------------------
-    public void beginTransaction() {
+    @DebugLog
+    synchronized public void beginTransaction() {
         database.beginTransaction();
     }
 
-    public SQLiteStatement compileStatement(String statement) {
+    @DebugLog
+    synchronized public SQLiteStatement compileStatement(String statement) {
         return database.compileStatement(statement);
     }
 
-    public void setTransactionSuccessful() {
+    @DebugLog
+    synchronized public void setTransactionSuccessful() {
         database.setTransactionSuccessful();
     }
 
-    public void endTransaction() {
+    @DebugLog
+    synchronized public void endTransaction() {
         database.endTransaction();
     }
 

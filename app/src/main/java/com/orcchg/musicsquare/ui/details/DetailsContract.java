@@ -12,7 +12,5 @@ interface DetailsContract {
     }
 
     interface Presenter extends MvpPresenter<View> {
-        void start();
-        void loadArtistDetails();
     }
 }

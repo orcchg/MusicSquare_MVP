@@ -22,6 +22,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import hugo.weaving.DebugLog;
 import timber.log.Timber;
 
 @Singleton
@@ -47,27 +48,27 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
         this.totalValueMapper = totalValueMapper;
     }
 
-    @Override
+    @DebugLog @Override
     public List<Artist> artists() {
         return artists(-1, 0);
     }
 
-    @Override
+    @DebugLog @Override
     public List<Artist> artists(int limit, int offset) {
         return artists(limit, offset, null);
     }
 
-    @Override
+    @DebugLog @Override
     public List<Artist> artists(@Nullable List<String> genres) {
         return artists(-1, 0, genres);
     }
 
-    @Override
+    @DebugLog @Override
     public List<Artist> artists(int limit, int offset, @Nullable List<String> genres) {
         return processListOfEntities(getArtists(limit, offset, genres));
     }
 
-    @Override
+    @DebugLog @Override
     public Artist artist(long artistId) {
         ArtistEntity artistEntity = getDataSource(artistId).artist(artistId);
         if (source == RepoUtils.SOURCE_REMOTE &&
@@ -79,18 +80,18 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
         return artistMapper.map(artistEntity);
     }
 
-    @Override
+    @DebugLog @Override
     public boolean clear() {
         localSource.clear();
         return true;
     }
 
-    @Override
+    @DebugLog @Override
     public TotalValue total() {
         return total(null);
     }
 
-    @Override
+    @DebugLog @Override
     public TotalValue total(@Nullable List<String> genres) {
         // total items count is always fetched from remote cloud to be actual
         TotalValueEntity totalValueEntity = cloudSource.total(genres);
@@ -99,14 +100,17 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
 
     /* Internal */
     // --------------------------------------------------------------------------------------------
+    @DebugLog
     private boolean checkCacheStaled() {
         return localSource.isEmpty() || localSource.isExpired();
     }
 
+    @DebugLog
     private ArtistDataSource getDataSource() {
         return getDataSource(-1);
     }
 
+    @DebugLog
     private ArtistDataSource getDataSource(long artistId) {
         if (checkCacheStaled() || !localSource.hasArtist(artistId)) {
             source = RepoUtils.SOURCE_REMOTE;
@@ -117,6 +121,7 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
         }
     }
 
+    @DebugLog
     private List<SmallArtistEntity> getArtists(int limit, int offset, @Nullable List<String> genres) {
         /**
          * If there are genres provided, then always fetch models selected by genres from the Cloud,

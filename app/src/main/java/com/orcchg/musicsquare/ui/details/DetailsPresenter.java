@@ -10,26 +10,35 @@ import com.orcchg.musicsquare.ui.viewobject.mapper.ArtistDetailsMapper;
 
 import javax.inject.Inject;
 
+import hugo.weaving.DebugLog;
+
 public class DetailsPresenter extends BasePresenter<DetailsContract.View> implements DetailsContract.Presenter {
 
     private final GetArtistDetails getArtistDetailsUseCase;
+
+    static class Memento {
+    }
+
+    Memento memento;
 
     @Inject
     DetailsPresenter(GetArtistDetails getArtistDetailsUseCase) {
         this.getArtistDetailsUseCase = getArtistDetailsUseCase;
         this.getArtistDetailsUseCase.setPostExecuteCallback(createGetDetailsCallback());
+        this.memento = new Memento();
     }
 
-    /* Contract */
+    @DebugLog @Override
+    public void onStart() {
+        super.onStart();
+        start();
+    }
+
+    /* Internal */
     // --------------------------------------------------------------------------------------------
-    @Override
-    public void start() {
-        loadArtistDetails();
-    }
-
-    @Override
-    public void loadArtistDetails() {
-//        if (isViewAttached()) getView().showLoading();  // TODO: load details async
+    @DebugLog
+    private void start() {
+        // if (isViewAttached()) getView().showLoading();  // TODO: load details async
         getArtistDetailsUseCase.execute();
     }
 

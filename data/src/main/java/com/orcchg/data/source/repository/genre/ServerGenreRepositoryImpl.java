@@ -17,6 +17,8 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import hugo.weaving.DebugLog;
+
 @Singleton
 public class ServerGenreRepositoryImpl implements IGenreRepository {
 
@@ -36,12 +38,12 @@ public class ServerGenreRepositoryImpl implements IGenreRepository {
         this.totalValueMapper = totalValueMapper;
     }
 
-    @Override
+    @DebugLog @Override
     public List<Genre> genres() {
         return processListOfEntities(getDataSource().genres());
     }
 
-    @Override
+    @DebugLog @Override
     public Genre genre(String name) {
         GenreEntity genreEntity = getDataSource(name).genre(name);
         if (source == RepoUtils.SOURCE_REMOTE &&
@@ -53,13 +55,13 @@ public class ServerGenreRepositoryImpl implements IGenreRepository {
         return genreMapper.map(genreEntity);
     }
 
-    @Override
+    @DebugLog @Override
     public boolean clear() {
         localSource.clear();
         return true;
     }
 
-    @Override
+    @DebugLog @Override
     public TotalValue total() {
         // total items count is always fetched from remote cloud to be actual
         TotalValueEntity totalValueEntity = cloudSource.total();
@@ -68,14 +70,17 @@ public class ServerGenreRepositoryImpl implements IGenreRepository {
 
     /* Internal */
     // --------------------------------------------------------------------------------------------
+    @DebugLog
     private boolean checkCacheStaled() {
         return localSource.isEmpty() || localSource.isExpired();
     }
 
+    @DebugLog
     private GenreDataSource getDataSource() {
         return getDataSource(null);
     }
 
+    @DebugLog
     private GenreDataSource getDataSource(String name) {
         if (checkCacheStaled() || !localSource.hasGenre(name)) {
             source = RepoUtils.SOURCE_REMOTE;

@@ -103,12 +103,6 @@ public class DetailsActivity extends BaseActivity<DetailsContract.View, DetailsC
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        presenter.start();
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
         releaseResources();

@@ -9,6 +9,8 @@ import com.orcchg.data.source.local.DatabaseHelper;
 import java.util.ArrayList;
 import java.util.List;
 
+import hugo.weaving.DebugLog;
+
 public abstract class BaseLocalSourceImpl implements DatabaseHelper.LifeCycleCallback {
 
     protected interface ProcessCursor<Result> {
@@ -19,7 +21,17 @@ public abstract class BaseLocalSourceImpl implements DatabaseHelper.LifeCycleCal
 
     protected BaseLocalSourceImpl(DatabaseHelper database) {
         this.database = database;
-        this.database.setLifeCycleCallback(this);
+        database.addLifeCycleCallback(this);
+    }
+
+    @DebugLog @Override
+    public void onCreate() {
+        // override in subclasses
+    }
+
+    @DebugLog @Override
+    public void onDestroy() {
+        database.removeLifeCycleCallback(this);
     }
 
     /* Execution */
