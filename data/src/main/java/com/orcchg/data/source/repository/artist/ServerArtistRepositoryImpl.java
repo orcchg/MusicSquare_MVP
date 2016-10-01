@@ -1,6 +1,7 @@
 package com.orcchg.data.source.repository.artist;
 
 import android.support.annotation.IntDef;
+import android.support.annotation.Nullable;
 
 import com.domain.model.Artist;
 import com.domain.model.TotalValue;
@@ -40,6 +41,7 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
     private final TotalValueMapper totalValueMapper;
 
     private @SourceType int source;
+    private boolean sequentialItems;
 
     @Inject
     ServerArtistRepositoryImpl(@Named("serverCloud") ArtistDataSource cloudSource, ArtistLocalSource localSource,
@@ -63,12 +65,12 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
     }
 
     @Override
-    public List<Artist> artists(List<String> genres) {
+    public List<Artist> artists(@Nullable List<String> genres) {
         return artists(-1, 0, genres);
     }
 
     @Override
-    public List<Artist> artists(int limit, int offset, List<String> genres) {
+    public List<Artist> artists(int limit, int offset, @Nullable List<String> genres) {
         return processListOfEntities(getArtists(limit, offset, genres));
     }
 
@@ -117,7 +119,31 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
         }
     }
 
-    private List<SmallArtistEntity> getArtists(int limit, int offset, List<String> genres) {
+    private List<SmallArtistEntity> getArtists(int limit, int offset, @Nullable List<String> genres) {
+        /**
+         * If there are genres provided, then always fetch models selected by genres from the Cloud,
+         * because we rely on the fact that Cache and Cloud are synchronized and contain absolutely
+         * the same sequences of items (with absolutely the same ordering), otherwise paging will
+         * malfunction, because it is based on total items count in Cache which is not relevant to
+         * the total items sharing the same genre. Moreover, repository implementation tends to
+         * update Cache with new data available from Cloud, so when Cloud is asked for items sharing
+         * any particular genre or set of genres, it will give items in a random ordering, but then
+         * repository will try to store them in Cache sequentially. When a new page of items will
+         * then be asked for, items will be fetched partially from Cache and from Cloud leading some weird
+         * gaps and possible duplicates could occur in the final set of items.
+         *
+         * Thus, neither selecting items by genres from Cache, nor storing them in Cache when received
+         * from Cloud in a random ordering. The ordering in Cache must always coincide with ordering in
+         * Cloud, otherwise Cache should be considered 'expired' and to be then cleaned and re-populated.
+         */
+        if (genres != null && !genres.isEmpty()) {
+            Timber.v("Fetch items by genres from cloud");
+            sequentialItems = false;  // items selected by genres have a random ordering
+            return cloudSource.artists(limit, offset, genres);
+        }
+
+        sequentialItems = true;  // items have a direct ordering
+
         int total = localSource.totalItems();
         int available = total - offset;
         int needed = limit + offset - total;
@@ -154,7 +180,7 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
     }
 
     private List<Artist> processListOfEntities(List<SmallArtistEntity> data) {
-        if (source == SOURCE_REMOTE) {
+        if (source == SOURCE_REMOTE && sequentialItems) {
             localSource.updateSmallArtists(data);
         }
         List<Artist> artists = new ArrayList<>();

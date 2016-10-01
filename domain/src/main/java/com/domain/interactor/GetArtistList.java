@@ -4,6 +4,7 @@ import com.domain.executor.PostExecuteScheduler;
 import com.domain.executor.ThreadExecutor;
 import com.domain.model.Artist;
 import com.domain.repository.IArtistRepository;
+import com.sun.istack.internal.Nullable;
 
 import java.util.List;
 
@@ -40,7 +41,7 @@ public class GetArtistList extends UseCase<List<Artist>> {
                 return this;
             }
 
-            public Builder setGenres(List<String> genres) {
+            public Builder setGenres(@Nullable List<String> genres) {
                 this.genres = genres;
                 return this;
             }

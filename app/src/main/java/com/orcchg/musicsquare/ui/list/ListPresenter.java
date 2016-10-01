@@ -1,6 +1,7 @@
 package com.orcchg.musicsquare.ui.list;
 
 import android.app.Activity;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
@@ -85,7 +86,7 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
     }
 
     @Override
-    public void setGenres(List<String> genres) {
+    public void setGenres(@Nullable List<String> genres) {
         this.genres = genres;
     }
 
@@ -106,11 +107,11 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
         loadArtists(limit, offset, null);
     }
 
-    private void loadArtists(List<String> genres) {
+    private void loadArtists(@Nullable List<String> genres) {
         loadArtists(-1, 0, genres);
     }
 
-    private void loadArtists(int limit, int offset, List<String> genres) {
+    private void loadArtists(int limit, int offset, @Nullable List<String> genres) {
         this.genres = genres;
         if (isViewAttached()) {
             if (totalArtists <= 0) {
