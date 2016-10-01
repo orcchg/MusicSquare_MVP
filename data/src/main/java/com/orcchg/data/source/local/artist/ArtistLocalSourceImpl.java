@@ -30,10 +30,12 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
     private static final long EXPIRATION_TIME = 60 * 10 * 1000;
 
     private final DatabaseHelper database;
+    private boolean isEmpty;
 
     public ArtistLocalSourceImpl(DatabaseHelper database) {
         this.database = database;
         this.database.setLifeCycleCallback(this);
+        this.isEmpty = true;
     }
 
     /* Lifecycle */
@@ -67,17 +69,19 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
     // ------------------------------------------
     @DebugLog @Override
     public boolean isEmpty() {
+        if (!isEmpty) return false;
+
         database.open();
         Cursor cursor = database.rawQuery(COUNT_ALL_SMALL_STATEMENT);
-        boolean result = true;
+        isEmpty = true;
         if (cursor.moveToFirst()) {
             int total = cursor.getInt(0);
             Timber.i("Total in cache: %s", total);
-            result = total == 0;
+            isEmpty = total == 0;
         }
         cursor.close();
         database.close();
-        return result;
+        return isEmpty;
     }
 
     @DebugLog @Override
@@ -97,6 +101,7 @@ public class ArtistLocalSourceImpl implements ArtistLocalSource, DatabaseHelper.
         database.execSql(ArtistDatabaseContract.CLEAR_TABLE_STATEMENT);
         database.execSql(ArtistDatabaseContract.CLEAR_TABLE_SMALL_STATEMENT);
         database.close();
+        isEmpty = true;
     }
 
     @DebugLog @Override
