@@ -14,13 +14,13 @@ interface ArtistRepository {
     void addArtist(ArtistEntity artist);
     void addArtists(List<ArtistEntity> artists);
     void updateArtists(List<ArtistEntity> artists);
-    void removeArtists(ArtistsSpecification specification);
-    List<ArtistEntity> queryArtists(ArtistsSpecification specification);
+    void removeArtists(ArtistSpecification specification);
+    List<ArtistEntity> queryArtists(ArtistSpecification specification);
 
     boolean hasSmallArtist(long artistId);
     void addSmallArtist(SmallArtistEntity artist);
     void addSmallArtists(List<SmallArtistEntity> artists);
     void updateSmallArtists(List<SmallArtistEntity> artists);
-    void removeSmallArtists(ArtistsSpecification specification);
-    List<SmallArtistEntity> querySmallArtists(ArtistsSpecification specification);
+    void removeSmallArtists(ArtistSpecification specification);
+    List<SmallArtistEntity> querySmallArtists(ArtistSpecification specification);
 }

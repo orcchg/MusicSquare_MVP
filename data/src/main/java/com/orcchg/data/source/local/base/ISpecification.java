@@ -1,8 +1,8 @@
-package com.orcchg.data.source.local.artist;
+package com.orcchg.data.source.local.base;
 
 /**
  * Filtering interface to query certain items from the storage.
  */
-interface ArtistsSpecification {
+public interface ISpecification {
     String getSelectionArgs();
 }

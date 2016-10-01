@@ -1,6 +1,5 @@
 package com.orcchg.data.source.repository.artist;
 
-import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 
 import com.domain.model.Artist;
@@ -14,9 +13,8 @@ import com.orcchg.data.entity.mapper.SmallArtistMapper;
 import com.orcchg.data.entity.mapper.TotalValueMapper;
 import com.orcchg.data.source.local.artist.ArtistLocalSource;
 import com.orcchg.data.source.remote.artist.ArtistDataSource;
+import com.orcchg.data.source.repository.RepoUtils;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,11 +26,6 @@ import timber.log.Timber;
 
 @Singleton
 public class ServerArtistRepositoryImpl implements IArtistRepository {
-    private static final int SOURCE_REMOTE = 0;
-    private static final int SOURCE_LOCAL = 1;
-    @IntDef({SOURCE_REMOTE, SOURCE_LOCAL})
-    @Retention(RetentionPolicy.SOURCE)
-    private @interface SourceType {}
 
     private final ArtistDataSource cloudSource;
     private final ArtistLocalSource localSource;
@@ -40,7 +33,7 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
     private final ArtistMapper artistMapper;
     private final TotalValueMapper totalValueMapper;
 
-    private @SourceType int source;
+    private @RepoUtils.SourceType int source;
     private boolean sequentialItems;
 
     @Inject
@@ -77,7 +70,7 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
     @Override
     public Artist artist(long artistId) {
         ArtistEntity artistEntity = getDataSource(artistId).artist(artistId);
-        if (source == SOURCE_REMOTE &&
+        if (source == RepoUtils.SOURCE_REMOTE &&
             (checkCacheStaled() || !localSource.hasArtist(artistId))) {
             List<ArtistEntity> artistEntities = new ArrayList<>();
             artistEntities.add(artistEntity);
@@ -94,8 +87,13 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
 
     @Override
     public TotalValue total() {
+        return total(null);
+    }
+
+    @Override
+    public TotalValue total(@Nullable List<String> genres) {
         // total items count is always fetched from remote cloud to be actual
-        TotalValueEntity totalValueEntity = cloudSource.total();
+        TotalValueEntity totalValueEntity = cloudSource.total(genres);
         return totalValueMapper.map(totalValueEntity);
     }
 
@@ -110,11 +108,11 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
     }
 
     private ArtistDataSource getDataSource(long artistId) {
-        if (checkCacheStaled() || (artistId >= 0 && !localSource.hasArtist(artistId))) {
-            source = SOURCE_REMOTE;
+        if (checkCacheStaled() || !localSource.hasArtist(artistId)) {
+            source = RepoUtils.SOURCE_REMOTE;
             return cloudSource;
         } else {
-            source = SOURCE_LOCAL;
+            source = RepoUtils.SOURCE_LOCAL;
             return localSource;
         }
     }
@@ -152,7 +150,7 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
         // case 0: total is enough - get all items from local cache.
         if (needed <= 0) {
             Timber.v("Case 1: get all from local cache");
-            source = SOURCE_LOCAL;
+            source = RepoUtils.SOURCE_LOCAL;
             return localSource.artists(limit, offset, genres);
         }
 
@@ -161,7 +159,7 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
             limit -= available;
             offset += available;
             Timber.v("Case 2: get all from cloud, limit = %s, offset = %s", limit, offset);
-            source = SOURCE_REMOTE;
+            source = RepoUtils.SOURCE_REMOTE;
             return cloudSource.artists(limit, offset, genres);
         }
 
@@ -169,7 +167,7 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
         // adjusting limit and offset in order to make them aligned with the initial request.
         List<SmallArtistEntity> local = new ArrayList<>();
         if (available > 0 && needed > 0) {
-            source = SOURCE_REMOTE;  // force update local cache
+            source = RepoUtils.SOURCE_REMOTE;  // force update local cache
             int newOffset = offset + available;
             Timber.v("Case 3: get (%s, %s) from local cache and (%s, %s) from cloud", available, offset, needed, newOffset);
             local = localSource.artists(available, offset, genres);
@@ -180,7 +178,7 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
     }
 
     private List<Artist> processListOfEntities(List<SmallArtistEntity> data) {
-        if (source == SOURCE_REMOTE && sequentialItems) {
+        if (source == RepoUtils.SOURCE_REMOTE && sequentialItems) {
             localSource.updateSmallArtists(data);
         }
         List<Artist> artists = new ArrayList<>();

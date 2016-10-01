@@ -13,4 +13,5 @@ public interface IArtistRepository {
     Artist artist(long artistId);
     boolean clear();
     TotalValue total();
+    TotalValue total(List<String> genres);
 }

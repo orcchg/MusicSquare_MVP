@@ -7,7 +7,7 @@ import android.view.View;
 
 import com.domain.interactor.GetArtistList;
 import com.domain.interactor.GetTotalArtists;
-import com.domain.interactor.InvalidateCache;
+import com.domain.interactor.InvalidateArtistCache;
 import com.domain.interactor.UseCase;
 import com.domain.model.Artist;
 import com.domain.model.TotalValue;
@@ -30,7 +30,7 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
 
     private final GetArtistList getArtistListUseCase;
     private final GetTotalArtists getTotalArtistsUseCase;
-    private final InvalidateCache invalidateCacheUseCase;
+    private final InvalidateArtistCache invalidateCacheUseCase;
 
     private int currentSize = 0;
     private int currentOffset = 0;
@@ -48,7 +48,7 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
      */
     @Inject
     ListPresenter(GetArtistList getArtistListUseCase, GetTotalArtists getTotalArtistsUseCase,
-                  InvalidateCache invalidateCacheUseCase) {
+                  InvalidateArtistCache invalidateCacheUseCase) {
         this.artistsAdapter = new ListAdapter(this::openArtistDetails);
         this.getArtistListUseCase = getArtistListUseCase;
         this.getTotalArtistsUseCase = getTotalArtistsUseCase;
@@ -95,6 +95,11 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
     private void start() {
         if (totalArtists <= 0) {
             artistsAdapter.clear();
+
+            GetTotalArtists.Parameters parameters = new GetTotalArtists.Parameters.Builder()
+                    .setGenres(genres)
+                    .build();
+            getTotalArtistsUseCase.setParameters(parameters);
             getTotalArtistsUseCase.execute();
         }
     }

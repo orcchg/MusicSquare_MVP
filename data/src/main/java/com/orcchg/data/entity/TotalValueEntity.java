@@ -6,7 +6,11 @@ public class TotalValueEntity {
     @SerializedName("value") private final int value;
 
     public TotalValueEntity() {
-        this.value = 0;
+        this(0);
+    }
+
+    public TotalValueEntity(int value) {
+        this.value = value;
     }
 
     TotalValueEntity(Builder builder) {

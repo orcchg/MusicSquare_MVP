@@ -2,10 +2,10 @@ package com.orcchg.data.source.local.artist;
 
 import java.util.List;
 
-class ByGenresArtistsSpecification implements ArtistsSpecification {
+class ByGenresArtistSpecification implements ArtistSpecification {
     private final List<String> genres;
 
-    ByGenresArtistsSpecification(List<String> genres) {
+    ByGenresArtistSpecification(List<String> genres) {
         this.genres = genres;
     }
 

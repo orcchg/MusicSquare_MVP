@@ -3,7 +3,7 @@ package com.domain.interactor;
 import com.domain.executor.PostExecuteScheduler;
 import com.domain.executor.ThreadExecutor;
 import com.domain.model.Genre;
-import com.domain.repository.IGenresRepository;
+import com.domain.repository.IGenreRepository;
 
 import java.util.List;
 
@@ -11,10 +11,10 @@ import javax.inject.Inject;
 
 public class GetGenresList extends UseCase<List<Genre>> {
 
-    final IGenresRepository genresRepository;
+    final IGenreRepository genresRepository;
 
     @Inject
-    GetGenresList(IGenresRepository genresRepository, ThreadExecutor threadExecutor,
+    GetGenresList(IGenreRepository genresRepository, ThreadExecutor threadExecutor,
                   PostExecuteScheduler postExecuteScheduler) {
         super(threadExecutor, postExecuteScheduler);
         this.genresRepository = genresRepository;

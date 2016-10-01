@@ -6,16 +6,19 @@ import com.domain.executor.PostExecuteScheduler;
 import com.domain.executor.ThreadExecutor;
 import com.domain.executor.UseCaseExecutor;
 import com.domain.repository.IArtistRepository;
-import com.domain.repository.IGenresRepository;
+import com.domain.repository.IGenreRepository;
 import com.orcchg.data.source.local.DatabaseHelper;
 import com.orcchg.data.source.local.artist.ArtistLocalSource;
 import com.orcchg.data.source.local.artist.ArtistLocalSourceImpl;
+import com.orcchg.data.source.local.genre.GenreLocalSource;
+import com.orcchg.data.source.local.genre.GenreLocalSourceImpl;
 import com.orcchg.data.source.remote.artist.ArtistDataSource;
-import com.orcchg.data.source.remote.artist.GenresDataSource;
-import com.orcchg.data.source.remote.artist.server.ServerCloudSource;
+import com.orcchg.data.source.remote.artist.server.ServerArtistCloudSource;
 import com.orcchg.data.source.remote.artist.yandex.YandexCloudSource;
+import com.orcchg.data.source.remote.genre.GenreDataSource;
+import com.orcchg.data.source.remote.genre.server.ServerGenreCloudSource;
 import com.orcchg.data.source.repository.artist.ServerArtistRepositoryImpl;
-import com.orcchg.data.source.repository.artist.ServerGenresRepositoryImpl;
+import com.orcchg.data.source.repository.genre.ServerGenreRepositoryImpl;
 import com.orcchg.musicsquare.AndroidApplication;
 import com.orcchg.musicsquare.executor.UIThread;
 
@@ -58,18 +61,23 @@ public class ApplicationModule {
     }
 
     @Provides @Singleton @Named("serverCloud")
-    ArtistDataSource provideServerDataSource(ServerCloudSource dataSource) {
+    ArtistDataSource provideServerDataSource(ServerArtistCloudSource dataSource) {
         return dataSource;
     }
 
     @Provides @Singleton
-    GenresDataSource provideGenresDataSource(ServerCloudSource dataSource) {
+    GenreDataSource provideGenresDataSource(ServerGenreCloudSource dataSource) {
         return dataSource;
     }
 
     @Provides @Singleton
-    ArtistLocalSource provideLocalDataSource(DatabaseHelper databaseHelper) {
+    ArtistLocalSource provideArtistLocalSource(DatabaseHelper databaseHelper) {
         return new ArtistLocalSourceImpl(databaseHelper);
+    }
+
+    @Provides @Singleton
+    GenreLocalSource provideGenreLocalSource(DatabaseHelper databaseHelper) {
+        return new GenreLocalSourceImpl(databaseHelper);
     }
 
     @Provides @Singleton
@@ -78,7 +86,7 @@ public class ApplicationModule {
     }
 
     @Provides @Singleton
-    IGenresRepository provideGenresRepository(ServerGenresRepositoryImpl repository) {
+    IGenreRepository provideGenresRepository(ServerGenreRepositoryImpl repository) {
         return repository;
     }
 }

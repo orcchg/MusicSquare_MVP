@@ -3,6 +3,10 @@ package com.domain.model;
 public class TotalValue {
     private final int value;
 
+    public TotalValue(int value) {
+        this.value = value;
+    }
+
     TotalValue(Builder builder) {
         this.value = builder.value;
     }

@@ -3,13 +3,11 @@ package com.orcchg.data.source.remote.artist.server;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
-import com.domain.model.Genre;
 import com.orcchg.data.entity.ArtistEntity;
 import com.orcchg.data.entity.SmallArtistEntity;
 import com.orcchg.data.entity.TotalValueEntity;
 import com.orcchg.data.exception.NetworkException;
 import com.orcchg.data.source.remote.artist.ArtistDataSource;
-import com.orcchg.data.source.remote.artist.GenresDataSource;
 
 import java.io.IOException;
 import java.util.List;
@@ -21,14 +19,14 @@ import retrofit2.Retrofit;
 import timber.log.Timber;
 
 @Singleton
-public class ServerCloudSource implements ArtistDataSource, GenresDataSource {
+public class ServerArtistCloudSource implements ArtistDataSource {
 
-    private final ServerRestAdapter restAdapter;
+    private final ServerArtistRestAdapter restAdapter;
 
     @Inject
-    ServerCloudSource(Retrofit.Builder retrofit) {
-        restAdapter = retrofit.baseUrl(ServerRestAdapter.ENDPOINT).build()
-            .create(ServerRestAdapter.class);
+    ServerArtistCloudSource(Retrofit.Builder retrofit) {
+        restAdapter = retrofit.baseUrl(ServerArtistRestAdapter.ENDPOINT).build()
+            .create(ServerArtistRestAdapter.class);
     }
 
     @Override
@@ -66,17 +64,6 @@ public class ServerCloudSource implements ArtistDataSource, GenresDataSource {
         try {
             Timber.d("Requesting artist from cloud...");
             return restAdapter.artist(artistId).execute().body();
-        } catch (IOException e) {
-            Timber.e("Network error: %s", e);
-            throw new NetworkException();
-        }
-    }
-
-    @Override
-    public List<Genre> genres() {
-        try {
-            Timber.d("Requesting genres from cloud...");
-            return restAdapter.genres().execute().body();
         } catch (IOException e) {
             Timber.e("Network error: %s", e);
             throw new NetworkException();

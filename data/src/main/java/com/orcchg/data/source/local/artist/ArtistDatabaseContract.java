@@ -1,11 +1,11 @@
 package com.orcchg.data.source.local.artist;
 
+import com.orcchg.data.source.local.base.DatabaseContract;
+
 /**
  * Represents the schema in the {@link ArtistLocalSourceImpl}.
  */
-class ArtistDatabaseContract {
-
-    private static final String LIMIT_OFFSET = " LIMIT %s OFFSET %s ";
+class ArtistDatabaseContract extends DatabaseContract {
 
     ArtistDatabaseContract() {
         // protect from accidental instantiation
@@ -54,16 +54,13 @@ class ArtistDatabaseContract {
     static final String COUNT_ALL_SMALL_STATEMENT = "SELECT COUNT(*) FROM " + ArtistsTable.TABLE_SMALL_NAME;
     static final String COUNT_ALL_SMALL_STATEMENT_WHERE = COUNT_ALL_SMALL_STATEMENT + " WHERE %s ";
 
-    static final String READ_ALL_STATEMENT =
-            "SELECT * FROM " + ArtistsTable.TABLE_NAME;
-
+    static final String READ_ALL_STATEMENT = "SELECT * FROM " + ArtistsTable.TABLE_NAME;
     static final String READ_ALL_SMALL_STATEMENT =
             "SELECT " + ArtistsTable.COLUMN_NAME_ID + "," +
                     ArtistsTable.COLUMN_NAME_NAME + "," +
                     ArtistsTable.COLUMN_NAME_COVER_SMALL +
             " FROM " + ArtistsTable.TABLE_SMALL_NAME;
     static final String READ_ALL_SMALL_STATEMENT_LIMIT = READ_ALL_SMALL_STATEMENT + LIMIT_OFFSET;
-
     static final String READ_STATEMENT = READ_ALL_STATEMENT + " WHERE %s ";
     static final String READ_STATEMENT_LIMIT = READ_ALL_STATEMENT + LIMIT_OFFSET;
     static final String READ_SMALL_STATEMENT = READ_ALL_SMALL_STATEMENT + " WHERE %s ";
@@ -76,7 +73,6 @@ class ArtistDatabaseContract {
     static final String CONTAINS_SMALL_STATEMENT =
             "SELECT EXISTS(SELECT 1 FROM " + ArtistsTable.TABLE_SMALL_NAME +
                     " WHERE " + ArtistsTable.COLUMN_NAME_ID + " == %s LIMIT 1)";
-
 
     static final String INSERT_STATEMENT =
             "INSERT OR REPLACE INTO " + ArtistsTable.TABLE_NAME + " (" +
@@ -98,8 +94,8 @@ class ArtistDatabaseContract {
                     ArtistsTable.COLUMN_NAME_COVER_SMALL + ") " +
                     "VALUES(?, ?, ?)";
 
-    static final String DELETE_ALL_STATEMENT = "DELETE FROM " + ArtistsTable.TABLE_NAME;
-    static final String DELETE_ALL_SMALL_STATEMENT = "DELETE FROM " + ArtistsTable.TABLE_SMALL_NAME;
+    static final String DELETE_ALL_STATEMENT = CLEAR_TABLE_STATEMENT;
+    static final String DELETE_ALL_SMALL_STATEMENT = CLEAR_TABLE_SMALL_STATEMENT;
 
     static final String DELETE_STATEMENT = "DELETE FROM " + ArtistsTable.TABLE_NAME + " WHERE %s ";
     static final String DELETE_SMALL_STATEMENT = "DELETE FROM " + ArtistsTable.TABLE_SMALL_NAME + " WHERE %s ";
