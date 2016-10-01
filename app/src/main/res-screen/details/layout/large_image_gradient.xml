@@ -14,12 +14,12 @@
         android:transitionName="profile"
         android:contentDescription="@null"/>
 
-    <fr.castorflex.android.circularprogressbar.CircularProgressBar
+    <ProgressBar
         android:id="@+id/pb_loading"
         android:layout_width="@dimen/cover_loading_size"
         android:layout_height="@dimen/cover_loading_size"
         android:layout_centerInParent="true"
-        style="@style/CircularThemeProgressBar"/>
+        android:padding="16dp"/>
 
     <TextView
         android:id="@+id/tv_cover_error"

@@ -17,6 +17,7 @@ import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -37,14 +38,13 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.BindViews;
 import butterknife.ButterKnife;
-import fr.castorflex.android.circularprogressbar.CircularProgressBar;
 
 public class DetailsActivity extends BaseActivity<DetailsContract.View, DetailsContract.Presenter> implements DetailsContract.View {
     public static final String EXTRA_ARTIST_ID = "extra_artist_id";
 
     @Nullable @BindView(R.id.collapsing_toolbar) CollapsingToolbarLayout collapsingToolbar;  // disabled on tablets
     @BindView(R.id.toolbar) Toolbar toolbar;
-    @BindView(R.id.pb_loading) CircularProgressBar progressBar;
+    @BindView(R.id.pb_loading) ProgressBar progressBar;
     @BindView(R.id.iv_cover) ImageView coverImageView;
     @BindView(R.id.tv_cover_error) TextView coverErrorTextView;
     @BindView(R.id.top_overlay) View topOverlayView;

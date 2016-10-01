@@ -22,12 +22,12 @@
             android:layout_gravity="center"
             android:transitionName="profile"/>
 
-        <fr.castorflex.android.circularprogressbar.CircularProgressBar
+        <ProgressBar
             android:id="@+id/pb_loading"
+            android:layout_gravity="center"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="center"
-            style="@style/CircularThemeProgressBar"/>
+            android:padding="16dp"/>
     </FrameLayout>
 
     <TextView
