@@ -11,7 +11,7 @@ import com.domain.interactor.InvalidateCache;
 import com.domain.interactor.UseCase;
 import com.domain.model.Artist;
 import com.domain.model.TotalValue;
-import com.orcchg.musicsquare.ui.BasePresenter;
+import com.orcchg.musicsquare.ui.base.BasePresenter;
 import com.orcchg.musicsquare.ui.viewobject.ArtistListItemVO;
 import com.orcchg.musicsquare.ui.viewobject.mapper.ArtistListItemMapper;
 import com.orcchg.musicsquare.util.ViewUtility;

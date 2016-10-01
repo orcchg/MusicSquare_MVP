@@ -2,9 +2,9 @@ package com.orcchg.musicsquare.ui.list;
 
 import android.support.v7.widget.RecyclerView;
 
-import com.orcchg.musicsquare.ui.IActivityProvider;
-import com.orcchg.musicsquare.ui.MvpPresenter;
-import com.orcchg.musicsquare.ui.MvpView;
+import com.orcchg.musicsquare.ui.base.IActivityProvider;
+import com.orcchg.musicsquare.ui.base.MvpPresenter;
+import com.orcchg.musicsquare.ui.base.MvpView;
 import com.orcchg.musicsquare.ui.viewobject.ArtistListItemVO;
 
 import java.util.List;

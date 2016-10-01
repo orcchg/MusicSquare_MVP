@@ -1,4 +1,4 @@
-package com.orcchg.musicsquare.ui;
+package com.orcchg.musicsquare.ui.base;
 
 import android.content.pm.PackageManager;
 import android.os.Build;

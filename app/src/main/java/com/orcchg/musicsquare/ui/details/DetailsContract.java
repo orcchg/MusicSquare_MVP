@@ -1,7 +1,7 @@
 package com.orcchg.musicsquare.ui.details;
 
-import com.orcchg.musicsquare.ui.MvpPresenter;
-import com.orcchg.musicsquare.ui.MvpView;
+import com.orcchg.musicsquare.ui.base.MvpPresenter;
+import com.orcchg.musicsquare.ui.base.MvpView;
 import com.orcchg.musicsquare.ui.viewobject.ArtistDetailsVO;
 
 interface DetailsContract {

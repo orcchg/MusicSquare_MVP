@@ -4,7 +4,7 @@ import com.domain.interactor.GetArtistDetails;
 import com.domain.interactor.UseCase;
 import com.domain.model.Artist;
 import com.domain.util.ArtistUtils;
-import com.orcchg.musicsquare.ui.BasePresenter;
+import com.orcchg.musicsquare.ui.base.BasePresenter;
 import com.orcchg.musicsquare.ui.viewobject.ArtistDetailsVO;
 import com.orcchg.musicsquare.ui.viewobject.mapper.ArtistDetailsMapper;
 

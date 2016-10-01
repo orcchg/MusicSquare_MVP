@@ -18,7 +18,7 @@ import android.view.View;
 
 import com.domain.model.Genre;
 import com.orcchg.musicsquare.R;
-import com.orcchg.musicsquare.ui.BaseActivity;
+import com.orcchg.musicsquare.ui.base.BaseActivity;
 import com.orcchg.musicsquare.ui.tab.injection.DaggerTabComponent;
 import com.orcchg.musicsquare.ui.tab.injection.TabComponent;
 import com.orcchg.musicsquare.ui.util.ViewUtils;

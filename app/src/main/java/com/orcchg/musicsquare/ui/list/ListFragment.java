@@ -14,7 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.orcchg.musicsquare.R;
-import com.orcchg.musicsquare.ui.BaseFragment;
+import com.orcchg.musicsquare.ui.base.BaseFragment;
 import com.orcchg.musicsquare.ui.list.injection.DaggerListComponent;
 import com.orcchg.musicsquare.ui.list.injection.ListComponent;
 import com.orcchg.musicsquare.ui.util.ShadowHolder;

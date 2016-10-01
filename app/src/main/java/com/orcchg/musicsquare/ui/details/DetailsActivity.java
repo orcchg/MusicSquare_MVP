@@ -24,7 +24,7 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.domain.util.ArtistUtils;
 import com.orcchg.musicsquare.R;
-import com.orcchg.musicsquare.ui.BaseActivity;
+import com.orcchg.musicsquare.ui.base.BaseActivity;
 import com.orcchg.musicsquare.ui.details.injection.DaggerDetailsComponent;
 import com.orcchg.musicsquare.ui.details.injection.DetailsComponent;
 import com.orcchg.musicsquare.ui.details.injection.DetailsModule;

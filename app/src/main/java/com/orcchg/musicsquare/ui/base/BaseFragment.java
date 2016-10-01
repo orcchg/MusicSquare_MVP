@@ -1,4 +1,4 @@
-package com.orcchg.musicsquare.ui;
+package com.orcchg.musicsquare.ui.base;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;

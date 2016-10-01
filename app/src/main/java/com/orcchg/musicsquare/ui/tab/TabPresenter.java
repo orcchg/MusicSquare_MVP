@@ -3,7 +3,7 @@ package com.orcchg.musicsquare.ui.tab;
 import com.domain.interactor.GetGenresList;
 import com.domain.interactor.UseCase;
 import com.domain.model.Genre;
-import com.orcchg.musicsquare.ui.BasePresenter;
+import com.orcchg.musicsquare.ui.base.BasePresenter;
 
 import java.util.List;
 
