@@ -5,7 +5,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.support.annotation.IntDef;
+import android.support.v4.util.ArrayMap;
 import android.util.LongSparseArray;
+
+import com.orcchg.data.source.local.base.ISchema;
 
 import java.io.File;
 import java.lang.annotation.Retention;
@@ -30,25 +33,45 @@ public class DatabaseHelper {
     private final FileManager fileManager;
     private SQLiteDatabase database;
     private File databaseFile;
+    private ArrayMap<String, WeakReference<ISchema>> schemaRefs;
     private LongSparseArray<WeakReference<LifeCycleCallback>> lifeCycleCallbackRefs;
     private int oldVersion;
     private int openCounter;
+    private boolean alreadyCreatedAllScheme;
 
     @Inject
     DatabaseHelper(Context context, FileManager fileManager) {
         this.context = context;
         this.fileManager = fileManager;
         this.databaseFile = context.getDatabasePath(DATABASE_NAME);
+        this.schemaRefs = new ArrayMap<>();
         this.lifeCycleCallbackRefs = new LongSparseArray<>();
     }
 
-    /* Lifecycle */
+    /* Schema */
     // ------------------------------------------
+    @DebugLog
+    public void addSchema(ISchema schema) {
+        WeakReference<ISchema> oldValue = schemaRefs.put(schema.getId(), new WeakReference<>(schema));
+        if (oldValue == null && alreadyCreatedAllScheme) {
+            Timber.i("Creating a new schema in already configured database...");
+            schema.createSchema();
+        }
+    }
+
+    @DebugLog
+    public void removeSchema(ISchema schema) {
+        schemaRefs.remove(schema.getId());
+    }
+
+    /* Lifecycle */
+    // --------------------------------------------------------------------------------------------
     private static final int LCC_CREATE = 0;
     private static final int LCC_UPGRADE = 1;
     private static final int LCC_DOWNGRADE = 2;
-    private static final int LCC_DESTROY = 3;
-    @IntDef({LCC_CREATE, LCC_UPGRADE, LCC_DOWNGRADE, LCC_DESTROY})
+    private static final int LCC_OPEN = 3;
+    private static final int LCC_CLOSE = 4;
+    @IntDef({LCC_CREATE, LCC_UPGRADE, LCC_DOWNGRADE, LCC_OPEN, LCC_CLOSE})
     @Retention(RetentionPolicy.SOURCE)
     private @interface LccEvent {}
 
@@ -56,36 +79,8 @@ public class DatabaseHelper {
         void onCreate();
         void onUpgrade();
         void onDowngrade();
-        void onDestroy();
-    }
-
-    @DebugLog
-    private boolean openOrCreateDatabase() {
-        boolean isNewDb = !databaseFile.exists();
-        database = SQLiteDatabase.openOrCreateDatabase(databaseFile, null);
-        oldVersion = database.getVersion();
-        database.setVersion(DATABASE_VERSION);
-        return isNewDb;
-    }
-
-    @DebugLog
-    private void checkVersion() {
-        int oldVersion = this.oldVersion;
-        Timber.i("Database version: %s", oldVersion);
-        this.oldVersion = DATABASE_VERSION;  // protect from recursion
-        if (oldVersion <= 1) {
-            Timber.i("Skip upgrade-downgrade event for the very first version");
-            return;
-        }
-        if (oldVersion < DATABASE_VERSION) {
-            notifyUpgrade();
-        } else if (oldVersion > DATABASE_VERSION) {
-            notifyDowngrade();
-        }
-    }
-
-    private void checkCounter() {
-        if (openCounter < 0) throw new RuntimeException("Open counter is negative !");
+        void onOpen();
+        void onClose();
     }
 
     @DebugLog
@@ -114,8 +109,13 @@ public class DatabaseHelper {
     }
 
     @DebugLog
-    private void notifyDestroy() {
-        notifyLifecycle(LCC_DESTROY);
+    private void notifyOpen() {
+        notifyLifecycle(LCC_OPEN);
+    }
+
+    @DebugLog
+    private void notifyClose() {
+        notifyLifecycle(LCC_CLOSE);
     }
 
     @DebugLog
@@ -129,7 +129,8 @@ public class DatabaseHelper {
                     case LCC_CREATE:     lcc.onCreate();     break;
                     case LCC_UPGRADE:    lcc.onUpgrade();    break;
                     case LCC_DOWNGRADE:  lcc.onDowngrade();  break;
-                    case LCC_DESTROY:    lcc.onDestroy();    break;
+                    case LCC_OPEN:       lcc.onOpen();       break;
+                    case LCC_CLOSE:      lcc.onClose();      break;
                     default:             // no-op
                 }
             } else {
@@ -150,8 +151,12 @@ public class DatabaseHelper {
             return;
         }
         if (database == null || !database.isOpen()) {
-            if (openOrCreateDatabase()) {
+            if (openOrCreateDatabase()) {  // fresh free database
+                performCreateDatabaseSchema();  // create all tables according to schemes
                 notifyCreate();
+            } else {
+                alreadyCreatedAllScheme = true;
+                notifyOpen();
             }
         }
         checkVersion();
@@ -163,7 +168,7 @@ public class DatabaseHelper {
         checkCounter();
         if (openCounter == 0) {
             Timber.i("Database to be closed");
-            notifyDestroy();
+            notifyClose();
             database.close();
         }
     }
@@ -220,5 +225,51 @@ public class DatabaseHelper {
      */
     public long getLastCacheUpdateTimeMillis(String key) {
         return fileManager.getFromPreferences(context, SETTINGS_FILE_NAME, key);
+    }
+
+    /* Internal */
+    // --------------------------------------------------------------------------------------------
+    @DebugLog
+    private boolean openOrCreateDatabase() {
+        boolean isNewDb = !databaseFile.exists();
+        database = SQLiteDatabase.openOrCreateDatabase(databaseFile, null);
+        oldVersion = database.getVersion();
+        database.setVersion(DATABASE_VERSION);
+        return isNewDb;
+    }
+
+    @DebugLog
+    private void performCreateDatabaseSchema() {
+        for (int i = 0; i < schemaRefs.size(); ++i) {
+            String key = schemaRefs.keyAt(i);
+            WeakReference<ISchema> schemaRef = schemaRefs.get(key);
+            ISchema schema = schemaRef.get();
+            if (schema != null) {
+                schema.createSchema();
+            } else {
+                Timber.w("Schema has already been GC'ed");
+            }
+        }
+        alreadyCreatedAllScheme = true;
+    }
+
+    @DebugLog
+    private void checkVersion() {
+        int oldVersion = this.oldVersion;
+        Timber.i("Database version: %s", oldVersion);
+        this.oldVersion = DATABASE_VERSION;  // protect from recursion
+        if (oldVersion <= 1) {
+            Timber.i("Skip upgrade-downgrade event for the very first version");
+            return;
+        }
+        if (oldVersion < DATABASE_VERSION) {
+            notifyUpgrade();
+        } else if (oldVersion > DATABASE_VERSION) {
+            notifyDowngrade();
+        }
+    }
+
+    private void checkCounter() {
+        if (openCounter < 0) throw new RuntimeException("Open counter is negative !");
     }
 }

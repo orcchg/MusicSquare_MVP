@@ -28,29 +28,20 @@ public class GenreLocalSourceImpl extends BaseLocalSourceImpl implements GenreLo
 
     /* Lifecycle */
     // --------------------------------------------------------------------------------------------
-    @DebugLog
     @Override
-    public void onCreate() {
-        super.onCreate();
+    public String getId() {
+        return "sc_genres";
+    }
+
+    @DebugLog @Override
+    public void createSchema() {
         database.open();
         database.execSql(GenreDatabaseContract.CREATE_TABLE_STATEMENT);
         database.close();
     }
 
     @DebugLog @Override
-    public void onUpgrade() {
-        drop();
-        onCreate();
-    }
-
-    @DebugLog @Override
-    public void onDowngrade() {
-        drop();
-        onCreate();
-    }
-
-    @DebugLog
-    private void drop() {
+    public void deleteSchema() {
         database.open();
         database.execSql(GenreDatabaseContract.DELETE_TABLE_STATEMENT);
         database.close();

@@ -10,8 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import hugo.weaving.DebugLog;
+import timber.log.Timber;
 
-public abstract class BaseLocalSourceImpl implements DatabaseHelper.LifeCycleCallback {
+public abstract class BaseLocalSourceImpl implements DatabaseHelper.LifeCycleCallback, ISchema {
 
     protected interface ProcessCursor<Result> {
         Result process(Cursor cursor);
@@ -22,6 +23,7 @@ public abstract class BaseLocalSourceImpl implements DatabaseHelper.LifeCycleCal
     protected BaseLocalSourceImpl(DatabaseHelper database) {
         this.database = database;
         database.addLifeCycleCallback(this);
+        database.addSchema(this);
     }
 
     @DebugLog @Override
@@ -29,9 +31,28 @@ public abstract class BaseLocalSourceImpl implements DatabaseHelper.LifeCycleCal
         // override in subclasses
     }
 
+    @Override
+    public void onUpgrade() {
+        Timber.w("Database version upgrade !");
+        deleteSchema();
+        createSchema();
+    }
+
+    @Override
+    public void onDowngrade() {
+        Timber.w("Database version downgrade !");
+        deleteSchema();
+        createSchema();
+    }
+
     @DebugLog @Override
-    public void onDestroy() {
-        database.removeLifeCycleCallback(this);
+    public void onOpen() {
+        // override in subclasses
+    }
+
+    @DebugLog @Override
+    public void onClose() {
+        // override in subclasses
     }
 
     /* Execution */

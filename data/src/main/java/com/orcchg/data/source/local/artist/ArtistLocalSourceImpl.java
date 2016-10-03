@@ -37,9 +37,13 @@ public class ArtistLocalSourceImpl extends BaseLocalSourceImpl implements Artist
 
     /* Lifecycle */
     // --------------------------------------------------------------------------------------------
+    @Override
+    public String getId() {
+        return "sc_artists";
+    }
+
     @DebugLog @Override
-    public void onCreate() {
-        super.onCreate();
+    public void createSchema() {
         database.open();
         database.execSql(ArtistDatabaseContract.CREATE_TABLE_STATEMENT);
         database.execSql(ArtistDatabaseContract.CREATE_TABLE_SMALL_STATEMENT);
@@ -47,19 +51,7 @@ public class ArtistLocalSourceImpl extends BaseLocalSourceImpl implements Artist
     }
 
     @DebugLog @Override
-    public void onUpgrade() {
-        drop();
-        onCreate();
-    }
-
-    @DebugLog @Override
-    public void onDowngrade() {
-        drop();
-        onCreate();
-    }
-
-    @DebugLog
-    private void drop() {
+    public void deleteSchema() {
         database.open();
         database.execSql(ArtistDatabaseContract.DELETE_TABLE_STATEMENT);
         database.execSql(ArtistDatabaseContract.DELETE_TABLE_SMALL_STATEMENT);
