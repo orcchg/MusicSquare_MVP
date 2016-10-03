@@ -84,7 +84,16 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
         this.getArtistListUseCase.setPostExecuteCallback(createGetListCallback());
         this.getTotalArtistsUseCase.setPostExecuteCallback(createGetTotalCallback());
         this.invalidateCacheUseCase.setPostExecuteCallback(createInvalidateCacheCallback());
-        this.memento = new Memento();
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            memento = Memento.fromBundle(savedInstanceState);
+        } else {
+            this.memento = new Memento();
+        }
     }
 
     @DebugLog @Override
@@ -97,6 +106,12 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
             }
         }
         start();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        memento.toBundle(outState);
     }
 
     /* Contract */
@@ -123,7 +138,9 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
     // --------------------------------------------------------------------------------------------
     @DebugLog
     private void start() {
-        if (memento.totalArtists <= 0) {
+        if (isStateRestored()) {
+            loadArtists(memento.currentSize, 0, memento.genres);
+        } else {
             artistsAdapter.clear();
 
             GetTotalArtists.Parameters parameters = new GetTotalArtists.Parameters.Builder()

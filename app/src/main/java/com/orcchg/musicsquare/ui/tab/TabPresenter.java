@@ -1,6 +1,7 @@
 package com.orcchg.musicsquare.ui.tab;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 
 import com.domain.interactor.GetGenresList;
 import com.domain.interactor.GetTotalGenres;
@@ -50,13 +51,28 @@ public class TabPresenter extends BasePresenter<TabContract.View> implements Tab
         this.getGenresListUseCase.setPostExecuteCallback(createGetGenresCallback());
         this.getTotalGenresUseCase.setPostExecuteCallback(createGetTotalCallback());
         this.invalidateCacheUseCase.setPostExecuteCallback(createInvalidateCacheCallback());
-        this.memento = new Memento();
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            memento = Memento.fromBundle(savedInstanceState);
+        } else {
+            this.memento = new Memento();
+        }
     }
 
     @DebugLog @Override
     public void onStart() {
         super.onStart();
         start();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        memento.toBundle(outState);
     }
 
     /* Contract */
@@ -70,7 +86,9 @@ public class TabPresenter extends BasePresenter<TabContract.View> implements Tab
     // --------------------------------------------------------------------------------------------
     @DebugLog
     private void start() {
-        if (memento.totalGenres <= 0) {
+        if (isStateRestored()) {
+            loadGenres();
+        } else {
             getTotalGenresUseCase.execute();
         }
     }

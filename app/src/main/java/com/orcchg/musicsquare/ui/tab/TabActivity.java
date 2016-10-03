@@ -55,7 +55,7 @@ public class TabActivity extends BaseActivity<TabContract.View, TabContract.Pres
         private static final String BUNDLE_KEY_COLOR_PRIMARY_DARK = "bundle_key_color_primary_dark";
         private static final String BUNDLE_KEY_COLOR_ACCENT = "bundle_key_color_accent";
 
-        int currentPage;
+        int currentPage = 0;
         boolean firstTimeSelect = true;
         @ColorInt int colorPrimary, colorPrimaryDark, colorAccent;
 

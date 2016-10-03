@@ -16,29 +16,15 @@ public class DetailsPresenter extends BasePresenter<DetailsContract.View> implem
 
     private final GetArtistDetails getArtistDetailsUseCase;
 
-    static class Memento {
-    }
-
-    Memento memento;
-
     @Inject
     DetailsPresenter(GetArtistDetails getArtistDetailsUseCase) {
         this.getArtistDetailsUseCase = getArtistDetailsUseCase;
         this.getArtistDetailsUseCase.setPostExecuteCallback(createGetDetailsCallback());
-        this.memento = new Memento();
     }
 
     @DebugLog @Override
     public void onStart() {
         super.onStart();
-        start();
-    }
-
-    /* Internal */
-    // --------------------------------------------------------------------------------------------
-    @DebugLog
-    private void start() {
-        // if (isViewAttached()) getView().showLoading();  // TODO: load details async
         getArtistDetailsUseCase.execute();
     }
 

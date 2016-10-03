@@ -24,7 +24,7 @@ public abstract class BaseFragment<V extends MvpView, P extends MvpPresenter<V>>
         injectDependencies();
         presenter = createPresenter();
         presenter.attachView((V) this);
-        presenter.onCreate();
+        presenter.onCreate(savedInstanceState);
     }
 
     @Override
@@ -43,6 +43,12 @@ public abstract class BaseFragment<V extends MvpView, P extends MvpPresenter<V>>
     public void onPause() {
         super.onPause();
         presenter.onPause();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        presenter.onSaveInstanceState(outState);
     }
 
     @Override
