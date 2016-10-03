@@ -78,6 +78,7 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
     ListPresenter(GetArtistList getArtistListUseCase, GetTotalArtists getTotalArtistsUseCase,
                   InvalidateArtistCache invalidateCacheUseCase) {
         this.artistsAdapter = new ListAdapter(this::openArtistDetails);
+        this.artistsAdapter.setOnErrorClickListener((view) -> retryLoadMore());
         this.getArtistListUseCase = getArtistListUseCase;
         this.getTotalArtistsUseCase = getTotalArtistsUseCase;
         this.invalidateCacheUseCase = invalidateCacheUseCase;
@@ -130,7 +131,7 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
     }
 
     @DebugLog @Override
-    public void setGenres(@Nullable List<String> genres) {
+    public void setGeServernres(@Nullable List<String> genres) {
         memento.genres = genres;
     }
 
@@ -139,8 +140,10 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
     @DebugLog
     private void start() {
         if (isStateRestored()) {
-            loadArtists(memento.currentSize, 0, memento.genres);
-        } else {
+            int limit = memento.currentSize;
+            memento.currentSize = 0;
+            loadArtists(limit, 0, memento.genres);
+        } else if (memento.totalArtists <= 0) {
             artistsAdapter.clear();
 
             GetTotalArtists.Parameters parameters = new GetTotalArtists.Parameters.Builder()
@@ -149,6 +152,12 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
             getTotalArtistsUseCase.setParameters(parameters);
             getTotalArtistsUseCase.execute();
         }
+    }
+
+    @DebugLog
+    private void retryLoadMore() {
+        artistsAdapter.onError(false);  // show loading more
+        loadArtists(LIMIT_PER_REQUEST, memento.currentOffset, memento.genres);
     }
 
     @DebugLog
@@ -222,7 +231,11 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
 
             @Override
             public void onError(Throwable e) {
-                if (isViewAttached()) getView().showError();
+                if (memento.currentSize <= 0) {
+                    if (isViewAttached()) getView().showError();
+                } else {
+                    artistsAdapter.onError(true);
+                }
             }
         };
     }

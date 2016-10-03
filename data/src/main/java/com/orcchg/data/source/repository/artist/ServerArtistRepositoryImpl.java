@@ -154,7 +154,7 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
 
         // case 0: total is enough - get all items from local cache.
         if (needed <= 0) {
-            Timber.v("Case 1: get all from local cache");
+            Timber.d("Case 1: get all from local cache");
             source = RepoUtils.SOURCE_LOCAL;
             return localSource.artists(limit, offset, genres);
         }
@@ -163,7 +163,7 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
         if (available <= 0) {
             limit -= available;
             offset += available;
-            Timber.v("Case 2: get all from cloud, limit = %s, offset = %s", limit, offset);
+            Timber.d("Case 2: get all from cloud, limit = %s, offset = %s", limit, offset);
             source = RepoUtils.SOURCE_REMOTE;
             return cloudSource.artists(limit, offset, genres);
         }
@@ -174,7 +174,7 @@ public class ServerArtistRepositoryImpl implements IArtistRepository {
         if (available > 0 && needed > 0) {
             source = RepoUtils.SOURCE_REMOTE;  // force update local cache
             int newOffset = offset + available;
-            Timber.v("Case 3: get (%s, %s) from local cache and (%s, %s) from cloud", available, offset, needed, newOffset);
+            Timber.d("Case 3: get (%s, %s) from local cache and (%s, %s) from cloud", available, offset, needed, newOffset);
             local = localSource.artists(available, offset, genres);
             List<SmallArtistEntity> remote = cloudSource.artists(needed, newOffset, genres);
             local.addAll(remote);

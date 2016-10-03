@@ -12,7 +12,7 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.orcchg.musicsquare.R;
-import com.orcchg.musicsquare.ui.base.widget.NormalViewHolder;
+import com.orcchg.musicsquare.ui.base.widget.viewholder.NormalViewHolder;
 import com.orcchg.musicsquare.ui.list.ItemClickListener;
 import com.orcchg.musicsquare.ui.viewobject.ArtistListItemVO;
 

@@ -88,7 +88,7 @@ public class TabPresenter extends BasePresenter<TabContract.View> implements Tab
     private void start() {
         if (isStateRestored()) {
             loadGenres();
-        } else {
+        } else if (memento.totalGenres <= 0) {
             getTotalGenresUseCase.execute();
         }
     }

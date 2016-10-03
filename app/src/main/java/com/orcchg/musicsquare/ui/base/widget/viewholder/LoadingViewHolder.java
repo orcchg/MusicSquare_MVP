@@ -1,4 +1,4 @@
-package com.orcchg.musicsquare.ui.base.widget;
+package com.orcchg.musicsquare.ui.base.widget.viewholder;
 
 import android.view.View;
 
