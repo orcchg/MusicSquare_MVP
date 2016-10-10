@@ -8,10 +8,14 @@ import android.support.v4.app.Fragment;
 import com.orcchg.musicsquare.AndroidApplication;
 import com.orcchg.musicsquare.injection.component.ApplicationComponent;
 
+import hugo.weaving.DebugLog;
+
 public abstract class BaseFragment<V extends MvpView, P extends MvpPresenter<V>>
         extends Fragment implements MvpView {
 
     protected P presenter;
+
+    private boolean isStateRestored = false;
 
     @NonNull
     protected abstract P createPresenter();
@@ -21,6 +25,7 @@ public abstract class BaseFragment<V extends MvpView, P extends MvpPresenter<V>>
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        isStateRestored = savedInstanceState != null;
         injectDependencies();
         presenter = createPresenter();
         presenter.attachView((V) this);
@@ -68,5 +73,10 @@ public abstract class BaseFragment<V extends MvpView, P extends MvpPresenter<V>>
     // --------------------------------------------------------------------------------------------
     protected ApplicationComponent getApplicationComponent() {
         return ((AndroidApplication) getActivity().getApplication()).getApplicationComponent();
+    }
+
+    @DebugLog
+    protected boolean isStateRestored() {
+        return isStateRestored;
     }
 }

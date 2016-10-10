@@ -151,7 +151,7 @@ public class ListFragment extends BaseFragment<ListContract.View, ListContract.P
     @Override
     public void onStart() {
         super.onStart();
-        if (memento.layoutManagerState != null) {
+        if (isStateRestored() && memento.layoutManagerState != null) {
             Timber.i("Restored state of layout manager");
             layoutManager.onRestoreInstanceState(memento.layoutManagerState);
         }

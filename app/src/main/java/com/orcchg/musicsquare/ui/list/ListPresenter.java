@@ -131,7 +131,7 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
     }
 
     @DebugLog @Override
-    public void setGeServernres(@Nullable List<String> genres) {
+    public void setGenres(@Nullable List<String> genres) {
         memento.genres = genres;
     }
 
@@ -142,10 +142,9 @@ public class ListPresenter extends BasePresenter<ListContract.View> implements L
         if (isStateRestored()) {
             int limit = memento.currentSize;
             memento.currentSize = 0;
+            artistsAdapter.clear();
             loadArtists(limit, 0, memento.genres);
         } else if (memento.totalArtists <= 0) {
-            artistsAdapter.clear();
-
             GetTotalArtists.Parameters parameters = new GetTotalArtists.Parameters.Builder()
                     .setGenres(memento.genres)
                     .build();
